@@ -1,0 +1,235 @@
+/* ===============================================
+   TEMA: Profesional y Limpio (v2 con scroll corregido)
+   =============================================== */
+:root {
+    --color-primario: #d42732; /* Rojo oficial del logo de Perú */
+    --color-secundario: #1d3a5f; /* Azul oscuro del fondo */
+    --color-panel: #ffffff;
+    --color-texto-principal: #1e293b; /* Casi negro para el texto */
+    --color-texto-secundario: #64748b;
+    --color-fondo-input: #f8fafc;
+    --color-borde-input: #cbd5e1;
+    --color-borde-foco: #d42732;
+    --color-exito: #15803d;
+    --color-error: #b91c1c;
+    
+    --fuente-principal: 'Poppins', sans-serif;
+    --radio-borde: 8px;
+    --sombra-panel: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    height: 100%;
+}
+
+/* ===============================================
+   CORRECCIÓN DE SCROLL: Usando Flexbox Sticky Footer
+   =============================================== */
+body {
+    font-family: var(--fuente-principal);
+    background-color: var(--color-secundario);
+    background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    
+    /* 1. Convertimos el body en un contenedor flex vertical */
+    display: flex;
+    flex-direction: column;
+    
+    /* 2. Aseguramos que ocupe al menos toda la altura de la pantalla */
+    min-height: 100vh;
+}
+
+/* 3. Hacemos que los contenedores principales crezcan para ocupar el espacio disponible */
+.login-overlay, .content-wrapper {
+    flex-grow: 1; /* <-- La clave para empujar el footer hacia abajo */
+    
+    /* Y usamos grid dentro de ellos para centrar el panel */
+    display: grid;
+    place-items: center;
+    width: 100%;
+    padding: 2rem 1rem;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s;
+}
+
+/* El overlay ya no necesita ser 'fixed', el JS lo mostrará u ocultará */
+
+.login-box, .registration-panel {
+    background-color: var(--color-panel);
+    color: var(--color-texto-principal);
+    border-radius: var(--radio-borde);
+    box-shadow: var(--sombra-panel);
+    width: 100%;
+    max-width: 480px;
+    padding: 3rem;
+    border-top: 5px solid var(--color-primario);
+    animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.registration-panel {
+    max-width: 700px;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===============================================
+   HEADER, TÍTULOS Y TEXTOS (sin cambios)
+   =============================================== */
+.logo-header { text-align: center; margin-bottom: 2rem; }
+.logo-minsa { height: 50px; object-fit: contain; }
+h1, h2 { font-weight: 600; text-align: center; letter-spacing: -0.5px; margin-bottom: 0.5rem; }
+h1 { font-size: 2rem; }
+h2 { font-size: 1.75rem; }
+p.subtitle, .login-box > p { color: var(--color-texto-secundario); text-align: center; margin-bottom: 2.5rem; line-height: 1.6; }
+
+/* ===============================================
+   FORMULARIOS (sin cambios)
+   =============================================== */
+.input-group { position: relative; margin-bottom: 1.5rem; }
+.input-group input { width: 100%; padding: 12px 14px; font-size: 1rem; font-family: var(--fuente-principal); color: var(--color-texto-principal); background-color: var(--color-fondo-input); border: 1px solid var(--color-borde-input); border-radius: var(--radio-borde); transition: border-color 0.2s ease, box-shadow 0.2s ease; }
+.input-group label { position: absolute; top: 50%; left: 15px; transform: translateY(-50%); color: var(--color-texto-secundario); background-color: var(--color-fondo-input); padding: 0 4px; transition: all 0.2s ease; pointer-events: none; }
+.input-group input:focus + label, .input-group input:not(:placeholder-shown) + label, .input-group input[type="date"] + label { top: 0; left: 10px; font-size: 0.75rem; color: var(--color-primario); font-weight: 500; background-color: var(--color-panel); }
+.input-group input:focus { outline: none; border-color: var(--color-borde-foco); box-shadow: 0 0 0 3px rgba(212, 39, 50, 0.15); }
+.input-group input[readonly] { background-color: #e9ecef; cursor: not-allowed; }
+button[type="submit"] { width: 100%; padding: 14px; font-size: 1.1rem; font-weight: 600; color: #fff; background-color: var(--color-primario); border: none; border-radius: var(--radio-borde); cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; }
+button[type="submit"]:hover:not(:disabled) { background-color: #b11e28; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(212, 39, 50, 0.25); }
+button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* ===============================================
+   ENLACE TELEGRAM (sin cambios)
+   =============================================== */
+.login-contact-info, .telegram-contact { text-align: center; margin-top: 2rem; color: var(--color-texto-secundario); }
+.login-contact-info a, .telegram-contact a { color: var(--color-primario); font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; transition: color 0.2s ease; }
+.login-contact-info a i, .telegram-contact a i { font-size: 1.2rem; }
+.login-contact-info a:hover, .telegram-contact a:hover { color: #b11e28; text-decoration: underline; }
+
+/* ===============================================
+   OTROS ESTILOS Y FOOTER
+   =============================================== */
+.hidden { display: none !important; }
+fieldset { border: none; padding: 0; margin: 0; margin-bottom: 2rem; }
+legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-borde-input); }
+.fechas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+.user-info-bar { background-color: #f1f5f9; border-radius: var(--radio-borde); padding: 1rem; margin-bottom: 2rem; text-align: center; font-weight: 500; }
+#statusMessage, .login-error-message { margin-top: 1.5rem; padding: 1rem; border-radius: var(--radio-borde); font-weight: 500; }
+.status-success { border: 1px solid var(--color-exito); background-color: #f0fdf4; color: var(--color-exito); }
+.status-error, .login-error-message { border: 1px solid var(--color-error); background-color: #fef2f2; color: var(--color-error); }
+.login-error-message { border: none; background-color: transparent; }
+
+/* 4. El footer ahora es un simple flex-item. No necesita crecer ni encogerse. */
+.main-footer {
+    width: 100%;
+    text-align: center;
+    padding: 1.5rem 1rem;
+    color: rgba(255, 255, 255, 0.6);
+    flex-shrink: 0; /* Evita que el footer se encoja */
+}
+
+@media (max-width: 768px) {
+    .login-box, .registration-panel { padding: 2rem 1.5rem; }
+    .fechas-grid { grid-template-columns: 1fr; gap: 0; margin-top: 1rem; }
+    h1 { font-size: 1.5rem; }
+    h2 { font-size: 1.4rem; }
+}
+
+/* ... (Todo tu CSS existente va aquí arriba) ... */
+
+/* ===============================================
+   ESTILOS PARA HEADER DE USUARIO Y BOTÓN DE SALIDA
+   =============================================== */
+.user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.user-info-bar {
+    flex-grow: 1; /* Hace que la barra de bienvenida ocupe el espacio disponible */
+    margin-bottom: 0; /* Quitamos el margen que tenía antes */
+}
+
+.logout-button {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-texto-secundario);
+    background-color: transparent;
+    border: 2px solid var(--color-borde-input);
+    border-radius: var(--radio-borde);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.logout-button i {
+    font-size: 1.1rem;
+}
+
+.logout-button:hover {
+    color: var(--color-primario);
+    border-color: var(--color-primario);
+    background-color: rgba(212, 39, 50, 0.05);
+}
+
+/* ===============================================
+   ESTILOS PARA NOTIFICACIONES "TOAST"
+   =============================================== */
+.toast-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #fff;
+    color: var(--color-texto-principal);
+    padding: 1rem 1.5rem;
+    border-radius: var(--radio-borde);
+    box-shadow: var(--sombra-panel);
+    border-left: 5px solid var(--color-primario);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    z-index: 2000;
+    animation: slideInToast 0.5s ease-out forwards;
+}
+
+.toast-notification.exit {
+    animation: slideOutToast 0.5s ease-in forwards;
+}
+
+.toast-notification i {
+    font-size: 1.5rem;
+    color: var(--color-primario);
+}
+
+@keyframes slideInToast {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutToast {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}

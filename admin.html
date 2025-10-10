@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - MINSA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.png" type="image/png">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>Panel de Administración</h1>
+            <div class="admin-info">
+                <span><i class="bi bi-person-circle"></i> Conectado como: <strong>admin</strong></span>
+                <button id="logoutButton" class="logout-button">Cerrar Sesión</button>
+            </div>
+        </header>
+
+        <main class="dashboard-content">
+            
+            <div class="dashboard-panel actions-panel">
+                <h2>Acciones de Administrador</h2>
+                <div class="actions-grid">
+                    <form id="createUserForm" class="action-card">
+                        <h3><i class="bi bi-person-plus-fill"></i> Crear Nuevo Usuario</h3>
+                        <p>Genera un nuevo usuario con credenciales aleatorias.</p>
+                        <button type="submit">Generar Usuario</button>
+                    </form>
+                    <form id="addCreditsForm" class="action-card">
+                        <h3><i class="bi bi-wallet-fill"></i> Añadir Créditos</h3>
+                        <div class="form-group">
+                            <input type="text" id="addcred_username" placeholder="Nombre de usuario" required>
+                            <input type="number" id="addcred_amount" placeholder="Cantidad" required min="1">
+                        </div>
+                        <button type="submit">Añadir Créditos</button>
+                    </form>
+                    <form id="setPlanForm" class="action-card">
+                        <h3><i class="bi bi-calendar-check-fill"></i> Asignar Plan Ilimitado</h3>
+                        <div class="form-group">
+                            <input type="text" id="plan_username" placeholder="Nombre de usuario" required>
+                            <input type="number" id="plan_days" placeholder="Días de duración" required min="1">
+                        </div>
+                        <button type="submit">Asignar Plan</button>
+                    </form>
+                </div>
+                <div id="actionStatusMessage"></div>
+            </div>
+
+            <div class="dashboard-panel">
+                <h2><i class="bi bi-people-fill"></i> Gestión de Usuarios</h2>
+                <div class="table-container">
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Contraseña</th>
+                                <th>Créditos</th>
+                                <th>Estado del Plan</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="dashboard-panel">
+                <h2><i class="bi bi-clipboard-data-fill"></i> Registro de Actividad Reciente</h2>
+                <div class="table-container">
+                    <table class="activity-log-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha y Hora</th>
+                                <th>Comando</th>
+                                <th>Detalles</th>
+                            </tr>
+                        </thead>
+                        <tbody id="activityLogBody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+<div id="confirmationModal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3 id="modalTitle"></h3>
+            <p id="modalMessage"></p>
+            <div class="modal-actions">
+                <button id="modalCancelBtn" class="btn-secondary">Cancelar</button>
+                <button id="modalConfirmBtn" class="btn-danger">Confirmar</button>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

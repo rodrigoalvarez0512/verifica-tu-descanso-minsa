@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso al Sistema de Registro - MINSA</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.png" type="image/png">
+</head>
+<body>
+
+    <div id="login-overlay" class="login-overlay">
+        <div class="login-box">
+            <div class="logo-header">
+                <img src="logo_minsa.png" alt="Logo Ministerio de Salud Perú" class="logo-minsa">
+            </div>
+            <h2>Acceso al Sistema de Registro</h2>
+            <p>Por favor, ingrese sus credenciales.</p>
+            <form id="login-form">
+                <div class="input-group">
+                    <input type="text" id="username" placeholder=" " required>
+                    <label for="username">Usuario</label>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="password" placeholder=" " required>
+                    <label for="password">Contraseña</label>
+                </div>
+                <button type="submit" id="loginButton">Ingresar</button>
+                <div id="loginError" class="login-error-message"></div>
+                <div class="login-contact-info">
+                    <p>¿No tienes acceso o necesitas créditos?</p>
+                    <a href="https://t.me/whiskyper" target="_blank">
+                        <i class="bi bi-telegram"></i>
+                        <span>Contactar al Administrador</span>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div id="main-content" class="content-wrapper hidden">
+        <div class="registration-panel">
+            
+            <div class="logo-header">
+                <img src="logo_minsa.png" alt="Logo Ministerio de Salud Perú" class="logo-minsa">
+            </div>
+
+            <div class="user-header">
+                <div id="userInfo" class="user-info-bar"></div>
+                <button id="logoutButton" class="logout-button" title="Cerrar Sesión">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Salir</span>
+                </button>
+            </div>
+
+            <h1>Registro de Descanso Médico (CITT)</h1>
+            <p class="subtitle">Complete todos los campos para registrar un nuevo Certificado de Incapacidad Temporal para el Trabajo.</p>
+            
+            <form id="descansoForm">
+                 <fieldset>
+                    <legend>Información del Paciente</legend>
+                    <div class="input-group">
+                        <input type="text" id="citt" name="citt" placeholder=" " required readonly> 
+                        <label for="citt">Número de CITT</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="nombre" name="nombre" placeholder=" " required>
+                        <label for="nombre">Nombre Completo del Paciente</label>
+                    </div>
+                    <div class="input-group">
+                        <input type="text" id="dni" name="dni" maxlength="8" pattern="\d{8}" title="Debe contener 8 dígitos numéricos" placeholder=" " required>
+                        <label for="dni">DNI</label>
+                    </div>
+                </fieldset>
+                
+                <fieldset>
+                    <legend>Periodo de Incapacidad</legend>
+                    <div class="fechas-grid">
+                        <div class="input-group">
+                            <input type="date" id="fechaInicio" name="fechaInicio" placeholder=" " required>
+                            <label for="fechaInicio">Fecha de Inicio</label>
+                        </div>
+                        <div class="input-group">
+                            <input type="date" id="fechaFin" name="fechaFin" placeholder=" " required>
+                            <label for="fechaFin">Fecha de Fin</label>
+                        </div>
+                        <div class="input-group">
+                            <input type="number" id="totalDias" name="totalDias" placeholder=" " readonly>
+                            <label for="totalDias">Total de Días</label>
+                        </div>
+                        <div class="input-group">
+                            <input type="date" id="fechaOtorgamiento" name="fechaOtorgamiento" placeholder=" " required>
+                            <label for="fechaOtorgamiento">Fecha de Otorgamiento</label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <button type="submit" id="submitButton">
+                    <span class="button-text">Registrar Descanso</span>
+                    <span class="button-loader hidden"></span>
+                </button>
+                
+                <div id="statusMessage"></div>
+                <div class="telegram-contact">
+                    <span>¿Necesitas acceso o más créditos?</span>
+                    <a href="https://t.me/whiskyper" target="_blank">
+                        <i class="bi bi-telegram"></i>
+                        <span>Contáctame en Telegram</span>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <footer class="main-footer">
+        Plataforma Digital del Ministerio de Salud del Perú &copy; 2025
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,354 @@
+:root {
+    --color-bg: #f0f2f5;
+    --color-panel: #ffffff;
+    --color-primary: #0056b3;
+    --color-primary-dark: #00438c;
+    --color-text: #343a40;
+    --color-text-light: #6c757d;
+    --color-border: #dee2e6;
+    --color-success: #198754;
+    --color-warning: #ffc107;
+    --color-danger: #dc3545;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --font-family: 'Poppins', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--color-bg);
+    color: var(--color-text);
+}
+
+.dashboard-container {
+    padding: 2rem;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.dashboard-header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.admin-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logout-button {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border);
+    background-color: #fff;
+    color: var(--color-text);
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s, color 0.2s;
+}
+.logout-button:hover {
+    background-color: var(--color-danger);
+    border-color: var(--color-danger);
+    color: #fff;
+}
+
+.dashboard-content {
+    display: grid;
+    gap: 2rem;
+}
+
+.dashboard-panel {
+    background-color: var(--color-panel);
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    padding: 2rem;
+}
+
+.dashboard-panel h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.action-card {
+    background-color: #f8f9fa;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 1.5rem;
+}
+
+.action-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.action-card p {
+    color: var(--color-text-light);
+    margin-bottom: 1rem;
+    min-height: 40px;
+}
+
+.action-card .form-group {
+    display: grid;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+.action-card input {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+}
+
+.action-card button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: var(--color-primary);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.action-card button:hover {
+    background-color: var(--color-primary-dark);
+}
+
+#actionStatusMessage { margin-top: 1rem; }
+
+.table-container {
+    overflow-x: auto;
+}
+
+.user-table, .activity-log-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.user-table th, .user-table td,
+.activity-log-table th, .activity-log-table td {
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.user-table thead, .activity-log-table thead {
+    background-color: #f8f9fa;
+}
+.user-table th, .activity-log-table th { font-weight: 600; }
+.user-table .status-plan {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-weight: 500;
+    font-size: 0.85rem;
+    text-align: center;
+    display: inline-block;
+}
+.status-plan.active { background-color: #d1e7dd; color: #0f5132; }
+.status-plan.expired { background-color: #f8d7da; color: #842029; }
+
+.user-table .delete-btn {
+    background: none;
+    border: none;
+    color: var(--color-danger);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.user-table .delete-btn:hover { transform: scale(1.2); }
+
+/* ===============================================
+   ESTILOS PARA EL MODAL DE CONFIRMACIÓN
+   =============================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: grid;
+    place-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s;
+}
+
+.modal-overlay:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-box {
+    background-color: var(--color-panel);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay:not(.hidden) .modal-box {
+    transform: scale(1);
+}
+
+.modal-box h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.modal-box p {
+    color: var(--color-text-light);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.modal-actions button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.modal-actions .btn-danger {
+    background-color: var(--color-danger);
+    color: #fff;
+}
+.modal-actions .btn-danger:hover {
+    background-color: #b02a37;
+}
+
+.modal-actions .btn-secondary {
+    background-color: var(--color-border);
+    color: var(--color-text);
+}
+.modal-actions .btn-secondary:hover {
+    background-color: #c8d0d8;
+}
+
+.hidden {
+    display: none;
+}
+
+/* ===============================================
+   ESTILOS PARA EL MODAL DE CONFIRMACIÓN
+   =============================================== */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(5px);
+    display: grid;
+    place-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0s 0.3s;
+}
+
+.modal-overlay:not(.hidden) {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease;
+}
+
+.modal-box {
+    background-color: var(--color-panel);
+    padding: 2.5rem;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    width: 90%;
+    max-width: 450px;
+    text-align: center;
+    transform: scale(0.95);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay:not(.hidden) .modal-box {
+    transform: scale(1);
+}
+
+.modal-box h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+}
+
+.modal-box p {
+    color: var(--color-text-light);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.modal-actions button {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-size: 1rem;
+}
+
+.modal-actions .btn-danger {
+    background-color: var(--color-danger);
+    color: #fff;
+}
+.modal-actions .btn-danger:hover {
+    background-color: #b02a37;
+}
+
+.modal-actions .btn-secondary {
+    background-color: var(--color-border);
+    color: var(--color-text);
+}
+.modal-actions .btn-secondary:hover {
+    background-color: #c8d0d8;
+}
+
+/* Es importante que la clase .hidden use display: none
+   para que no interfiera. La tienes de antes, pero por si acaso: */
+.hidden {
+    display: none !important;
+}
