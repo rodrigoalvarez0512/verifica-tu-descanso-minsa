@@ -6,7 +6,7 @@
     <title>Plantilla CITT</title>
     <style>
         /* --- ESTILOS DE LA PLANTILLA --- */
-        
+
         body {
             font-family: Arial, Helvetica, sans-serif;
             background-color: #525659;
@@ -18,13 +18,13 @@
 
         #citt-container {
             width: 794px;
-            min-height: 1200px; 
+            min-height: 1200px;
             background-color: #ffffff;
             border: 1px solid #000000;
             position: relative;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
             box-sizing: border-box;
-            padding: 40px 60px; 
+            padding: 40px 60px;
         }
 
         /* --- IMÁGENES DE FONDO (SELLOS) --- */
@@ -33,11 +33,12 @@
             width: 150px;
             height: 150px;
             opacity: 0.7;
-            border: 2px dashed #ccc;
+            /* border: 2px dashed #ccc; */ /* Borde quitado como lo tenías */
             display: grid;
             place-items: center;
             font-size: 12px;
             color: #aaa;
+            z-index: 1; /* Detrás del texto */
         }
         #sello-direccion { top: 60px; left: 60px; }
         #sello-medico { top: 60px; right: 60px; }
@@ -49,9 +50,9 @@
             font-weight: 700;
             color: #000;
             position: absolute;
-            white-space: nowrap; 
-            line-height: 1.2; 
-            z-index: 2; /* <-- AÑADE ESTA LÍNEA */
+            white-space: nowrap;
+            line-height: 1.2;
+            z-index: 2;
         }
         .label {
             font-size: 12px;
@@ -59,42 +60,42 @@
             font-weight: 400;
             position: absolute;
             white-space: nowrap;
-            line-height: 1.2; 
-            z-index: 2; /* <-- AÑADE ESTA LÍNEA */
+            line-height: 1.2;
+            z-index: 2;
         }
-        
+
         .section-title {
             font-size: 14px;
             font-weight: 700;
             letter-spacing: 1px;
-            border-bottom: 1.5px solid #000; 
+            border-bottom: 1.5px solid #000;
             padding-bottom: 2px;
             position: absolute;
-            text-align: left; 
-            z-index: 2; /* <-- AÑADE ESTA LÍNEA */
+            text-align: left;
+            z-index: 2;
         }
-        
+
         .subsection-title {
             font-size: 14px;
             font-weight: 700;
             letter-spacing: 1px;
             position: absolute;
             text-align: left;
-            line-height: 1.2; 
-            z-index: 2; /* <-- AÑADE ESTA LÍNEA */
+            line-height: 1.2;
+            z-index: 2;
         }
-        
+
         .separator-line {
             position: absolute;
             left: 60px;
             width: calc(100% - 120px);
-            height: 2px; 
-            background-color: #000; 
-            z-index: 2; /* <-- AÑADE ESTA LÍNEA */
+            height: 2px;
+            background-color: #000;
+            z-index: 2;
         }
 
         /* --- POSICIONAMIENTO PRECISO DE ELEMENTOS --- */
-        
+
         #citt-header {
             display: flex;
             justify-content: space-between;
@@ -102,36 +103,36 @@
             position: absolute;
             top: 40px;
             left: 60px;
-            width: calc(100% - 120px); 
-            z-index: 2; /* <-- AÑADE ESTA LÍNEA */
+            width: calc(100% - 120px);
+            z-index: 2;
         }
         #form-id { position: static; font-weight: 700; }
         #user-id { position: static; font-weight: 700; }
 
-        #main-title { 
-            position: absolute; 
-            top: 90px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            font-size: 16px; 
+        #main-title {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
             font-weight: 700;
             text-align: center;
             width: 80%;
-            z-index: 2; /* <-- AÑADE ESTA LÍNEA */
+            z-index: 2;
         }
 
         /* Bloque 1: CITT */
         .label-eess { top: 140px; left: 60px; }
         #data-eess { top: 140px; left: 190px; }
         .label-citt { top: 175px; left: 60px; }
-        #data-citt { 
-            top: 175px; 
-            left: 190px; 
-            font-size: 22px; 
-            font-weight: 900; 
-            transform: translateY(-3px); 
+        #data-citt {
+            top: 175px;
+            left: 190px;
+            font-size: 22px;
+            font-weight: 900;
+            transform: translateY(-3px);
         }
-        .label-acto { top: 215px; left: 60px; } 
+        .label-acto { top: 215px; left: 60px; }
         #data-acto-medico { top: 215px; left: 190px; }
         .label-servicio { top: 240px; left: 60px; }
         #data-servicio { top: 240px; left: 190px; }
@@ -141,13 +142,13 @@
         .label-asegurado { top: 290px; left: 60px; }
         #data-paciente-nombre { top: 290px; left: 190px; }
         .label-doc { top: 315px; left: 60px; }
-        #label-dni-sub { 
-            top: 315px; 
-            left: 190px; 
+        #label-dni-sub {
+            top: 315px;
+            left: 190px;
             font-family: Arial, Helvetica, sans-serif;
             font-size: 12px;
             font-weight: 400;
-        } 
+        }
         #data-paciente-dni { top: 315px; left: 260px; }
         .label-autogen { top: 340px; left: 60px; }
         #data-autogenerado { top: 340px; left: 190px; }
@@ -157,13 +158,13 @@
         #data-tipo-atencion { top: 380px; left: 190px; }
         .label-contingencia { top: 405px; left: 60px; }
         #data-contingencia { top: 405px; left: 190px; }
-        
+
         #linea-separadora-2 { top: 435px; }
-        
+
         /* Bloque 4: Periodo Incapacidad */
         #title-periodo { top: 460px; left: 60px; }
         .label-f-inicio { top: 490px; left: 60px; }
-        #data-fecha-inicio { top: 490px; left: 190px; } 
+        #data-fecha-inicio { top: 490px; left: 190px; }
         .label-f-fin { top: 515px; left: 60px; }
         #data-fecha-fin { top: 515px; left: 190px; }
         .label-total-dias { top: 540px; left: 60px; }
@@ -190,69 +191,76 @@
         /* Bloque 8 y 9: Pie de página */
         #linea-separadora-4 { top: 805px; }
 
-        .label-obs { 
-            top: 830px; 
-            left: 60px; 
-            font-weight: 700; 
+        .label-obs {
+            top: 830px;
+            left: 60px;
+            font-weight: 700;
         }
         .label-dias-acum { top: 855px; left: 60px; }
         #data-dias-acumulados { top: 855px; left: 320px; }
-        
+
         #linea-separadora-5 { top: 885px; }
 
         .label-usuario { top: 910px; left: 60px; }
         #data-usuario-registro { top: 910px; left: 120px; font-size: 11px; }
-        
-        /* Fecha y Hora en el pie de página, debajo de firmas */
-        .label-fecha-reg { top: 1150px; left: 70px; } /* <-- MUY ABAJO */
-        #data-fecha-registro { top: 1150px; left: 155px; } /* <-- MUY ABAJO */
-        
-        .label-hora-reg { top: 1150px; right: 130px; } /* <-- MUY ABAJO */
-        #data-hora-registro { top: 1150px; right: 450px; } /* <-- MUY ABAJO */
 
-        /* Sello y Firma (Footer) */
-        #footer-signatures {
+        /* Fecha y Hora en el pie de página */
+        .label-fecha-reg { top: 1120px; left: 60px; } /* Subido */
+        #data-fecha-registro { top: 1120px; left: 110px; } /* Subido */
+
+        .label-hora-reg { top: 1120px; right: 150px; } /* Subido */
+        #data-hora-registro { top: 1120px; right: 60px; } /* Subido */
+
+
+        /* Sello y Firma (Footer) - Usando Absolute */
+         .signature-box {
             position: absolute;
-            bottom: 110px; 
-            left: 60px;
-            width: calc(100% - 120px);
-            display: flex;
-            justify-content: space-around; 
-            align-items: center;
-            z-index: 1; /* <-- AÑADE ESTA LÍNEA */
-        }
-
-        .signature-box {
             width: 200px;
             height: 150px;
+            /* border: 2px dashed #ccc; */ /* Borde quitado */
             display: grid;
             place-items: center;
             font-size: 14px;
             color: #aaa;
-            /* Aquí es donde añadirás tus imágenes. Ejemplo:
-              #sello-final { background-image: url('sello.png'); }
-              #firma-final { background-image: url('firma.png'); }
-              
-              O puedes poner las etiquetas <img> dentro del HTML.
-            */
+            z-index: 1; /* Detrás del texto */
+            bottom: 110px; /* Posición vertical */
         }
-        
-        /* REGLAS VACÍAS ELIMINADAS PARA CORREGIR EL ERROR DEL LINTER.
-          Puedes añadir tus reglas para #sello-final y #firma-final aquí.
-        */
+        #sello-final {
+            left: 100px; /* Posición horizontal */
+        }
+        #firma-final {
+            right: 100px; /* Posición horizontal */
+        }
+
+        /* --- NUEVO: ESTILOS PARA EL CÓDIGO QR --- */
+        #qr-code-container {
+            position: absolute;
+            top: 140px; /* Alineado con EE.SS. */
+            right: 60px; /* Margen derecho */
+            width: 100px; /* Tamaño del QR */
+            height: 100px; /* Tamaño del QR */
+            /* border: 1px solid #eee; */ /* Borde opcional quitado */
+            z-index: 2; /* Encima de sellos superiores */
+        }
+        #qr-code-container img { /* Estilo si el QR se genera como img */
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+        /* --- FIN ESTILOS QR --- */
 
     </style>
 </head>
 <body>
 
     <div id="citt-container">
-        
+
 
         <div id="citt-header">
             <span class="label" id="form-id">Formulario 8017-1</span>
             <span class="label" id="user-id">USUARIO</span>
         </div>
-        
+
         <h1 id="main-title">CERTIFICADO DE INCAPACIDAD TEMPORAL PARA EL TRABAJO</h1>
 
         <span class="label label-eess">EE.SS:</span>
@@ -263,7 +271,9 @@
         <span class="data" id="data-acto-medico">4635240</span>
         <span class="label label-servicio">Servicio:</span>
         <span class="data" id="data-servicio">EMERGENCIA-MEDICINA GENERAL</span>
-        
+
+        <div id="qr-code-container"></div>
+
         <div class="separator-line" id="linea-separadora-1"></div>
         <span class="label label-asegurado">Nombre Asegurado:</span>
         <span class="data" id="data-paciente-nombre">VASQUEZ VILDOSO EIKY JOHN</span>
@@ -272,14 +282,14 @@
         <span class="data" id="data-paciente-dni">79544703</span>
         <span class="label label-autogen">Autogenerado:</span>
         <span class="data" id="data-autogenerado">724873VCJN1153</span>
-        
+
         <span class="label label-atencion">Tipo de Atención:</span>
         <span class="data" id="data-tipo-atencion">EMERGENCIA/URGENCIAS</span>
         <span class="label label-contingencia">Contingencia:</span>
         <span class="data" id="data-contingencia">INFECCIÓN ESTOMACAL</span>
-        
+
         <div class="separator-line" id="linea-separadora-2"></div>
-        
+
         <span class="subsection-title" id="title-periodo">PERIODO INCAPACIDAD</span>
         <span class="label label-f-inicio">Fecha de Inicio:</span>
         <span class="data" id="data-fecha-inicio">15/10/2025</span>
@@ -289,7 +299,7 @@
         <span class="data" id="data-total-dias">3</span>
         <span class="label label-f-otorga">F. de Otorgamiento:</span>
         <span class="data" id="data-fecha-otorgamiento">14/10/2025</span>
-        
+
         <div class="separator-line" id="linea-separadora-3"></div>
         <span class="subsection-title" id="title-acumulados">DIAS ACUMULADOS</span>
         <span class="label label-consec">Consecutivos:</span>
@@ -310,23 +320,21 @@
         <span class="label label-obs">OBSERVACIONES:</span>
         <span class="label label-dias-acum">Días de Incapacidad Temporal Acumulados:</span>
         <span class="data" id="data-dias-acumulados">3</span>
-        
+
         <div class="separator-line" id="linea-separadora-5"></div>
 
         <span class="label label-usuario">Usuario:</span>
         <span class="data" id="data-usuario-registro">CHACON PEREZ DOUGLAS JESUS</span>
-        
-        <span class="label label-fecha-reg">Fecha y hora:</span>
-        <span class="data" id="data-fecha-registro">14/10/2025</span>
-        <span class="data" id="data-hora-registro">04:42 pm</span>
 
-        <div id="footer-signatures">
-            <div class="signature-box" id="sello-final">
-                <img src="sello.png" alt="Sello" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-            </div>
-            <div class="signature-box" id="firma-final">
-                <img src="firma.png" alt="Firma" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-            </div>
+        <span class="label label-fecha-reg">Fecha:</span> <span class="data" id="data-fecha-registro">14/10/2025</span>
+
+        <span class="label label-hora-reg">Hora:</span> <span class="data" id="data-hora-registro">04:42 pm</span>
+
+        <div class="signature-box" id="sello-final">
+            <img src="sello.png" alt="Sello" style="max-width: 80%; max-height: 80%; object-fit: contain;">
+        </div>
+        <div class="signature-box" id="firma-final">
+            <img src="firma.png" alt="Firma" style="max-width: 100%; max-height: 100%; object-fit: contain;">
         </div>
 
     </div>
