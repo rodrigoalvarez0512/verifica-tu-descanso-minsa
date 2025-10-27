@@ -465,24 +465,58 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function calcularTotalDias() {
-        // ... (igual que antes) ...
         const fechaInicioInput = document.getElementById('fechaInicio');
         const fechaFinInput = document.getElementById('fechaFin');
         const totalDiasInput = document.getElementById('totalDias');
+        const fechaOtorgamientoInput = document.getElementById('fechaOtorgamiento'); // <-- Obtener el input de otorgamiento
 
-        if (fechaInicioInput && fechaFinInput && totalDiasInput && fechaInicioInput.value && fechaFinInput.value) {
-            const fechaInicio = new Date(fechaInicioInput.value + 'T00:00:00Z');
-            const fechaFin = new Date(fechaFinInput.value + 'T00:00:00Z');
-            
-            if (fechaFin < fechaInicio) {
-                totalDiasInput.value = '';
-                return;
+        // --- NUEVO: Calcular Fecha de Otorgamiento (un día antes de Inicio) ---
+        if (fechaInicioInput && fechaOtorgamientoInput && fechaInicioInput.value) {
+            try {
+                // Creamos la fecha de inicio asegurando zona horaria local (ej. Perú -05:00)
+                // Usamos T12:00:00 para evitar problemas con cambios de horario de verano
+                const fechaInicio = new Date(fechaInicioInput.value + 'T12:00:00-05:00'); 
+                
+                // Creamos una nueva fecha basada en la de inicio
+                const fechaOtorgamientoCalc = new Date(fechaInicio);
+                
+                // Restamos un día
+                fechaOtorgamientoCalc.setDate(fechaOtorgamientoCalc.getDate() - 1);
+
+                // Formateamos a YYYY-MM-DD para el input tipo 'date'
+                const year = fechaOtorgamientoCalc.getFullYear();
+                const month = String(fechaOtorgamientoCalc.getMonth() + 1).padStart(2, '0');
+                const day = String(fechaOtorgamientoCalc.getDate()).padStart(2, '0');
+                
+                // Asignamos el valor al input de Fecha de Otorgamiento
+                fechaOtorgamientoInput.value = `${year}-${month}-${day}`;
+
+            } catch (e) {
+                console.error("Error al calcular fecha de otorgamiento:", e);
+                fechaOtorgamientoInput.value = ''; // Limpiar en caso de error
             }
-            const diffTiempo = fechaFin.getTime() - fechaInicio.getTime();
+        } else if (fechaOtorgamientoInput) {
+             fechaOtorgamientoInput.value = ''; // Limpiar si no hay fecha de inicio
+        }
+        // --- FIN DEL CÁLCULO NUEVO ---
+
+
+        // --- Lógica existente para calcular Total de Días ---
+        if (fechaInicioInput && fechaFinInput && totalDiasInput && fechaInicioInput.value && fechaFinInput.value) {
+            // Usamos UTC para el cálculo de diferencia para evitar problemas de zona horaria
+            const fechaInicioUTC = new Date(fechaInicioInput.value + 'T00:00:00Z');
+            const fechaFinUTC = new Date(fechaFinInput.value + 'T00:00:00Z');
+            
+            if (fechaFinUTC < fechaInicioUTC) {
+                totalDiasInput.value = '';
+                // No mostramos error aquí, la validación se hará al enviar si es necesario
+                return; 
+            }
+            const diffTiempo = fechaFinUTC.getTime() - fechaInicioUTC.getTime();
             const diffDias = diffTiempo / (1000 * 3600 * 24);
             totalDiasInput.value = Math.round(diffDias) + 1; 
         } else {
-             totalDiasInput.value = ''; 
+             totalDiasInput.value = ''; // Limpiar si falta alguna fecha
         }
     }
 
@@ -517,3 +551,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     verificarSesionExistente();
 });
+
