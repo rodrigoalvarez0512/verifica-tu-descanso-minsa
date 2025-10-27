@@ -1,9 +1,8 @@
-
 :root {
-    --color-primario: #d42732; /* Rojo oficial del logo de Perú */
-    --color-secundario: #1d3a5f; /* Azul oscuro del fondo */
+    --color-primario: #d42732; 
+    --color-secundario: #1d3a5f; 
     --color-panel: #ffffff;
-    --color-texto-principal: #1e293b; /* Casi negro para el texto */
+    --color-texto-principal: #1e293b; 
     --color-texto-secundario: #64748b;
     --color-fondo-input: #f8fafc;
     --color-borde-input: #cbd5e1;
@@ -26,35 +25,26 @@ html {
     height: 100%;
 }
 
-/* ===============================================
-   CORRECCIÓN DE SCROLL: Usando Flexbox Sticky Footer
-   =============================================== */
 body {
     font-family: var(--fuente-principal);
     background-color: var(--color-secundario);
     background-image: url("data:image/svg+xml,%3Csvg width='52' height='26' viewBox='0 0 52 26' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M10 10c0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6h2c0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4 3.314 0 6 2.686 6 6 0 2.21 1.79 4 4 4v2c-3.314 0-6-2.686-6-6 0-2.21-1.79-4-4-4-3.314 0-6-2.686-6-6zm25.464-1.95l8.486 8.486-1.414 1.414-8.486-8.486 1.414-1.414z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    
-    /* 1. Convertimos el body en un contenedor flex vertical */
+
     display: flex;
     flex-direction: column;
     
-    /* 2. Aseguramos que ocupe al menos toda la altura de la pantalla */
     min-height: 100vh;
 }
 
-/* 3. Hacemos que los contenedores principales crezcan para ocupar el espacio disponible */
 .login-overlay, .content-wrapper {
-    flex-grow: 1; /* <-- La clave para empujar el footer hacia abajo */
-    
-    /* Y usamos grid dentro de ellos para centrar el panel */
+    flex-grow: 1; 
+
     display: grid;
     place-items: center;
     width: 100%;
     padding: 2rem 1rem;
     transition: opacity 0.5s ease-in-out, visibility 0.5s;
 }
-
-/* El overlay ya no necesita ser 'fixed', el JS lo mostrará u ocultará */
 
 .login-box, .registration-panel {
     background-color: var(--color-panel);
@@ -77,9 +67,6 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* ===============================================
-   HEADER, TÍTULOS Y TEXTOS (sin cambios)
-   =============================================== */
 .logo-header { text-align: center; margin-bottom: 2rem; }
 .logo-minsa { height: 50px; object-fit: contain; }
 h1, h2 { font-weight: 600; text-align: center; letter-spacing: -0.5px; margin-bottom: 0.5rem; }
@@ -87,9 +74,6 @@ h1 { font-size: 2rem; }
 h2 { font-size: 1.75rem; }
 p.subtitle, .login-box > p { color: var(--color-texto-secundario); text-align: center; margin-bottom: 2.5rem; line-height: 1.6; }
 
-/* ===============================================
-   FORMULARIOS (sin cambios)
-   =============================================== */
 .input-group { position: relative; margin-bottom: 1.5rem; }
 .input-group input { width: 100%; padding: 12px 14px; font-size: 1rem; font-family: var(--fuente-principal); color: var(--color-texto-principal); background-color: var(--color-fondo-input); border: 1px solid var(--color-borde-input); border-radius: var(--radio-borde); transition: border-color 0.2s ease, box-shadow 0.2s ease; }
 .input-group label { position: absolute; top: 50%; left: 15px; transform: translateY(-50%); color: var(--color-texto-secundario); background-color: var(--color-fondo-input); padding: 0 4px; transition: all 0.2s ease; pointer-events: none; }
@@ -100,17 +84,11 @@ button[type="submit"] { width: 100%; padding: 14px; font-size: 1.1rem; font-weig
 button[type="submit"]:hover:not(:disabled) { background-color: #b11e28; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(212, 39, 50, 0.25); }
 button[type="submit"]:disabled { opacity: 0.6; cursor: not-allowed; }
 
-/* ===============================================
-   ENLACE TELEGRAM (sin cambios)
-   =============================================== */
 .login-contact-info, .telegram-contact { text-align: center; margin-top: 2rem; color: var(--color-texto-secundario); }
 .login-contact-info a, .telegram-contact a { color: var(--color-primario); font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; transition: color 0.2s ease; }
 .login-contact-info a i, .telegram-contact a i { font-size: 1.2rem; }
 .login-contact-info a:hover, .telegram-contact a:hover { color: #b11e28; text-decoration: underline; }
 
-/* ===============================================
-   OTROS ESTILOS Y FOOTER
-   =============================================== */
 .hidden { display: none !important; }
 fieldset { border: none; padding: 0; margin: 0; margin-bottom: 2rem; }
 legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-borde-input); }
@@ -122,7 +100,6 @@ legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bo
 .status-error, .login-error-message { border: 1px solid var(--color-error); background-color: #fef2f2; color: var(--color-error); }
 .login-error-message { border: none; background-color: transparent; }
 
-/* 4. El footer ahora es un simple flex-item. No necesita crecer ni encogerse. */
 .main-footer {
     width: 100%;
     text-align: center;
@@ -138,11 +115,6 @@ legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bo
     h2 { font-size: 1.4rem; }
 }
 
-/* ... (Todo tu CSS existente va aquí arriba) ... */
-
-/* ===============================================
-   ESTILOS PARA HEADER DE USUARIO Y BOTÓN DE SALIDA
-   =============================================== */
 .user-header {
     display: flex;
     justify-content: space-between;
@@ -152,8 +124,8 @@ legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bo
 }
 
 .user-info-bar {
-    flex-grow: 1; /* Hace que la barra de bienvenida ocupe el espacio disponible */
-    margin-bottom: 0; /* Quitamos el margen que tenía antes */
+    flex-grow: 1; 
+    margin-bottom: 0; 
 }
 
 .logout-button {
@@ -181,9 +153,7 @@ legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bo
     background-color: rgba(212, 39, 50, 0.05);
 }
 
-/* ===============================================
-   ESTILOS PARA NOTIFICACIONES "TOAST"
-   =============================================== */
+
 .toast-notification {
     position: fixed;
     top: 20px;
@@ -232,3 +202,4 @@ legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bo
     }
 
 }
+
