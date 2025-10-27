@@ -1,7 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // ===============================================
-    //           CONFIGURACIÓN Y CONSTANTES
-    // ===============================================
     const CITT_PREFIX = 'A-468-00233786-';
     const DEFAULT_START_NUMBER = 59;
     const USUARIOS_PDF = [
@@ -11,15 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     ];
     const VERIFICATION_BASE_URL = 'https://verifica-tu-descanso-minsa.onrender.com/verificador.html'; // URL base del verificador
 
-    // Importamos las librerías
     const { jsPDF } = window.jspdf;
     const html2canvas = window.html2canvas;
-    // QRCode estará disponible globalmente si incluiste el script en index.html
     const QRCode = window.QRCode;
 
-    // ===============================================
-    //      INICIALIZACIÓN Y VERIFICACIÓN DE SESIÓN
-    // ===============================================
     function verificarSesionExistente() {
         const usuarioGuardado = sessionStorage.getItem('activeUser');
         if (usuarioGuardado) {
@@ -35,10 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-
-    // ===============================================
-    //      FUNCIONES AUXILIARES (PDF y Otros)
-    // ===============================================
 
     function formatDateForPDF(dateString) {
         if (!dateString) return 'N/A';
@@ -65,11 +53,8 @@ document.addEventListener('DOMContentLoaded', function() {
          return Math.random().toString(16).substring(2, 10);
     }
 
-    /**
-     * Genera el PDF aplicando lógica de campos fijos y dinámicos, incluyendo QR.
-     */
     async function generarPDF(datos, randomUserName) {
-        let container; // Definir fuera para limpieza en catch
+        let container;
         try {
             const response = await fetch('plantilla_citt.html');
             if (!response.ok) throw new Error('No se pudo cargar plantilla_citt.html.');
@@ -84,8 +69,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const elementToPrint = container.querySelector('#citt-container');
             if (!elementToPrint) throw new Error('ID "#citt-container" no encontrado.');
-
-            // --- Poblar plantilla (igual que antes, pero usando datos.autogenerado) ---
             const { time } = getCurrentDateTime();
 
             elementToPrint.querySelector('#data-eess').textContent = '424-ESSALUD - SEGURO SOCIAL';
@@ -94,7 +77,7 @@ document.addEventListener('DOMContentLoaded', function() {
             elementToPrint.querySelector('#data-servicio').textContent = 'EMERGENCIA-MEDICINA GENERAL';
             elementToPrint.querySelector('#data-paciente-nombre').textContent = datos.nombre_paciente;
             elementToPrint.querySelector('#data-paciente-dni').textContent = datos.dni;
-            elementToPrint.querySelector('#data-autogenerado').textContent = datos.autogenerado; // El que se guardó en BD
+            elementToPrint.querySelector('#data-autogenerado').textContent = datos.autogenerado;
             elementToPrint.querySelector('#data-tipo-atencion').textContent = 'EMERGENCIA/URGENCIAS';
             elementToPrint.querySelector('#data-contingencia').textContent = datos.contingencia;
             elementToPrint.querySelector('#data-fecha-inicio').textContent = formatDateForPDF(datos.fecha_inicio);
@@ -111,8 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
             elementToPrint.querySelector('#data-usuario-registro').textContent = randomUserName.toUpperCase();
             elementToPrint.querySelector('#data-fecha-registro').textContent = formatDateForPDF(datos.fecha_otorgamiento);
             elementToPrint.querySelector('#data-hora-registro').textContent = time;
-
-            // --- **NUEVO: Generar Código QR** ---
+            
             const qrContainer = elementToPrint.querySelector('#qr-code-container');
             if (qrContainer && QRCode) { // Verifica que exista el div y la librería
                 const verificationUrl = `${VERIFICATION_BASE_URL}?citt=${encodeURIComponent(datos.citt)}`;
@@ -126,21 +108,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     correctLevel : QRCode.CorrectLevel.H 
                 });
                 
-                // Esperar a que el QR se dibuje (importante para html2canvas)
                 await new Promise(resolve => setTimeout(resolve, 100)); 
                 console.log('Código QR generado para:', verificationUrl);
             } else {
                  console.warn('Advertencia: No se encontró #qr-code-container o la librería QRCode.');
-                 // Opcional: Ocultar el contenedor si no se pudo generar QR
                  if(qrContainer) qrContainer.style.display = 'none'; 
             }
-            // --- FIN CÓDIGO QR ---
 
-            // Asegurar carga de imágenes (sellos/firmas)
             const imgElements = elementToPrint.querySelectorAll('img');
              const imgPromises = imgElements.length > 0 ? Array.from(imgElements).map(img => {
                 return new Promise((resolve) => {
-                    // Verificar si la imagen tiene un src válido antes de esperar
                     if (img.complete || !img.src || img.naturalWidth === 0) { 
                         resolve();
                     } else {
@@ -151,10 +128,8 @@ document.addEventListener('DOMContentLoaded', function() {
             }) : [Promise.resolve()];
             
             await Promise.all(imgPromises);
-            // Aumentar ligeramente la espera por si acaso
             await new Promise(resolve => setTimeout(resolve, 200)); 
 
-            // --- Generar y descargar PDF ---
             const canvas = await html2canvas(elementToPrint, { scale: 2, useCORS: true, allowTaint: true });
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
@@ -167,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const apellido = (nameParts[0] || '').toLowerCase();
             const nombre = (nameParts.length > 2 ? nameParts[2] : nameParts[1] || '').toLowerCase();
             const namePart = `${apellido}${nombre}`.replace(/[^a-z0-9]/g, ''); 
-            const { timestamp: ts } = getCurrentDateTime(); // Renombrar para evitar conflicto
+            const { timestamp: ts } = getCurrentDateTime();
             const tokenPart = generateToken();
             const finalFilename = `${prefix}-${namePart}-${ts}-${tokenPart}.pdf`;
             
@@ -184,18 +159,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-
-    // ===============================================
-    //           FUNCIONES PRINCIPALES
-    // ===============================================
-
     function handleLogout() {
         sessionStorage.removeItem('activeUser');
         location.reload();
     }
 
     async function handleLogin(event) {
-        // ... (sin cambios) ...
         event.preventDefault();
         const usernameInput = document.getElementById('username');
         const passwordInput = document.getElementById('password');
@@ -239,9 +208,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    /**
-     * MODIFICADO: Guarda contingencia y autogenerado en BD.
-     */
     async function registrarDescanso(event) {
         event.preventDefault();
         setButtonLoading(true);
@@ -280,8 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
             updateUserInfo(activeUser);
             creditoDescontado = true;
         }
-        
-        // --- RECOPILACIÓN DE DATOS (Incluye autogenerado) ---
+
         const datosDescanso = {
             citt: document.getElementById('citt').value,
             nombre_paciente: document.getElementById('nombre').value.toUpperCase(), 
@@ -305,7 +270,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const randomUserNamePDF = USUARIOS_PDF[randomUserIndex];
 
         try {
-            // 1. Guardar en Supabase (Incluyendo contingencia y autogenerado)
             const { error: insertError } = await clienteSupabase.from('descansos_medicos').insert([
                 { 
                   citt: datosDescanso.citt,
@@ -327,10 +291,8 @@ document.addEventListener('DOMContentLoaded', function() {
                  throw insertError;
             }
             
-            // 2. Generar el PDF
             await generarPDF(datosDescanso, randomUserNamePDF);
 
-            // 3. Mostrar éxito y resetear
             const creditosRestantes = tienePlan ? 'Ilimitados' : activeUser.creditos;
             showStatusMessage(`¡Descanso registrado y PDF generado! Créditos: ${creditosRestantes}.`, false);
             document.getElementById('descansoForm').reset();
@@ -348,9 +310,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Función auxiliar para devolver crédito
     async function devolverCredito(user) {
-        // ... (igual que antes) ...
          try {
             const { error } = await clienteSupabase
                 .from('usuarios')
@@ -370,13 +330,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-
-    // ===============================================
-    //       FUNCIONES DE UI
-    // ===============================================
-
     function showToast(message) {
-       // ... (igual que antes) ...
         const toast = document.createElement('div');
         toast.className = 'toast-notification';
         toast.innerHTML = `<i class="bi bi-info-circle-fill"></i> <span>${message}</span>`;
@@ -389,7 +343,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     function updateUserInfo(userData) {
-       // ... (igual que antes) ...
         const userInfoBar = document.getElementById('userInfo');
         if (!userData || !userInfoBar) return;
         const expirationDate = new Date(userData.plan_ilimitado_hasta);
@@ -414,7 +367,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function generateNextCITT() {
-        // ... (igual que antes) ...
         const cittInput = document.getElementById('citt');
         if (!cittInput) return;
         cittInput.value = 'Generando...';
@@ -437,7 +389,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function setButtonLoading(isLoading) {
-       // ... (igual que antes) ...
         const submitButton = document.getElementById('submitButton');
         if (!submitButton) return;
         const buttonText = submitButton.querySelector('.button-text');
@@ -452,7 +403,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function showStatusMessage(message, isError = false) {
-       // ... (igual que antes) ...
         const statusMessage = document.getElementById('statusMessage');
         if (!statusMessage) return;
         statusMessage.textContent = message;
@@ -467,13 +417,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function calcularTotalDias() {
-        // ... (Ahora incluye cálculo de fecha de otorgamiento) ...
          const fechaInicioInput = document.getElementById('fechaInicio');
         const fechaFinInput = document.getElementById('fechaFin');
         const totalDiasInput = document.getElementById('totalDias');
         const fechaOtorgamientoInput = document.getElementById('fechaOtorgamiento');
 
-        // Calcular Fecha de Otorgamiento
         if (fechaInicioInput && fechaOtorgamientoInput && fechaInicioInput.value) {
             try {
                 const fechaInicio = new Date(fechaInicioInput.value + 'T12:00:00-05:00'); 
@@ -491,7 +439,6 @@ document.addEventListener('DOMContentLoaded', function() {
              fechaOtorgamientoInput.value = ''; 
         }
 
-        // Calcular Total de Días
         if (fechaInicioInput && fechaFinInput && totalDiasInput && fechaInicioInput.value && fechaFinInput.value) {
             const fechaInicioUTC = new Date(fechaInicioInput.value + 'T00:00:00Z');
             const fechaFinUTC = new Date(fechaFinInput.value + 'T00:00:00Z');
@@ -507,10 +454,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // ===============================================
-    //               ASIGNACIÓN DE EVENTOS
-    // ===============================================
-    // ... (igual que antes) ...
     const loginForm = document.getElementById('login-form');
     if (loginForm) loginForm.addEventListener('submit', handleLogin);
     const form = document.getElementById('descansoForm');
@@ -524,3 +467,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
     verificarSesionExistente();
 });
+
