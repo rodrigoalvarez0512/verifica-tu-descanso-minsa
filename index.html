@@ -45,7 +45,7 @@
 
     <div id="main-content" class="content-wrapper hidden">
         <div class="registration-panel">
-            
+
             <div class="logo-header">
                 <img src="logo_minsa.png" alt="Logo Ministerio de Salud Perú" class="logo-minsa">
             </div>
@@ -60,17 +60,17 @@
 
             <h1>Registro de Descanso Médico (CITT)</h1>
             <p class="subtitle">Complete todos los campos para registrar un nuevo Certificado de Incapacidad Temporal para el Trabajo.</p>
-            
+
             <form id="descansoForm">
                  <fieldset>
                     <legend>Información del Paciente</legend>
                     <div class="input-group">
-                        <input type="text" id="citt" name="citt" placeholder=" " required readonly> 
+                        <input type="text" id="citt" name="citt" placeholder=" " required readonly>
                         <label for="citt">Número de CITT</label>
                     </div>
                     <div class="input-group">
                         <input type="text" id="nombre" name="nombre" placeholder=" " required>
-                        <label for="nombre">Apellidos y Nombres del Paciente</label> 
+                        <label for="nombre">Apellidos y Nombres del Paciente</label>
                         <small>Ingrese Apellido Paterno, Materno y Nombres (se guardará en mayúsculas).</small>
                     </div>
                     <div class="input-group">
@@ -78,7 +78,7 @@
                         <label for="dni">DNI</label>
                     </div>
                 </fieldset>
-                
+
                  <fieldset>
                     <legend>Detalles del Descanso</legend>
                      <div class="input-group">
@@ -110,7 +110,7 @@
                     <span class="button-text">Registrar y Generar PDF</span>
                     <span class="button-loader hidden"></span>
                 </button>
-                
+
                 <div id="statusMessage"></div>
                 <div class="telegram-contact">
                     <span>¿Necesitas acceso o más créditos?</span>
@@ -122,17 +122,16 @@
             </form>
         </div>
     </div>
-    
+
     <footer class="main-footer">
         Plataforma Digital del Ministerio de Salud del Perú &copy; 2025
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabaseClient.js"></script>
-    <script src="script.js"></script>
-</body>
+    <script src="script.js"></script> </body>
 </html>
-
