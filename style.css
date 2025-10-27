@@ -1,6 +1,4 @@
-/* ===============================================
-   TEMA: Profesional y Limpio (v2 con scroll corregido)
-   =============================================== */
+
 :root {
     --color-primario: #d42732; /* Rojo oficial del logo de Perú */
     --color-secundario: #1d3a5f; /* Azul oscuro del fondo */
@@ -232,4 +230,5 @@ legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bo
         transform: translateX(100%);
         opacity: 0;
     }
+
 }
