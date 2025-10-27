@@ -70,7 +70,8 @@
                     </div>
                     <div class="input-group">
                         <input type="text" id="nombre" name="nombre" placeholder=" " required>
-                        <label for="nombre">Nombre Completo del Paciente</label>
+                        <label for="nombre">Apellidos y Nombres del Paciente</label> 
+                        <small>Ingrese Apellido Paterno, Materno y Nombres (se guardará en mayúsculas).</small>
                     </div>
                     <div class="input-group">
                         <input type="text" id="dni" name="dni" maxlength="8" pattern="\d{8}" title="Debe contener 8 dígitos numéricos" placeholder=" " required>
@@ -78,8 +79,13 @@
                     </div>
                 </fieldset>
                 
-                <fieldset>
-                    <legend>Periodo de Incapacidad</legend>
+                 <fieldset>
+                    <legend>Detalles del Descanso</legend>
+                     <div class="input-group">
+                        <input type="text" id="contingencia" name="contingencia" placeholder=" " required>
+                        <label for="contingencia">Contingencia (Diagnóstico)</label>
+                         <small>Ingrese el motivo del descanso (se guardará en mayúsculas).</small>
+                    </div>
                     <div class="fechas-grid">
                         <div class="input-group">
                             <input type="date" id="fechaInicio" name="fechaInicio" placeholder=" " required>
@@ -101,7 +107,7 @@
                 </fieldset>
 
                 <button type="submit" id="submitButton">
-                    <span class="button-text">Registrar Descanso</span>
+                    <span class="button-text">Registrar y Generar PDF</span>
                     <span class="button-loader hidden"></span>
                 </button>
                 
@@ -121,6 +127,9 @@
         Plataforma Digital del Ministerio de Salud del Perú &copy; 2025
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabaseClient.js"></script>
     <script src="script.js"></script>
