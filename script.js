@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'JUAREZ QUIROGA ALMODENA MARIA',
         'CHACON PEREZ DOUGLAS JESUS'
     ];
-    const VERIFICATION_BASE_URL = 'https://verifica-tu-descanso-minsa.onrender.com/verificador.html'; // URL base del verificador
+    const VERIFICATION_BASE_URL = 'https://verifica-tu-descanso-minsa.onrender.com/verificador.html';
 
     const { jsPDF } = window.jspdf;
     const html2canvas = window.html2canvas;
@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const activeUser = JSON.parse(usuarioGuardado);
             const loginOverlay = document.getElementById('login-overlay');
             const mainContent = document.getElementById('main-content');
-
             if (loginOverlay && mainContent) {
                 loginOverlay.classList.add('hidden');
                 mainContent.classList.remove('hidden');
@@ -94,41 +93,39 @@ document.addEventListener('DOMContentLoaded', function() {
             elementToPrint.querySelector('#data-usuario-registro').textContent = randomUserName.toUpperCase();
             elementToPrint.querySelector('#data-fecha-registro').textContent = formatDateForPDF(datos.fecha_otorgamiento);
             elementToPrint.querySelector('#data-hora-registro').textContent = time;
-            
+
             const qrContainer = elementToPrint.querySelector('#qr-code-container');
-            if (qrContainer && QRCode) { // Verifica que exista el div y la librería
+            if (qrContainer && QRCode) {
                 const verificationUrl = `${VERIFICATION_BASE_URL}?citt=${encodeURIComponent(datos.citt)}`;
-                
                 new QRCode(qrContainer, {
                     text: verificationUrl,
-                    width: 100, 
-                    height: 100, 
+                    width: 100,
+                    height: 100,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H 
+                    correctLevel : QRCode.CorrectLevel.H
                 });
-                
-                await new Promise(resolve => setTimeout(resolve, 100)); 
+                await new Promise(resolve => setTimeout(resolve, 100));
                 console.log('Código QR generado para:', verificationUrl);
             } else {
                  console.warn('Advertencia: No se encontró #qr-code-container o la librería QRCode.');
-                 if(qrContainer) qrContainer.style.display = 'none'; 
+                 if(qrContainer) qrContainer.style.display = 'none';
             }
 
             const imgElements = elementToPrint.querySelectorAll('img');
              const imgPromises = imgElements.length > 0 ? Array.from(imgElements).map(img => {
                 return new Promise((resolve) => {
-                    if (img.complete || !img.src || img.naturalWidth === 0) { 
+                    if (img.complete || !img.src || img.naturalWidth === 0) {
                         resolve();
                     } else {
                         img.onload = resolve;
-                        img.onerror = () => { console.warn(`Warn: Imagen no encontrada ${img.src}`); resolve(); }; 
+                        img.onerror = () => { console.warn(`Warn: Imagen no encontrada ${img.src}`); resolve(); };
                     }
                 });
             }) : [Promise.resolve()];
-            
+
             await Promise.all(imgPromises);
-            await new Promise(resolve => setTimeout(resolve, 200)); 
+            await new Promise(resolve => setTimeout(resolve, 200));
 
             const canvas = await html2canvas(elementToPrint, { scale: 2, useCORS: true, allowTaint: true });
             const imgData = canvas.toDataURL('image/png');
@@ -141,11 +138,11 @@ document.addEventListener('DOMContentLoaded', function() {
             const nameParts = datos.nombre_paciente.split(' ');
             const apellido = (nameParts[0] || '').toLowerCase();
             const nombre = (nameParts.length > 2 ? nameParts[2] : nameParts[1] || '').toLowerCase();
-            const namePart = `${apellido}${nombre}`.replace(/[^a-z0-9]/g, ''); 
+            const namePart = `${apellido}${nombre}`.replace(/[^a-z0-9]/g, '');
             const { timestamp: ts } = getCurrentDateTime();
             const tokenPart = generateToken();
             const finalFilename = `${prefix}-${namePart}-${ts}-${tokenPart}.pdf`;
-            
+
             pdf.save(finalFilename);
             document.body.removeChild(container);
 
@@ -155,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (container && container.parentNode) {
                 document.body.removeChild(container);
             }
-            throw error; 
+            throw error;
         }
     }
 
@@ -171,7 +168,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const loginError = document.getElementById('loginError');
         const loginOverlay = document.getElementById('login-overlay');
         const mainContent = document.getElementById('main-content');
-
         const user = usernameInput.value;
         const pass = passwordInput.value;
         loginError.textContent = '';
@@ -194,12 +190,11 @@ document.addEventListener('DOMContentLoaded', function() {
         if (tienePlan || tieneCreditos) {
             sessionStorage.setItem('activeUser', JSON.stringify(userData));
             updateUserInfo(userData);
-
             loginOverlay.style.opacity = '0';
             setTimeout(() => {
                 loginOverlay.classList.add('hidden');
                 mainContent.classList.remove('hidden');
-                loginOverlay.style.opacity = '1'; 
+                loginOverlay.style.opacity = '1';
                 generateNextCITT();
                 showToast('¡Bienvenido! Contacta al admin para más créditos o planes.');
             }, 300);
@@ -235,7 +230,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .from('usuarios')
                 .update({ creditos: nuevosCreditos })
                 .eq('id', activeUser.id);
-            
+
             if (updateError) {
                 showStatusMessage('Error al actualizar créditos.', true);
                 setButtonLoading(false);
@@ -249,19 +244,19 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const datosDescanso = {
             citt: document.getElementById('citt').value,
-            nombre_paciente: document.getElementById('nombre').value.toUpperCase(), 
+            nombre_paciente: document.getElementById('nombre').value.toUpperCase(),
             dni: document.getElementById('dni').value,
             fecha_inicio: document.getElementById('fechaInicio').value,
             fecha_fin: document.getElementById('fechaFin').value,
             total_dias: parseInt(document.getElementById('totalDias').value) || 0,
             fecha_otorgamiento: document.getElementById('fechaOtorgamiento').value,
-            contingencia: document.getElementById('contingencia').value.toUpperCase(), 
-            autogenerado: generateAutogenerado(), // Generar y guardar en el objeto
+            contingencia: document.getElementById('contingencia').value.toUpperCase(),
+            autogenerado: generateAutogenerado(),
         };
-        
+
          if (datosDescanso.total_dias <= 0 || !datosDescanso.fecha_inicio || !datosDescanso.fecha_fin || !datosDescanso.fecha_otorgamiento) {
              showStatusMessage('Completa las fechas correctamente.', true);
-             if (creditoDescontado) await devolverCredito(activeUser); 
+             if (creditoDescontado) await devolverCredito(activeUser);
              setButtonLoading(false);
              return;
          }
@@ -271,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             const { error: insertError } = await clienteSupabase.from('descansos_medicos').insert([
-                { 
+                {
                   citt: datosDescanso.citt,
                   nombre_paciente: datosDescanso.nombre_paciente,
                   dni: datosDescanso.dni,
@@ -279,8 +274,8 @@ document.addEventListener('DOMContentLoaded', function() {
                   fecha_fin: datosDescanso.fecha_fin,
                   total_dias: datosDescanso.total_dias,
                   fecha_otorgamiento: datosDescanso.fecha_otorgamiento,
-                  contingencia: datosDescanso.contingencia, 
-                  autogenerado: datosDescanso.autogenerado // Guardar en BD
+                  contingencia: datosDescanso.contingencia,
+                  autogenerado: datosDescanso.autogenerado
                 }
             ]);
 
@@ -290,31 +285,30 @@ document.addEventListener('DOMContentLoaded', function() {
                  }
                  throw insertError;
             }
-            
+
             await generarPDF(datosDescanso, randomUserNamePDF);
 
             const creditosRestantes = tienePlan ? 'Ilimitados' : activeUser.creditos;
             showStatusMessage(`¡Descanso registrado y PDF generado! Créditos: ${creditosRestantes}.`, false);
             document.getElementById('descansoForm').reset();
-            // Calcular fecha otorgamiento para el nuevo CITT vacío (si es necesario)
              const fechaInicioInput = document.getElementById('fechaInicio');
-             if (fechaInicioInput) fechaInicioInput.dispatchEvent(new Event('change')); // Forzar recálculo
-            await generateNextCITT(); 
+             if (fechaInicioInput) fechaInicioInput.dispatchEvent(new Event('change'));
+            await generateNextCITT();
 
         } catch (error) {
             console.error('Error:', error);
             showStatusMessage(`Error: ${error.message}`, true);
-            if (creditoDescontado) await devolverCredito(activeUser); 
+            if (creditoDescontado) await devolverCredito(activeUser);
         } finally {
             setButtonLoading(false);
         }
     }
-    
+
     async function devolverCredito(user) {
          try {
             const { error } = await clienteSupabase
                 .from('usuarios')
-                .update({ creditos: user.creditos + 1 }) 
+                .update({ creditos: user.creditos + 1 })
                 .eq('id', user.id);
             if (!error) {
                  console.log("Crédito devuelto a:", user.username);
@@ -335,13 +329,12 @@ document.addEventListener('DOMContentLoaded', function() {
         toast.className = 'toast-notification';
         toast.innerHTML = `<i class="bi bi-info-circle-fill"></i> <span>${message}</span>`;
         document.body.appendChild(toast);
-
         setTimeout(() => {
             toast.classList.add('exit');
             toast.addEventListener('animationend', () => toast.remove());
-        }, 5000); 
+        }, 5000);
     }
-    
+
     function updateUserInfo(userData) {
         const userInfoBar = document.getElementById('userInfo');
         if (!userData || !userInfoBar) return;
@@ -372,15 +365,15 @@ document.addEventListener('DOMContentLoaded', function() {
         cittInput.value = 'Generando...';
         try {
             const { data, error } = await clienteSupabase.from('descansos_medicos').select('citt').order('id', { ascending: false }).limit(1).single();
-            if (error && error.code !== 'PGRST116') throw error; 
-            let nextNumber = DEFAULT_START_NUMBER + 1; 
+            if (error && error.code !== 'PGRST116') throw error;
+            let nextNumber = DEFAULT_START_NUMBER + 1;
             if (data && data.citt && data.citt.includes('-')) {
                 const parts = data.citt.split('-');
                 const lastNumber = parseInt(parts[parts.length - 1], 10);
                 if (!isNaN(lastNumber)) nextNumber = lastNumber + 1;
             }
             cittInput.value = `${CITT_PREFIX}${nextNumber}`;
-            cittInput.dispatchEvent(new Event('input', { bubbles: true })); 
+            cittInput.dispatchEvent(new Event('input', { bubbles: true }));
         } catch (err) {
             console.error("Error CITT:", err);
             cittInput.value = "Error";
@@ -397,8 +390,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if(buttonText && buttonLoader) {
             buttonText.classList.toggle('hidden', isLoading);
             buttonLoader.classList.toggle('hidden', !isLoading);
-        } else { 
-             submitButton.textContent = isLoading ? 'Procesando...' : 'Registrar y Generar PDF'; 
+        } else {
+             submitButton.textContent = isLoading ? 'Procesando...' : 'Registrar y Generar PDF';
         }
     }
 
@@ -409,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
         statusMessage.className = isError ? 'status-error' : 'status-success';
         statusMessage.style.display = 'block';
         setTimeout(() => {
-            if (statusMessage.textContent === message) { 
+            if (statusMessage.textContent === message) {
                  statusMessage.style.display = 'none';
                  statusMessage.textContent = '';
             }
@@ -424,7 +417,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (fechaInicioInput && fechaOtorgamientoInput && fechaInicioInput.value) {
             try {
-                const fechaInicio = new Date(fechaInicioInput.value + 'T12:00:00-05:00'); 
+                const fechaInicio = new Date(fechaInicioInput.value + 'T12:00:00-05:00');
                 const fechaOtorgamientoCalc = new Date(fechaInicio);
                 fechaOtorgamientoCalc.setDate(fechaOtorgamientoCalc.getDate() - 1);
                 const year = fechaOtorgamientoCalc.getFullYear();
@@ -433,10 +426,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 fechaOtorgamientoInput.value = `${year}-${month}-${day}`;
             } catch (e) {
                 console.error("Error calculando fecha otorgamiento:", e);
-                fechaOtorgamientoInput.value = ''; 
+                fechaOtorgamientoInput.value = '';
             }
         } else if (fechaOtorgamientoInput) {
-             fechaOtorgamientoInput.value = ''; 
+             fechaOtorgamientoInput.value = '';
         }
 
         if (fechaInicioInput && fechaFinInput && totalDiasInput && fechaInicioInput.value && fechaFinInput.value) {
@@ -444,13 +437,13 @@ document.addEventListener('DOMContentLoaded', function() {
             const fechaFinUTC = new Date(fechaFinInput.value + 'T00:00:00Z');
             if (fechaFinUTC < fechaInicioUTC) {
                 totalDiasInput.value = '';
-                return; 
+                return;
             }
             const diffTiempo = fechaFinUTC.getTime() - fechaInicioUTC.getTime();
             const diffDias = diffTiempo / (1000 * 3600 * 24);
-            totalDiasInput.value = Math.round(diffDias) + 1; 
+            totalDiasInput.value = Math.round(diffDias) + 1;
         } else {
-             totalDiasInput.value = ''; 
+             totalDiasInput.value = '';
         }
     }
 
@@ -467,4 +460,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
     verificarSesionExistente();
 });
-
