@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const user = session.user;
-            const ADMIN_AUTH_EMAIL = 'admin-internal@tuproyecto.com'; // <-- CAMBIA ESTO
+            const ADMIN_AUTH_EMAIL = 'rodrigoalvarez0512@gmail.com'; // <-- CAMBIA ESTO
 
             if (user.email !== ADMIN_AUTH_EMAIL) {
                 console.log("Acceso denegado. Usuario no es admin:", user.email);
@@ -242,3 +242,4 @@ document.addEventListener('DOMContentLoaded', function() {
     checkAdminAuth();
 
 });
+
