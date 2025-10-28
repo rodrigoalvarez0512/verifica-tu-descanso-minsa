@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 return false;
             }
             const user = session.user;
-            const ADMIN_AUTH_EMAIL = 'rodrigoalvarez0512@gmail.com';
+            const ADMIN_AUTH_EMAIL = atob('YWRtaW4ubWluc2EuYXBwQGF1dGgubG9jYWw=');
             if (user.email !== ADMIN_AUTH_EMAIL) {
                 console.log("Acceso denegado. Usuario no es admin:", user.email);
                 await clienteSupabase.auth.signOut();
