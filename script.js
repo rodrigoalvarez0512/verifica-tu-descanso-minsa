@@ -160,62 +160,57 @@ document.addEventListener('DOMContentLoaded', function() {
         const loginError = document.getElementById('loginError');
         const loginOverlay = document.getElementById('login-overlay');
         const mainContent = document.getElementById('main-content');
-        const user = usernameInput.value;
+        
+        const userOrEmail = usernameInput.value;
         const pass = passwordInput.value;
         loginError.textContent = '';
-
+    
+        const ADMIN_AUTH_EMAIL = atob('YWRtaW4ubWluc2EuYXBwQGF1dGgubG9jYWw='); 
+    
+        if (userOrEmail === ADMIN_AUTH_EMAIL) {
+            const { error: adminAuthError } = await clienteSupabase.auth.signInWithPassword({
+                email: userOrEmail,
+                password: pass,
+            });
+    
+            if (adminAuthError) {
+                loginError.textContent = 'Credenciales de administrador incorrectas.';
+                return;
+            }
+    
+            console.log("Inicio de sesión seguro para admin exitoso.");
+            window.location.href = 'admin.html';
+            return; 
+        }
+    
         const { data: userData, error: userError } = await clienteSupabase
             .from('usuarios')
             .select()
-            .eq('username', user)
+            .eq('username', userOrEmail)
             .eq('password', pass)
             .single();
-
+    
         if (userError || !userData) {
             loginError.textContent = 'Usuario o contraseña incorrectos.';
             return;
         }
-
-        if (userData.username === 'admin') {
-            try {
-                const ADMIN_AUTH_EMAIL = 'admin-internal@tuproyecto.com'; // <-- CAMBIA ESTO
-                const ADMIN_AUTH_PASSWORD = 'ContraseñaSuperSeguraParaAdmin123!'; // <-- CAMBIA ESTO
-
-                const { error: adminAuthError } = await clienteSupabase.auth.signInWithPassword({
-                    email: ADMIN_AUTH_EMAIL,
-                    password: ADMIN_AUTH_PASSWORD,
-                });
-
-                if (adminAuthError) {
-                    console.error("Error crítico al iniciar sesión segura de admin:", adminAuthError);
-                    loginError.textContent = 'Error interno al verificar admin. Contacta soporte.';
-                    return;
-                }
-                sessionStorage.setItem('activeUserDetails', JSON.stringify(userData));
-                console.log("Inicio de sesión seguro para admin exitoso.");
-                window.location.href = 'admin.html';
-
-            } catch(catchError) {
-                 console.error("Error inesperado en login de admin:", catchError);
-                 loginError.textContent = 'Ocurrió un error inesperado con el admin.';
-            }
+    
+        const tienePlan = userData.plan_ilimitado_hasta && new Date(userData.plan_ilimitado_hasta) > new Date();
+        const tieneCreditos = userData.creditos > 0;
+    
+        if (tienePlan || tieneCreditos) {
+            sessionStorage.setItem('activeUserDetails', JSON.stringify(userData));
+            updateUserInfo(userData);
+            loginOverlay.style.opacity = '0';
+            setTimeout(() => {
+                loginOverlay.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                loginOverlay.style.opacity = '1';
+                generateNextCITT();
+                showToast('¡Bienvenido!');
+            }, 300);
         } else {
-            const tienePlan = userData.plan_ilimitado_hasta && new Date(userData.plan_ilimitado_hasta) > new Date();
-            const tieneCreditos = userData.creditos > 0;
-            if (tienePlan || tieneCreditos) {
-                sessionStorage.setItem('activeUserDetails', JSON.stringify(userData));
-                updateUserInfo(userData);
-                loginOverlay.style.opacity = '0';
-                setTimeout(() => {
-                    loginOverlay.classList.add('hidden');
-                    mainContent.classList.remove('hidden');
-                    loginOverlay.style.opacity = '1';
-                    generateNextCITT();
-                    showToast('¡Bienvenido!');
-                }, 300);
-            } else {
-                loginError.textContent = 'No tienes créditos o tu plan ha expirado.';
-            }
+            loginError.textContent = 'No tienes créditos o tu plan ha expirado.';
         }
     }
 
