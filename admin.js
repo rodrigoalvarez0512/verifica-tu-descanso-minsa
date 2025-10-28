@@ -1,22 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // ===============================================
-    //           AUTENTICACIÓN DE ADMINISTRADOR
-    // ===============================================
-    function checkAdminAuth() {
-        const activeUserStr = sessionStorage.getItem('activeUser');
-        if (!activeUserStr) {
-            window.location.href = 'index.html';
-            return;
-        }
-        const activeUser = JSON.parse(activeUserStr);
-        if (activeUser.username !== 'admin') {
-            window.location.href = 'index.html';
-        }
-    }
 
-    // ===============================================
-    //           ELEMENTOS DEL DOM
-    // ===============================================
     const userTableBody = document.getElementById('userTableBody');
     const activityLogBody = document.getElementById('activityLogBody');
     const actionStatusMessage = document.getElementById('actionStatusMessage');
@@ -24,17 +7,41 @@ document.addEventListener('DOMContentLoaded', function() {
     const addCreditsForm = document.getElementById('addCreditsForm');
     const setPlanForm = document.getElementById('setPlanForm');
     const logoutButton = document.getElementById('logoutButton');
-
-    // --- NUEVO: Elementos del Modal ---
     const modalOverlay = document.getElementById('confirmationModal');
     const modalTitle = document.getElementById('modalTitle');
     const modalMessage = document.getElementById('modalMessage');
     const modalConfirmBtn = document.getElementById('modalConfirmBtn');
     const modalCancelBtn = document.getElementById('modalCancelBtn');
 
-    // ===============================================
-    //           NUEVO MODAL DE CONFIRMACIÓN
-    // ===============================================
+    async function checkAdminAuth() {
+        try {
+            const { data: { session }, error: sessionError } = await clienteSupabase.auth.getSession();
+
+            if (sessionError || !session || !session.user) {
+                console.log("No hay sesión de admin válida.", sessionError || 'No session');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            const user = session.user;
+            const ADMIN_AUTH_EMAIL = 'admin-internal@tuproyecto.com'; // <-- CAMBIA ESTO
+
+            if (user.email !== ADMIN_AUTH_EMAIL) {
+                console.log("Acceso denegado. Usuario no es admin:", user.email);
+                await clienteSupabase.auth.signOut();
+                window.location.href = 'index.html';
+            } else {
+                console.log("Acceso de administrador concedido para:", user.email);
+                fetchAndDisplayUsers();
+                fetchAndDisplayActivityLog();
+            }
+
+        } catch (error) {
+            console.error("Error en checkAdminAuth:", error);
+            window.location.href = 'index.html';
+        }
+    }
+
     function showConfirmationModal(title, message) {
         modalTitle.textContent = title;
         modalMessage.textContent = message;
@@ -49,12 +56,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 modalOverlay.classList.add('hidden');
                 resolve(false);
             };
+            modalOverlay.onclick = (e) => {
+                 if (e.target === modalOverlay) {
+                    modalOverlay.classList.add('hidden');
+                    resolve(false);
+                 }
+            }
         });
     }
-
-    // ===============================================
-    //           FUNCIONES PRINCIPALES
-    // ===============================================
 
     async function fetchAndDisplayUsers() {
         const { data: users, error } = await clienteSupabase.from('usuarios').select('*');
@@ -85,112 +94,151 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     async function fetchAndDisplayActivityLog() {
-        const { data: logs, error } = await clienteSupabase.from('activity_log').select('*').order('created_at', { ascending: false }).limit(15);
+        const { data: logs, error } = await clienteSupabase.from('activity_log').select('*').order('created_at', { ascending: false }).limit(20);
         if (error) { console.error('Error fetching activity log:', error); return; }
         activityLogBody.innerHTML = '';
         logs.forEach(log => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
-                <td>${new Date(log.created_at).toLocaleString('es-PE')}</td>
+                <td>${new Date(log.created_at).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })}</td>
                 <td>${log.command_name}</td>
                 <td>${log.details}</td>
             `;
             activityLogBody.appendChild(tr);
         });
     }
-    
+
     async function logActivity(command, details) {
-        await clienteSupabase.from('activity_log').insert({ command_name: command, details: details });
-        fetchAndDisplayActivityLog();
-    }
-    
-    function showActionMessage(message, isError = false) {
-        actionStatusMessage.textContent = message;
-        actionStatusMessage.style.color = isError ? 'var(--color-danger)' : 'var(--color-success)';
-        setTimeout(() => actionStatusMessage.textContent = '', 4000);
+        try {
+            const { error } = await clienteSupabase.from('activity_log').insert({ command_name: command, details: details });
+            if (error) throw error;
+            fetchAndDisplayActivityLog();
+        } catch (error) {
+            console.error('Error logging activity:', error);
+            showActionMessage('Error al registrar la actividad.', true);
+        }
     }
 
-    // ===============================================
-    //           MANEJADORES DE EVENTOS
-    // ===============================================
+    function showActionMessage(message, isError = false) {
+        actionStatusMessage.textContent = message;
+        actionStatusMessage.className = isError ? 'status-error' : 'status-success';
+        actionStatusMessage.style.display = 'block';
+        setTimeout(() => {
+             if (actionStatusMessage.textContent === message) {
+                 actionStatusMessage.style.display = 'none';
+                 actionStatusMessage.textContent = '';
+             }
+        }, 5000);
+    }
+
     createUserForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const newUser = `user${Math.floor(1000 + Math.random() * 9000)}`;
         const newPass = Math.random().toString(36).substring(2, 10);
-        const { error } = await clienteSupabase.from('usuarios').insert({ username: newUser, password: newPass, creditos: 0 });
-        if (error) { showActionMessage(`Error creando usuario: ${error.message}`, true); } 
-        else {
+        try {
+            const { error } = await clienteSupabase.from('usuarios').insert({ username: newUser, password: newPass, creditos: 0 });
+            if (error) throw error;
             showActionMessage(`Usuario ${newUser} creado con éxito.`);
             await logActivity('Crear Usuario', `Se creó el usuario: ${newUser}`);
             fetchAndDisplayUsers();
+        } catch (error) {
+            showActionMessage(`Error creando usuario: ${error.message}`, true);
         }
     });
 
     addCreditsForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('addcred_username').value;
-        const amount = parseInt(document.getElementById('addcred_amount').value);
-        const { data: user, error: fetchError } = await clienteSupabase.from('usuarios').select('creditos').eq('username', username).single();
-        if (fetchError) { showActionMessage(`Usuario '${username}' no encontrado.`, true); return; }
-        const newTotal = (user.creditos || 0) + amount;
-        const { error: updateError } = await clienteSupabase.from('usuarios').update({ creditos: newTotal }).eq('username', username);
-        if (updateError) { showActionMessage(`Error al añadir créditos: ${updateError.message}`, true); } 
-        else {
+        const amountInput = document.getElementById('addcred_amount');
+        const amount = parseInt(amountInput.value);
+
+        if (isNaN(amount) || amount <= 0) {
+            showActionMessage('La cantidad de créditos debe ser un número positivo.', true);
+            return;
+        }
+
+        try {
+            const { data: user, error: fetchError } = await clienteSupabase.from('usuarios').select('creditos').eq('username', username).single();
+            if (fetchError) { showActionMessage(`Usuario '${username}' no encontrado.`, true); return; }
+
+            const newTotal = (user.creditos || 0) + amount;
+            const { error: updateError } = await clienteSupabase.from('usuarios').update({ creditos: newTotal }).eq('username', username);
+            if (updateError) throw updateError;
+
             showActionMessage(`Se añadieron ${amount} créditos a ${username}.`);
             await logActivity('Añadir Créditos', `Se añadieron ${amount} créditos a ${username}. Total: ${newTotal}`);
             fetchAndDisplayUsers();
             addCreditsForm.reset();
+        } catch (error) {
+            showActionMessage(`Error al añadir créditos: ${error.message}`, true);
         }
     });
 
     setPlanForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const username = document.getElementById('plan_username').value;
-        const days = parseInt(document.getElementById('plan_days').value);
+        const daysInput = document.getElementById('plan_days');
+        const days = parseInt(daysInput.value);
+
+         if (isNaN(days) || days <= 0) {
+            showActionMessage('La duración del plan debe ser un número positivo.', true);
+            return;
+        }
+
         const expirationDate = new Date();
         expirationDate.setDate(expirationDate.getDate() + days);
-        const { error } = await clienteSupabase.from('usuarios').update({ plan_ilimitado_hasta: expirationDate.toISOString() }).eq('username', username);
-        if (error) { showActionMessage(`Error al asignar plan: ${error.message}`, true); }
-        else {
+        try {
+            const { error } = await clienteSupabase.from('usuarios').update({ plan_ilimitado_hasta: expirationDate.toISOString() }).eq('username', username);
+            if (error) throw error;
             showActionMessage(`Plan de ${days} días asignado a ${username}.`);
-            await logActivity('Asignar Plan', `Se asignó un plan de ${days} días a ${username}.`);
+            await logActivity('Asignar Plan', `Se asignó un plan de ${days} días a ${username}. Vence: ${expirationDate.toLocaleDateString('es-PE')}`);
             fetchAndDisplayUsers();
             setPlanForm.reset();
+        } catch (error) {
+             showActionMessage(`Error al asignar plan: ${error.message}`, true);
         }
     });
 
-    // --- LÓGICA DE ELIMINACIÓN MODIFICADA ---
     userTableBody.addEventListener('click', async (e) => {
         const deleteButton = e.target.closest('.delete-btn');
         if (deleteButton) {
             const username = deleteButton.dataset.username;
-            
+             if (username === 'admin') {
+                showActionMessage('No se puede eliminar al usuario administrador.', true);
+                return;
+            }
+
             const confirmed = await showConfirmationModal(
                 'Confirmar Eliminación',
                 `¿Estás seguro de que quieres eliminar al usuario '${username}'? Esta acción no se puede deshacer.`
             );
 
             if (confirmed) {
-                const { error } = await clienteSupabase.from('usuarios').delete().eq('username', username);
-                if (error) {
-                    showActionMessage(`Error al eliminar: ${error.message}`, true);
-                } else {
+                try {
+                    const { error } = await clienteSupabase.from('usuarios').delete().eq('username', username);
+                    if (error) throw error;
                     await logActivity('Eliminar Usuario', `Se eliminó al usuario: ${username}`);
                     fetchAndDisplayUsers();
+                    showActionMessage(`Usuario '${username}' eliminado.`, false);
+                } catch (error) {
+                    showActionMessage(`Error al eliminar: ${error.message}`, true);
                 }
             }
         }
     });
-    
-    logoutButton.addEventListener('click', () => {
-        sessionStorage.removeItem('activeUser');
-        window.location.href = 'index.html';
+
+    logoutButton.addEventListener('click', async () => {
+        sessionStorage.removeItem('activeUserDetails');
+        try {
+             const { error } = await clienteSupabase.auth.signOut();
+             if (error) console.error("Error al cerrar sesión de Supabase:", error);
+         } catch (e) {
+             console.error("Error inesperado en signOut:", e);
+         } finally {
+            window.location.href = 'index.html';
+         }
     });
 
-    // ===============================================
-    //           INICIALIZACIÓN DEL DASHBOARD
-    // ===============================================
     checkAdminAuth();
-    fetchAndDisplayUsers();
-    fetchAndDisplayActivityLog();
+
 });
