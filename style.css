@@ -203,3 +203,29 @@ legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bo
 
 }
 
+/* Añade esto a tu style.css */
+.input-group select {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 1rem;
+    font-family: var(--fuente-principal);
+    color: var(--color-texto-principal);
+    background-color: var(--color-fondo-input);
+    border: 1px solid var(--color-borde-input);
+    border-radius: var(--radio-borde);
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23333' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em;
+}
+.input-group label.label-select {
+    top: 0;
+    left: 10px;
+    font-size: 0.75rem;
+    color: var(--color-primario);
+    font-weight: 500;
+    background-color: var(--color-panel);
+}
