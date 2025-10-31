@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const { time } = getCurrentDateTime();
 
-            // ================== LÓGICA DE ENTIDAD MODIFICADA ==================
+            // ================== LÓGICA DE ENTIDAD CORREGIDA ==================
             const labelEntidad = elementToPrint.querySelector('#label-entidad');
             const dataEntidad = elementToPrint.querySelector('#data-eess');
             
@@ -91,8 +91,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Si es MINSA, aplicamos las nuevas reglas
                 labelEntidad.textContent = 'E.S.:';
                 
-                // Aplicamos la regla: nombre en minúsculas, resto en mayúsculas
-                const nombreHospital = datos.minsaHospitalNombre.toLowerCase();
+                // Aplicamos la regla: nombre en MAYÚSCULAS
+                const nombreHospital = datos.minsaHospitalNombre.toUpperCase(); // <-- CORREGIDO
                 dataEntidad.textContent = `${nombreHospital} - MINSA - SIS`;
                 
             } else {
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 labelEntidad.textContent = 'EE.SS:';
                 dataEntidad.textContent = '424-ESSALUD - SEGURO SOCIAL';
             }
-            // ================== FIN LÓGICA MODIFICADA ==================
+            // ================== FIN LÓGICA CORREGIDA ==================
 
             elementToPrint.querySelector('#data-citt').textContent = datos.citt;
             elementToPrint.querySelector('#data-acto-medico').textContent = '4635240';
