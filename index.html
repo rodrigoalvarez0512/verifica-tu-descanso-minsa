@@ -80,6 +80,22 @@
                 </fieldset>
 
                  <fieldset>
+                    <legend>Información de Entidad</legend>
+                    <div class="input-group">
+                        <select id="tipoEntidad" name="tipoEntidad" required>
+                            <option value="essalud" selected>ESSALUD</option>
+                            <option value="minsa">MINSA - SIS</option>
+                        </select>
+                        <label for="tipoEntidad" class="label-select">Entidad Emisora</label>
+                    </div>
+                    <div class="input-group" id="minsaHospitalGroup" style="display: none;">
+                        <input type="text" id="minsaHospitalNombre" name="minsaHospitalNombre" placeholder=" ">
+                        <label for="minsaHospitalNombre">Nombre del Hospital (E.S.)</label>
+                        <small>El nombre se guardará en minúsculas.</small>
+                    </div>
+                </fieldset>
+
+                 <fieldset>
                     <legend>Detalles del Descanso</legend>
                      <div class="input-group">
                         <input type="text" id="contingencia" name="contingencia" placeholder=" " required>
@@ -101,7 +117,7 @@
                         </div>
                         <div class="input-group">
                             <input type="date" id="fechaOtorgamiento" name="fechaOtorgamiento" placeholder=" " required readonly>
-                            <label for="fechaOtorgamiento">Fecha de Otorgamiento</label>
+                            <label for="fechaOtorgamiento">Fecha de Otorgamiento</Mabel>
                         </div>
                     </div>
                 </fieldset>
