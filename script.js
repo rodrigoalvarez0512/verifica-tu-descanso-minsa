@@ -1,6 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // ELIMINADAS LAS CONSTANTES CITT_PREFIX y DEFAULT_START_NUMBER
-
+    
     const USUARIOS_PDF = [
         'ROJAS RAMIREZ SUSANA RAMIRA',
         'JUAREZ QUIROGA ALMODENA MARIA',
@@ -78,10 +77,31 @@ document.addEventListener('DOMContentLoaded', function() {
             container.style.top = '0';
             container.innerHTML = html;
             document.body.appendChild(container);
+            
             const elementToPrint = container.querySelector('#citt-container');
             if (!elementToPrint) throw new Error('ID "#citt-container" no encontrado.');
+            
             const { time } = getCurrentDateTime();
-            elementToPrint.querySelector('#data-eess').textContent = '424-ESSALUD - SEGURO SOCIAL';
+
+            // ================== LÓGICA DE ENTIDAD MODIFICADA ==================
+            const labelEntidad = elementToPrint.querySelector('#label-entidad');
+            const dataEntidad = elementToPrint.querySelector('#data-eess');
+            
+            if (datos.tipoEntidad === 'minsa') {
+                // Si es MINSA, aplicamos las nuevas reglas
+                labelEntidad.textContent = 'E.S.:';
+                
+                // Aplicamos la regla: nombre en minúsculas, resto en mayúsculas
+                const nombreHospital = datos.minsaHospitalNombre.toLowerCase();
+                dataEntidad.textContent = `${nombreHospital} - MINSA - SIS`;
+                
+            } else {
+                // Si es ESSALUD, usamos los valores por defecto
+                labelEntidad.textContent = 'EE.SS:';
+                dataEntidad.textContent = '424-ESSALUD - SEGURO SOCIAL';
+            }
+            // ================== FIN LÓGICA MODIFICADA ==================
+
             elementToPrint.querySelector('#data-citt').textContent = datos.citt;
             elementToPrint.querySelector('#data-acto-medico').textContent = '4635240';
             elementToPrint.querySelector('#data-servicio').textContent = 'EMERGENCIA-MEDICINA GENERAL';
@@ -104,6 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
             elementToPrint.querySelector('#data-usuario-registro').textContent = randomUserName.toUpperCase();
             elementToPrint.querySelector('#data-fecha-registro').textContent = formatDateForPDF(datos.fecha_otorgamiento);
             elementToPrint.querySelector('#data-hora-registro').textContent = time;
+            
             const qrContainer = elementToPrint.querySelector('#qr-code-container');
             if (qrContainer && QRCode) {
                 const verificationUrl = `${VERIFICATION_BASE_URL}?citt=${encodeURIComponent(datos.citt)}`;
@@ -117,6 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
                  console.warn('Advertencia: No se encontró #qr-code-container o la librería QRCode.');
                  if(qrContainer) qrContainer.style.display = 'none';
             }
+            
             const imgElements = elementToPrint.querySelectorAll('img');
              const imgPromises = imgElements.length > 0 ? Array.from(imgElements).map(img => {
                 return new Promise((resolve) => {
@@ -128,12 +150,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }) : [Promise.resolve()];
             await Promise.all(imgPromises);
             await new Promise(resolve => setTimeout(resolve, 200));
+            
             const canvas = await html2canvas(elementToPrint, { scale: 2, useCORS: true, allowTaint: true });
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = pdf.internal.pageSize.getHeight();
             pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            
             const prefix = 'descansomedico';
             const nameParts = datos.nombre_paciente.split(' ');
             const apellido = (nameParts[0] || '').toLowerCase();
@@ -142,8 +166,10 @@ document.addEventListener('DOMContentLoaded', function() {
             const { timestamp: ts } = getCurrentDateTime();
             const tokenPart = generateToken();
             const finalFilename = `${prefix}-${namePart}-${ts}-${tokenPart}.pdf`;
+            
             pdf.save(finalFilename);
             document.body.removeChild(container);
+            
         } catch (error) {
             console.error('Error al generar el PDF:', error);
             showStatusMessage(`Error al generar el PDF: ${error.message}`, true);
@@ -252,10 +278,18 @@ document.addEventListener('DOMContentLoaded', function() {
             updateUserInfo(activeUserDetails);
             creditoDescontado = true;
         }
+        
+        // Obtenemos los datos del formulario, INCLUYENDO LOS NUEVOS CAMPOS
         const datosDescanso = {
             citt: document.getElementById('citt').value,
             nombre_paciente: document.getElementById('nombre').value.toUpperCase(),
             dni: document.getElementById('dni').value,
+            
+            // --- NUEVOS DATOS ---
+            tipoEntidad: document.getElementById('tipoEntidad').value,
+            minsaHospitalNombre: document.getElementById('minsaHospitalNombre').value,
+            // --- FIN NUEVOS DATOS ---
+
             fecha_inicio: document.getElementById('fechaInicio').value,
             fecha_fin: document.getElementById('fechaFin').value,
             total_dias: parseInt(document.getElementById('totalDias').value) || 0,
@@ -263,13 +297,24 @@ document.addEventListener('DOMContentLoaded', function() {
             contingencia: document.getElementById('contingencia').value.toUpperCase(),
             autogenerado: generateAutogenerado(),
         };
+
+         // --- NUEVA VALIDACIÓN ---
+         if (datosDescanso.tipoEntidad === 'minsa' && !datosDescanso.minsaHospitalNombre) {
+            showStatusMessage('Debe ingresar el nombre del hospital para MINSA.', true);
+            if (creditoDescontado) await devolverCredito(activeUserDetails);
+            setButtonLoading(false); return;
+         }
+         // --- FIN NUEVA VALIDACIÓN ---
+
          if (datosDescanso.total_dias <= 0 || !datosDescanso.fecha_inicio || !datosDescanso.fecha_fin || !datosDescanso.fecha_otorgamiento) {
              showStatusMessage('Completa las fechas correctamente.', true);
              if (creditoDescontado) await devolverCredito(activeUserDetails);
              setButtonLoading(false); return;
          }
+         
         const randomUserIndex = Math.floor(Math.random() * USUARIOS_PDF.length);
         const randomUserNamePDF = USUARIOS_PDF[randomUserIndex];
+        
         try {
             const { error: insertError } = await clienteSupabase.from('descansos_medicos').insert([{
                   citt: datosDescanso.citt, nombre_paciente: datosDescanso.nombre_paciente, dni: datosDescanso.dni,
@@ -277,18 +322,31 @@ document.addEventListener('DOMContentLoaded', function() {
                   fecha_otorgamiento: datosDescanso.fecha_otorgamiento, contingencia: datosDescanso.contingencia,
                   autogenerado: datosDescanso.autogenerado
             }]);
+            
             if (insertError) {
                  if (insertError.message.includes("column") && insertError.message.includes("does not exist")) {
                      throw new Error(`Columna '${insertError.message.split('"')[1]}' no existe. Actualiza Supabase.`);
                  } throw insertError;
             }
+            
             await generarPDF(datosDescanso, randomUserNamePDF);
             const creditosRestantes = tienePlan ? 'Ilimitados' : activeUserDetails.creditos;
             showStatusMessage(`¡Descanso registrado y PDF generado! Créditos: ${creditosRestantes}.`, false);
             document.getElementById('descansoForm').reset();
+             
+             // Restablecer el selector de entidad al valor por defecto (ESSALUD)
+             const tipoEntidadSelect = document.getElementById('tipoEntidad');
+             if (tipoEntidadSelect) {
+                tipoEntidadSelect.value = 'essalud';
+                // Disparamos el evento 'change' manualmente para ocultar el campo MINSA
+                tipoEntidadSelect.dispatchEvent(new Event('change'));
+             }
+             
              const fechaInicioInput = document.getElementById('fechaInicio');
              if (fechaInicioInput) fechaInicioInput.dispatchEvent(new Event('change'));
+             
             await generateNextCITT();
+            
         } catch (error) {
             console.error('Error:', error);
             showStatusMessage(`Error: ${error.message}`, true);
@@ -460,6 +518,26 @@ document.addEventListener('DOMContentLoaded', function() {
              totalDiasInput.value = '';
         }
     }
+
+    // ================== NUEVO EVENT LISTENER ==================
+    // Para mostrar/ocultar el campo de hospital MINSA
+    const tipoEntidadSelect = document.getElementById('tipoEntidad');
+    const minsaHospitalGroup = document.getElementById('minsaHospitalGroup');
+    const minsaHospitalInput = document.getElementById('minsaHospitalNombre');
+    
+    if (tipoEntidadSelect) {
+        tipoEntidadSelect.addEventListener('change', function() {
+            if (this.value === 'minsa') {
+                minsaHospitalGroup.style.display = 'block';
+                minsaHospitalInput.required = true; // Hacemos el campo obligatorio
+            } else {
+                minsaHospitalGroup.style.display = 'none';
+                minsaHospitalInput.required = false; // Ya no es obligatorio
+                minsaHospitalInput.value = ''; // Limpiamos el campo
+            }
+        });
+    }
+    // ================== FIN NUEVO EVENT LISTENER ==================
 
     const loginForm = document.getElementById('login-form');
     if (loginForm) loginForm.addEventListener('submit', handleLogin);
