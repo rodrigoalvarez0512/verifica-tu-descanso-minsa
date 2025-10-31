@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const CITT_PREFIX = 'A-468-00233786-';
-    const DEFAULT_START_NUMBER = 59;
+    // ELIMINADAS LAS CONSTANTES CITT_PREFIX y DEFAULT_START_NUMBER
+
     const USUARIOS_PDF = [
         'ROJAS RAMIREZ SUSANA RAMIRA',
         'JUAREZ QUIROGA ALMODENA MARIA',
@@ -54,6 +54,17 @@ document.addEventListener('DOMContentLoaded', function() {
     function generateToken() {
          return Math.random().toString(16).substring(2, 10);
     }
+
+    // --- NUEVA FUNCIÓN AUXILIAR ---
+    // Genera un CITT aleatorio con el formato LETRA-3-8-2
+    function generateRandomCITTFormat() {
+        const randomLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
+        const num3 = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
+        const num8 = String(Math.floor(Math.random() * 100000000)).padStart(8, '0');
+        const num2 = String(Math.floor(Math.random() * 100)).padStart(2, '0');
+        return `${randomLetter}-${num3}-${num8}-${num2}`;
+    }
+    // ---------------------------------
 
     async function generarPDF(datos, randomUserName) {
         let container;
@@ -335,27 +346,57 @@ document.addEventListener('DOMContentLoaded', function() {
         userInfoBar.textContent = infoText;
     }
 
+    // --- FUNCIÓN generateNextCITT MODIFICADA ---
+    // Ahora genera un CITT aleatorio y comprueba la unicidad en la DB
     async function generateNextCITT() {
         const cittInput = document.getElementById('citt');
         if (!cittInput) return;
         cittInput.value = 'Generando...';
+        
+        let isUnique = false;
+        let newCitt = '';
+        let attempts = 0; // Un contador de seguridad para evitar bucles infinitos
+
         try {
-            const { data, error } = await clienteSupabase.from('descansos_medicos').select('citt').order('id', { ascending: false }).limit(1).single();
-            if (error && error.code !== 'PGRST116') throw error;
-            let nextNumber = DEFAULT_START_NUMBER + 1;
-            if (data && data.citt && data.citt.includes('-')) {
-                const parts = data.citt.split('-');
-                const lastNumber = parseInt(parts[parts.length - 1], 10);
-                if (!isNaN(lastNumber)) nextNumber = lastNumber + 1;
+            while (!isUnique && attempts < 10) { // Intentará 10 veces
+                attempts++;
+                newCitt = generateRandomCITTFormat(); // Genera un CITT aleatorio
+
+                // Comprueba si ya existe en la base de datos
+                const { data, error } = await clienteSupabase
+                    .from('descansos_medicos')
+                    .select('citt')
+                    .eq('citt', newCitt)
+                    .single(); // .single() es clave aquí
+
+                // "PGRST116" es el código de Supabase para "No se encontró ninguna fila"
+                // ¡Esto es bueno! Significa que el CITT es único.
+                if (error && error.code === 'PGRST116') {
+                    isUnique = true; 
+                } else if (data) {
+                    // Encontró un resultado, el CITT está duplicado.
+                    console.warn(`Colisión de CITT detectada: ${newCitt}. Regenerando...`);
+                } else if (error) {
+                    // Ocurrió un error de base de datos diferente
+                    throw error;
+                }
             }
-            cittInput.value = `${CITT_PREFIX}${nextNumber}`;
+
+            if (!isUnique) {
+                // Si falla 10 veces, informa al usuario.
+                throw new Error('No se pudo generar un CITT único. Intente de nuevo.');
+            }
+
+            cittInput.value = newCitt;
             cittInput.dispatchEvent(new Event('input', { bubbles: true }));
+
         } catch (err) {
-            console.error("Error CITT:", err);
+            console.error("Error generando CITT:", err);
             cittInput.value = "Error";
-            showStatusMessage("Error al generar CITT.", true);
+            showStatusMessage(`Error al generar CITT: ${err.message}`, true);
         }
     }
+    // ---------------------------------------------
 
     function setButtonLoading(isLoading) {
         const submitButton = document.getElementById('submitButton');
