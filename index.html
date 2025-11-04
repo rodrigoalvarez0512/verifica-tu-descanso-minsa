@@ -87,7 +87,6 @@
                             <label for="dni">DNI</label>
                         </div>
                     </fieldset>
-
                     <fieldset>
                         <legend>Información de Entidad</legend>
                         <div class="input-group">
@@ -103,7 +102,6 @@
                             <small>El nombre se guardará en MAYÚSCULAS.</small>
                         </div>
                     </fieldset>
-
                     <fieldset>
                         <legend>Detalles del Descanso</legend>
                         <div class="input-group">
@@ -130,12 +128,10 @@
                             </div>
                         </div>
                     </fieldset>
-
                     <button type="submit" id="submitButton">
                         <span class="button-text">Registrar y Generar PDF</span>
                         <span class="button-loader hidden"></span>
                     </button>
-
                     <div id="statusMessage"></div>
                     <div class="telegram-contact">
                         <span>¿Necesitas acceso o más créditos?</span>
@@ -148,50 +144,45 @@
             </div>
             <div id="receta-panel" class="tab-panel hidden">
                 <h1>Registro de Receta Médica</h1>
-                <p class="subtitle">Complete los campos para generar una nueva Receta Médica.</p>
+                <p class="subtitle">Complete los campos para generar una nueva Receta Médica. Los campos grises se autogeneran.</p>
 
                 <form id="recetaForm">
                     <fieldset>
-                        <legend>Información de Entidad</legend>
-                        <div class="input-group">
-                            <select id="receta_tipoEntidad" name="receta_tipoEntidad" required>
-                                <option value="essalud" selected>ESSALUD</option>
-                                <option value="minsa">MINSA - SIS</option>
-                            </select>
-                            <label for="receta_tipoEntidad" class="label-select">Entidad Emisora</label>
-                        </div>
-                        <div class="input-group" id="receta_minsaHospitalGroup" style="display: none;">
-                            <input type="text" id="receta_minsaHospitalNombre" name="receta_minsaHospitalNombre" placeholder=" ">
-                            <label for="receta_minsaHospitalNombre">Nombre del Hospital (E.S.)</label>
-                            <small>El nombre se guardará en MAYÚSCULAS.</small>
-                        </div>
-                    </fieldset>
-
-                    <fieldset>
-                        <legend>Información del Paciente</legend>
+                        <legend>Información de Entidad y Paciente</legend>
                         <div class="fechas-grid">
                             <div class="input-group">
+                                <select id="receta_tipoEntidad" name="receta_tipoEntidad" required>
+                                    <option value="essalud" selected>ESSALUD</option>
+                                    <option value="minsa">MINSA - SIS</option>
+                                </select>
+                                <label for="receta_tipoEntidad" class="label-select">Entidad Emisora</label>
+                            </div>
+                            <div class="input-group" id="receta_minsaHospitalGroup" style="display: none;">
+                                <input type="text" id="receta_minsaHospitalNombre" name="receta_minsaHospitalNombre" placeholder=" ">
+                                <label for="receta_minsaHospitalNombre">Nombre Hospital MINSA</label>
+                            </div>
+                            <div class="input-group">
                                 <input type="text" id="receta_pacienteNombre" placeholder=" " required>
-                                <label for="receta_pacienteNombre">Apellidos y Nombres</label>
+                                <label for="receta_pacienteNombre">Nombres y Apellidos del Asegurado</label>
                             </div>
                             <div class="input-group">
                                 <input type="text" id="receta_pacienteDNI" maxlength="8" pattern="\d{8}" placeholder=" " required>
-                                <label for="receta_pacienteDNI">DNI</label>
+                                <label for="receta_pacienteDNI">DNI (8 dígitos)</label>
                             </div>
-                            <div class="input-group">
-                                <input type="text" id="receta_pacienteEdad" placeholder=" ">
-                                <label for="receta_pacienteEdad">Edad (ej: 29 años 7 meses)</label>
+                             <div class="input-group">
+                                <input type="date" id="receta_fechaNacimiento" placeholder=" " required>
+                                <label for="receta_fechaNacimiento">Fecha de Nacimiento</label>
                             </div>
-                            <div class="input-group">
-                                <input type="text" id="receta_pacienteHC" placeholder=" ">
-                                <label for="receta_pacienteHC">Historia Clínica (H/C)</label>
+                             <div class="input-group">
+                                <input type="date" id="receta_fechaEmision" placeholder=" " required>
+                                <label for="receta_fechaEmision">Fecha de Emisión</label>
                             </div>
                         </div>
                     </fieldset>
-
+                    
                     <fieldset>
-                        <legend>Detalles de Atención</legend>
-                        <div class="fechas-grid">
+                        <legend>Información de Atención</legend>
+                         <div class="fechas-grid">
                             <div class="input-group">
                                 <input type="text" id="receta_area1" placeholder=" " value="EMERGENCIA">
                                 <label for="receta_area1">Área Principal</label>
@@ -201,10 +192,14 @@
                                 <label for="receta_area2">Área Secundaria</label>
                             </div>
                             <div class="input-group">
-                                <input type="text" id="receta_farmacia" placeholder=" " value="FARMACIA PRINCIPAL">
-                                <label for="receta_farmacia">Farmacia</label>
+                                <select id="receta_farmacia" required>
+                                    <option value="15856189-FARMACIA PRINCIPAL" selected>FARMACIA PRINCIPAL</option>
+                                    <option value="15529688-FARMACIA PISO 1">FARMACIA PISO 1</option>
+                                    <option value="15797835-FARMACIA PISO 2">FARMACIA PISO 2</option>
+                                </select>
+                                <label for="receta_farmacia" class="label-select">Farmacia</label>
                             </div>
-                        </div>
+                         </div>
                     </fieldset>
 
                     <fieldset>
