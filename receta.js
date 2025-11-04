@@ -1,9 +1,7 @@
 /*
  * ===============================================
- * LÓGICA PARA RECETAS MÉDICAS v3 (Lógica "A prueba de tontos")
+ * LÓGICA PARA RECETAS MÉDICAS v4 (Corrección de Barcode y Footer)
  * ===============================================
- * Conecta el formulario 'recetaForm' con la plantilla
- * 'plantilla_receta.html' y Supabase.
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -11,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Librerías globales (cargadas en index.html)
     const { jsPDF } = window.jspdf;
     const html2canvas = window.html2canvas;
-    const QRCode = window.QRCode;
+    // const QRCode = window.QRCode; // <-- Ya no se usa
     // (clienteSupabase se carga desde supabaseClient.js)
 
     // Elementos del DOM
@@ -30,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const MEDICO_CMP_FIJO = '045187';
     const MEDICO_NOMBRE_FIJO = 'CALLE PEÑA MOISES ANDRES';
     const USUARIO_IMP_FIJO = '045187'; // Mismo que el médico
-    const VERIFICADOR_URL_BASE = 'https_://tu-verificador-de-recetas.onrender.com/verificar.html'; // URL del verificador
+    const VERIFICADOR_URL_BASE = 'https://tu-verificador-de-recetas.onrender.com/verificar.html'; // URL del verificador
 
     // --- LÓGICA DE AYUDA (Helpers) ---
 
@@ -39,9 +37,10 @@ document.addEventListener('DOMContentLoaded', function() {
         return Math.floor(Math.random() * (10 ** digitos)).toString().padStart(digitos, '0');
     }
 
-    /** Genera un AUTOG. aleatorio (14 chars) */
+    /** Genera un AUTOG. aleatorio (10 chars, como en el ejemplo QPRS24617P) */
     function generarAutog() {
-        return Math.random().toString(36).substring(2, 16).toUpperCase();
+        // Genera 10 caracteres alfanuméricos aleatorios
+        return Math.random().toString(36).substring(2, 12).toUpperCase();
     }
 
     /** Genera código de medicamento (211XXX, 212XXX, 213XXX) */
@@ -71,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
             minute: '2-digit', 
             second: '2-digit', 
             hour12: true 
-        });
+        }).toUpperCase(); // .toUpperCase() para que sea "A. M." o "P. M."
     }
 
     /** Calcula la edad exacta */
@@ -112,9 +111,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     /** Calcula la cantidad de medicamento */
     function calcularCantidad(horas, dias) {
+        // Si es pomada, la cantidad es calculada diferente (ej. 1 por día)
+        // Por ahora, usamos la misma lógica para todos.
         const dosisPorDia = 24 / parseInt(horas);
         const cantidadTotal = dosisPorDia * parseInt(dias);
-        // Formato con comas, como en la imagen de ejemplo
+        // Formato con comas
         return new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(cantidadTotal);
     }
 
@@ -162,12 +163,10 @@ document.addEventListener('DOMContentLoaded', function() {
             <button type="button" class="delete-row-btn"><i class="bi bi-trash-fill"></i></button>
         `;
         
-        // Añadir evento al botón de eliminar
         row.querySelector('.delete-row-btn').addEventListener('click', () => {
             row.remove();
         });
 
-        // Lógica para ocultar "MG/Unidad" si es pomada
         const tipoSelect = row.querySelector('.med-tipo');
         const mgGroup = row.querySelector('.med-mg-group');
         tipoSelect.addEventListener('change', (e) => {
@@ -191,11 +190,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // --- LÓGICA 2: SELECTOR DE ENTIDAD (MINSA/ESSALUD) ---
     if(recetaTipoEntidad) {
         recetaTipoEntidad.addEventListener('change', function() {
-            recetaMinsaGroup.style.display = (this.value === 'minsa') ? 'block' : 'none';
+            const esMinsa = this.value === 'minsa';
+            recetaMinsaGroup.style.display = esMinsa ? 'block' : 'none';
+            document.getElementById('receta_minsaHospitalNombre').required = esMinsa;
         });
     }
 
-    // --- LÓGICA 3: GENERACIÓN DE PDF (La misma que antes, pero con IDs actualizados) ---
+    // --- LÓGICA 3: GENERACIÓN DE PDF ---
+
     async function generarRecetaPDF(datosReceta) {
         let container;
         try {
@@ -224,22 +226,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 dataEstablecimiento.textContent = '424-ESSALUD - SEGURO SOCIAL'; // Código ESSALUD actualizado
             }
 
-            // --- 3b. Generar el QR (con URL de verificación y AUTOG) ---
-            const qrContainer = elementToPrint.querySelector('#qr-placeholder');
-            const qrUrlDeVerificacion = `${VERIFICADOR_URL_BASE}?autog=${datosReceta.pacienteAutog}`; // ¡Enlaza al AUTOG!
+            // --- 3b. Generar el BARCODE (No QR) ---
+            const barcodeSVG = elementToPrint.querySelector('#barcode-svg');
+            const autogParaVerificar = datosReceta.pacienteAutog; // ¡El código escaneable!
             
-            if (qrContainer && QRCode) {
-                new QRCode(qrContainer, {
-                    text: qrUrlDeVerificacion,
-                    width: 100, height: 100,
-                    colorDark: "#000000", colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
+            if (barcodeSVG && JsBarcode) {
+                JsBarcode(barcodeSVG, autogParaVerificar, {
+                    format: "CODE128",
+                    displayValue: false, // No mostrar el texto debajo
+                    width: 2.5,
+                    height: 60,
+                    margin: 0
                 });
-                await new Promise(resolve => setTimeout(resolve, 100)); 
+                await new Promise(resolve => setTimeout(resolve, 100)); // Dar tiempo a que el SVG se renderice
+            } else {
+                console.warn('No se encontró #barcode-svg o la librería JsBarcode.');
             }
 
             // --- 3c. Rellenar cabecera (Izquierda) ---
-            elementToPrint.querySelector('#data-nro-orden').textContent = datosReceta.nroOrden;
+            elementToPrint.querySelector('#data-nro-orden').textContent = datosReceta.nroOrden; // ¡AHORA SÍ!
             elementToPrint.querySelector('#data-area-1').textContent = datosReceta.area1.toUpperCase();
             elementToPrint.querySelector('#data-area-2').textContent = datosReceta.area2.toUpperCase();
             elementToPrint.querySelector('#data-paciente-nombre').textContent = datosReceta.pacienteNombre.toUpperCase();
@@ -280,7 +285,6 @@ document.addEventListener('DOMContentLoaded', function() {
             elementToPrint.querySelector('#data-medico-cmp').textContent = datosReceta.medicoCMP; // Fijo
             elementToPrint.querySelector('#data-medico-nombre').textContent = datosReceta.medicoNombre.toUpperCase(); // Fijo
             
-            // (Lógica para sello médico fijo, si lo tienes)
             // const selloImg = elementToPrint.querySelector('#sello-placeholder');
             // selloImg.innerHTML = `<img src="sello_medico_moises.png" alt="Sello" style="width:100%; height: 100%; object-fit: contain;">`;
 
@@ -289,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
             elementToPrint.querySelector('#data-hora-imp').textContent = datosReceta.horaImp; // Hora actual
 
 
-            // 4. Esperar a que las imágenes (logo, QR, firmas) carguen
+            // 4. Esperar a que las imágenes (logo, firmas) carguen
             const imgElements = elementToPrint.querySelectorAll('img');
             const imgPromises = Array.from(imgElements).map(img => {
                 return new Promise((resolve) => {
@@ -366,6 +370,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 // --- 1. Recolectar datos del formulario ---
                 const tipoEntidad = recetaTipoEntidad.value;
                 const fechaEmisionStr = recetaFechaEmision.value;
+                if (!fechaEmisionStr) throw new Error('Debe seleccionar una Fecha de Emisión.');
+                
                 const fechaEmisionDate = new Date(fechaEmisionStr + 'T12:00:00');
                 const ahora = new Date();
                 
@@ -433,8 +439,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     horaImp: getFormatoHora(ahora) // Hora actual
                 };
 
-                // --- 4. Guardar en Supabase (¡CLAVE!) ---
-                // (Asegúrate de tener una tabla 'recetas_medicas' creada)
+                // --- 4. Guardar en Supabase ---
                 const { error: insertError } = await clienteSupabase
                     .from('recetas_medicas')
                     .insert([{
@@ -446,7 +451,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         fecha_emision: fechaEmisionStr, // Guardar la fecha ISO
                         medico_nombre: datosRecetaParaPDF.medicoNombre,
                         medico_cmp: datosRecetaParaPDF.medicoCMP,
-                        // Guardamos los medicamentos como JSON
                         medicamentos_json: JSON.stringify(datosRecetaParaPDF.medicamentos) 
                     }]);
 
@@ -458,7 +462,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 await generarRecetaPDF(datosRecetaParaPDF);
                 showStatusMessage('Receta generada y guardada con éxito.', false);
                 
-                // Limpiar solo los medicamentos, no los datos del paciente
+                // Limpiar solo los medicamentos
                 repeaterContainer.innerHTML = '';
                 createMedicamentoRow();
 
@@ -472,4 +476,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // --- LÓGICA 5: PESTAÑAS (TABS) ---
+    // (Movido desde script.js para mantener la lógica de recetas junta)
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    navButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanels.forEach(panel => panel.classList.add('hidden'));
+
+            button.classList.add('active');
+            const panelId = button.getAttribute('data-panel');
+            const activePanel = document.getElementById(panelId);
+            if (activePanel) {
+                activePanel.classList.remove('hidden');
+            }
+        });
+    });
 });
