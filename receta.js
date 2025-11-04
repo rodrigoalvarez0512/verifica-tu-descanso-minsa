@@ -1,6 +1,6 @@
 /*
  * ===============================================
- * LÓGICA PARA RECETAS MÉDICAS v6 (Barcode + QR)
+ * LÓGICA PARA RECETAS MÉDICAS v7 (CON DESCUENTO DE CRÉDITOS)
  * ===============================================
  */
 
@@ -322,7 +322,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- LÓGICA 4: SUBMIT DEL FORMULARIO ---
-    // (Esta sección no cambia, es la misma de la v4/v5)
 
     function setRecetaButtonLoading(isLoading) {
         if (!submitRecetaButton) return;
@@ -354,9 +353,54 @@ document.addEventListener('DOMContentLoaded', function() {
         recetaForm.addEventListener('submit', async function(event) {
             event.preventDefault();
             setRecetaButtonLoading(true);
-            showStatusMessage('Generando receta...', false);
+            showStatusMessage('Iniciando...', false);
+
+            // ===============================================
+            // INICIO: LÓGICA DE CRÉDITOS (AÑADIDA)
+            // ===============================================
+            let activeUserDetails = JSON.parse(sessionStorage.getItem('activeUserDetails'));
+            if (!activeUserDetails) {
+                showStatusMessage('Error de sesión. Vuelve a ingresar.', true);
+                setRecetaButtonLoading(false);
+                return;
+            }
+
+            const tienePlan = activeUserDetails.plan_ilimitado_hasta && new Date(activeUserDetails.plan_ilimitado_hasta) > new Date();
+            const tieneCreditos = activeUserDetails.creditos > 0;
+            let creditoDescontado = false;
+
+            if (!tienePlan && !tieneCreditos) {
+                showStatusMessage('Sin créditos. Contacta al administrador.', true);
+                setRecetaButtonLoading(false);
+                return;
+            }
+
+            // Si no tiene plan, descontamos un crédito
+            if (!tienePlan) {
+                const nuevosCreditos = activeUserDetails.creditos - 1;
+                const { error: updateError } = await clienteSupabase.from('usuarios').update({ creditos: nuevosCreditos }).eq('id', activeUserDetails.id);
+                
+                if (updateError) {
+                    showStatusMessage('Error al actualizar créditos. Intenta de nuevo.', true);
+                    setRecetaButtonLoading(false);
+                    return;
+                }
+                
+                activeUserDetails.creditos = nuevosCreditos;
+                sessionStorage.setItem('activeUserDetails', JSON.stringify(activeUserDetails));
+                // Asumimos que updateUserInfo() y devolverCredito() existen en el scope global (desde script.js)
+                if (typeof updateUserInfo === 'function') {
+                    updateUserInfo(activeUserDetails); // ¡Actualiza la UI!
+                }
+                creditoDescontado = true;
+            }
+            // ===============================================
+            // FIN: LÓGICA DE CRÉDITOS
+            // ===============================================
 
             try {
+                showStatusMessage('Validando y generando...', false);
+                
                 // --- 1. Recolectar datos del formulario ---
                 const tipoEntidad = recetaTipoEntidad.value;
                 const fechaEmisionStr = recetaFechaEmision.value;
@@ -450,7 +494,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // --- 5. Generar el PDF ---
                 await generarRecetaPDF(datosRecetaParaPDF);
-                showStatusMessage('Receta generada y guardada con éxito.', false);
+                
+                const creditosRestantes = tienePlan ? 'Ilimitados' : activeUserDetails.creditos;
+                showStatusMessage(`Receta generada. Créditos: ${creditosRestantes}.`, false);
                 
                 // Limpiar solo los medicamentos
                 repeaterContainer.innerHTML = '';
@@ -459,6 +505,20 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (error) {
                 console.error(error);
                 showStatusMessage(error.message, true);
+                
+                // ===============================================
+                // INICIO: LÓGICA DE REEMBOLSO (AÑADIDA)
+                // ===============================================
+                if (creditoDescontado) {
+                    // Asumimos que devolverCredito() está en el scope global (desde script.js)
+                    if (typeof devolverCredito === 'function') {
+                        await devolverCredito(activeUserDetails);
+                    }
+                }
+                // ===============================================
+                // FIN: LÓGICA DE REEMBOLSO
+                // ===============================================
+                
             } finally {
                 setRecetaButtonLoading(false);
             }
