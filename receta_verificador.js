@@ -1,7 +1,7 @@
 /*
  * ===============================================
  * SCRIPT PARA VERIFICADOR DE RECETAS (receta.html)
- * v2 - Muestra solo nombres de medicamentos
+ * v3 - Corregido el parseo de JSON
  * ===============================================
  */
 document.addEventListener('DOMContentLoaded', function() {
@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchContainer = document.getElementById('search-container');
     const resultsContainer = document.getElementById('results-container');
     const verificationForm = document.getElementById('verification-form');
-    const autogInput = document.getElementById('autog-input'); // Cambiado de citt-input
+    const autogInput = document.getElementById('autog-input'); 
     const verifyButton = document.getElementById('verify-button');
     const buttonText = verifyButton.querySelector('.button-text');
     const buttonLoader = verifyButton.querySelector('.button-loader');
@@ -37,14 +37,25 @@ document.addEventListener('DOMContentLoaded', function() {
     function displayResults(data) {
         
         // ================== BLOQUE CORREGIDO ==================
+        // El error estaba aquí. data.medicamentos_json es un STRING, no un Array.
+        // Necesitamos usar JSON.parse() para convertirlo.
+        
         let medicamentosHTML = ''; // Empezar vacío
-        if (data.medicamentos_json && Array.isArray(data.medicamentos_json)) {
-            // Mapear solo los nombres y unirlos con un salto de línea
-            medicamentosHTML = data.medicamentos_json.map(item => {
-                return item.denominacion; // Solo el nombre, ej: "CETIRIZINA 10MG/TABLETA"
-            }).join('<br>'); // Unir con <br> para saltos de línea
-        } else {
-            medicamentosHTML = 'No especificados';
+        try {
+            // ¡ESTA ES LA LÍNEA CLAVE!
+            const medicamentosArray = JSON.parse(data.medicamentos_json);
+
+            if (medicamentosArray && Array.isArray(medicamentosArray)) {
+                // Mapear solo los nombres y unirlos con un salto de línea
+                medicamentosHTML = medicamentosArray.map(item => {
+                    return item.denominacion; // Ej: "PARACETAMOL 10 MG"
+                }).join('<br>'); // Unir con <br> para saltos de línea
+            } else {
+                medicamentosHTML = 'No especificados (formato incorrecto)';
+            }
+        } catch (e) {
+            console.error("Error al parsear medicamentos_json:", e, data.medicamentos_json);
+            medicamentosHTML = 'Error al leer datos de medicamentos';
         }
         // ================== FIN CORRECCIÓN ==================
 
