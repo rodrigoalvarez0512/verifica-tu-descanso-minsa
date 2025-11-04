@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación de Receta - Plataforma Oficial</title>
+    <link rel="stylesheet" href="verificador.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="favicon.png" type="image/png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+
+    <div class="background-container"></div>
+
+    <main class="content-wrapper">
+        <div class="verification-panel">
+            
+            <div id="search-container">
+                <div class="logo-header">
+                    <img src="logo_minsa.png" alt="Logo Ministerio de Salud Perú" class="logo-minsa">
+                </div>
+                <div class="form-content">
+                    <h1>Verificación de Receta Médica</h1>
+                    <p class="subtitle">Ingrese el código de Autogenerado (AUTOG.) de la receta para validar su autenticidad en el sistema.</p>
+                    
+                    <form id="verification-form">
+                        <div class="input-group">
+                            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V64c0-35.3-28.7-64-64-64H64zM96 64h32V448H96V64zm64 0h32V448h-32V64zm64 0h32V448h-32V64zm64 0h32V448h-32V64zm64 0h32V448h-32V64zm64 0h32V448h-32V64z"/></svg>
+                            <input type="text" id="autog-input" placeholder=" " required>
+                            <label for="autog-input">Código de Autogenerado (AUTOG.)</label>
+                        </div>
+                        <button type="submit" id="verify-button">
+                            <span class="button-text">Verificar Autenticidad</span>
+                            <span class="button-loader hidden"></span>
+                        </button>
+                    </form>
+                    <div id="form-error" class="error-message"></div>
+                </div>
+            </div>
+
+            <div id="results-container" class="hidden">
+                </div>
+
+        </div>
+        <footer class="main-footer">
+            Plataforma Digital del Ministerio de Salud del Perú &copy; 2025
+        </footer>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
+    <script src="receta_verificador.js"></script>
+</body>
+</html>
