@@ -1,6 +1,7 @@
 /*
  * ===============================================
  * SCRIPT PARA VERIFICADOR DE RECETAS (receta.html)
+ * v2 - Muestra solo nombres de medicamentos
  * ===============================================
  */
 document.addEventListener('DOMContentLoaded', function() {
@@ -34,19 +35,18 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function displayResults(data) {
-        // Construir la lista de medicamentos
-        let medicamentosHTML = '<ul class="medicamentos-lista">';
+        
+        // ================== BLOQUE CORREGIDO ==================
+        let medicamentosHTML = ''; // Empezar vacío
         if (data.medicamentos_json && Array.isArray(data.medicamentos_json)) {
-            data.medicamentos_json.forEach(item => {
-                medicamentosHTML += `
-                    <li>
-                        <strong>${item.denominacion}</strong> (${item.cantidad})
-                        <small>${item.viaAdmin} por ${item.dias} días</small>
-                    </li>
-                `;
-            });
+            // Mapear solo los nombres y unirlos con un salto de línea
+            medicamentosHTML = data.medicamentos_json.map(item => {
+                return item.denominacion; // Solo el nombre, ej: "CETIRIZINA 10MG/TABLETA"
+            }).join('<br>'); // Unir con <br> para saltos de línea
+        } else {
+            medicamentosHTML = 'No especificados';
         }
-        medicamentosHTML += '</ul>';
+        // ================== FIN CORRECCIÓN ==================
 
         // Mostrar resultados
         resultsContainer.innerHTML = `
@@ -65,10 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="detail-item"><span class="label">Fecha Emisión</span><span class="value">${formatDate(data.fecha_emision)}</span></div>
                     <div class="detail-item"><span class="label">Médico</span><span class="value">${data.medico_nombre || 'N/A'} (CMP: ${data.medico_cmp || 'N/A'})</span></div>
                     
-                    <div class="detail-item detail-item--medicamentos">
-                        <span class="label">Medicamentos</span>
-                        <span class="value">${medicamentosHTML}</span>
-                    </div>
+                    <div class="detail-item"><span class="label">Medicamentos</span><span class="value">${medicamentosHTML}</span></div>
                 </div>
                 <button class="new-search-button" id="newSearchBtn">Nueva Consulta</button>
             </div>
