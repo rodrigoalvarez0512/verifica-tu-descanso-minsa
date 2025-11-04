@@ -41,34 +41,27 @@
             white-space: nowrap;
         }
         
-        /* ================== CAMBIO DE BARCODE A QR ================== */
         #qr-placeholder {
             position: absolute;
             height: 100px; /* QR es cuadrado */
             width: 100px;  /* QR es cuadrado */
-            /* border: 1px dashed #999; */ /* Borde quitado */
             display: grid;
             place-items: center;
             color: #999;
             font-size: 10px;
         }
-        /* ================== FIN CAMBIO ================== */
 
-
-        /* --- LOGOS (AHORA GENÉRICO) --- */
         #logo-membrete {
             position: absolute;
-            top: 20px; /* Ajusta la posición vertical */
-            left: 40px; /* Ajusta la posición horizontal */
-            height: 80px; /* Tamaño del logo */
+            top: 20px; 
+            left: 40px; 
+            height: 80px; 
             width: auto;
             z-index: 10;
         }
 
-
-        /* --- TABLA DE MEDICAMENTOS --- */
         .receta-body {
-            margin-top: 320px; /* Más espacio para el QR y campos reubicados */
+            margin-top: 320px; 
             border-top: 2px solid #000;
             padding-top: 15px;
         }
@@ -98,12 +91,24 @@
         .text-center { text-align: center; }
         .text-right { text-align: right; }
 
-        /* --- SECCIÓN MÉDICO --- */
+        /* ================== NUEVA FIRMA RECETA ================== */
+        #firma-receta-placeholder {
+            display: flex;
+            justify-content: flex-end; /* Alineada a la derecha */
+            margin-top: 10px;
+            width: 100%;
+        }
+        #firma-receta-placeholder img {
+            width: 250px; /* Ancho de la firma */
+            height: auto;
+        }
+        /* ================== FIN NUEVA FIRMA ================== */
+
         .receta-medico {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
-            margin-top: 20px;
+            margin-top: 10px; /* Reducido el margen */
             padding-bottom: 15px;
             border-bottom: 1px solid #000;
         }
@@ -118,14 +123,12 @@
         #sello-placeholder {
             width: 250px;
             height: 120px;
-            /* border: 1px dashed #999; */ /* Quitamos borde para poner la imagen */
             display: grid;
             place-items: center;
             color: #999;
             font-size: 12px;
         }
 
-        /* --- FOOTER --- */
         .receta-footer {
             margin-top: 10px;
         }
@@ -157,43 +160,45 @@
         <img id="logo-membrete" src="sis.png" alt="Logo Institucional">
         
         <span class="label" style="top: 110px; left: 40px;">No. DE ORDEN:</span>
-        <span class="data-field" id="data-nro-orden" style="top: 110px; left: 150px;">15729066</span>
+        <span class="data-field" id="data-nro-orden"></span>
         
-        <span class="data-field" id="data-establecimiento" style="top: 130px; left: 40px;">037 - ESSALUD MARCONA</span>
+        <span class="data-field" id="data-establecimiento" style="top: 130px; left: 40px;"></span>
 
-        <span class="data-field" id="data-area-1" style="top: 160px; left: 40px;">EMERGENCIA</span>
-        <span class="data-field" id="data-area-2" style="top: 175px; left: 40px;">MEDICINA GENERAL</span>
+        <span class="data-field" id="data-area-1" style="top: 160px; left: 40px;"></span>
+        <span class="data-field" id="data-area-2" style="top: 175px; left: 40px;"></span>
         
         <span class="label" style="top: 200px; left: 40px;">ASEGU:</span>
-        <span class="data-field" id="data-paciente-nombre" style="top: 200px; left: 100px;">YONATHAN DAVALOS CCOLCCA</span>
+        <span class="data-field" id="data-paciente-nombre" style="top: 200px; left: 100px;"></span>
         
         <span class="label" style="top: 215px; left: 40px;">AUTOG.:</span>
-        <span class="data-field" id="data-paciente-autog" style="top: 215px; left: 100px;">36085325LIML014</span>
+        <span class="data-field" id="data-paciente-autog" style="top: 215px; left: 100px;"></span>
 
         <span class="label" style="top: 230px; left: 40px;">ACT.MED:</span>
-        <span class="data-field" id="data-paciente-actmed" style="top: 230px; left: 100px;">5287998</span>
+        <span class="data-field" id="data-paciente-actmed" style="top: 230px; left: 100px;"></span>
         
         <span class="label" style="top: 245px; left: 40px;">DOC.ID:</span>
-        <span class="data-field" id="data-paciente-dni" style="top: 245px; left: 100px;">D.N.I. 72169993</span>
+        <span class="data-field" id="data-paciente-dni" style="top: 245px; left: 100px;"></span>
 
         <span class="label" style="top: 110px; right: 150px;">FECHA EMISION:</span> 
-        <span class="data-field" id="data-fecha-emision" style="top: 110px; right: 40px;">27/10/2025</span>
+        <span class="data-field" id="data-fecha-emision" style="top: 110px; right: 40px;"></span>
 
         <div id="qr-placeholder" style="top: 130px; right: 80px;">
              </div>
-        <span class="label" style="top: 240px; right: 250px;">P.I.:</span>
-        <span class="data-field" id="data-paciente-pi" style="top: 240px; right: 40px;">15722188</span>
 
-        <span class="data-field" id="data-farmacia" style="top: 255px; right: 40px;">FARMACIA PRINCIPAL</span>
+        <span class="label" style="top: 240px; right: 250px;">P.I.:</span>
+        <span class="data-field" id="data-paciente-pi" style="top: 240px; right: 40px;"></span>
+
+        <span class="data-field" id="data-farmacia" style="top: 255px; right: 40px;"></span>
 
         <span class="label" style="top: 275px; right: 250px;">EDAD:</span>
-        <span class="data-field" id="data-paciente-edad" style="top: 275px; right: 40px;">29 años 7 meses 2 Días</span>
+        <span class="data-field" id="data-paciente-edad" style="top: 275px; right: 40px;"></span>
 
         <span class="label" style="top: 290px; right: 250px;">H/C:</span>
-        <span class="data-field" id="data-paciente-hc" style="top: 290px; right: 40px;">72169993</span>
+        <span class="data-field" id="data-paciente-hc" style="top: 290px; right: 40px;"></span>
         
         <span class="label" style="top: 305px; right: 250px;">VIGENCIA:</span>
-        <span class="data-field" id="data-vigencia" style="top: 305px; right: 40px;">27/10/2025</span>
+        <span class="data-field" id="data-vigencia" style="top: 305px; right: 40px;"></span>
+
         <div class="receta-body">
             <table class="receta-tabla">
                 <thead>
@@ -207,70 +212,40 @@
                     </tr>
                 </thead>
                 <tbody id="receta-items-body">
-                    <tr>
-                        <td class="text-center">1</td>
-                        <td></td> <td>
-                            <div class="item-denominacion" id="data-item-nombre-1">CETIRIZINA 10MG/TABLETA</div>
-                            <div class="item-via-admin" id="data-item-via-1">Via Admin: 1 TAB CADA 24 HORAS</div>
-                        </td>
-                        <td class="text-center" id="data-item-dias-1">10</td>
-                        <td class="text-center" id="data-item-umff-1">AM</td>
-                        <td class="text-right" id="data-item-cant-1">10,00</td>
-                    </tr>
-                    <tr>
-                        <td class="text-center">2</td>
-                        <td></td>
-                        <td>
-                            <div class="item-denominacion" id="data-item-nombre-2">PREDNISONA 5MG/TABLETA</div>
-                            <div class="item-via-admin" id="data-item-via-2">Via Admin: 1 TAB CADA 12 HORAS</div>
-                        </td>
-                        <td class="text-center" id="data-item-dias-2">5</td>
-                        <td class="text-center" id="data-item-umff-2">AM</td>
-                        <td class="text-right" id="data-item-cant-2">10,00</td>
-                    </tr>
-                     <tr>
-                        <td class="text-center">3</td>
-                        <td></td>
-                        <td>
-                            <div class="item-denominacion" id="data-item-nombre-3">LORATADINA 10MG/TABLETA</div>
-                            <div class="item-via-admin" id="data-item-via-3">Via Admin: 1 TAB CADA 24 HORAS</div>
-                        </td>
-                        <td class="text-center" id="data-item-dias-3">7</td>
-                        <td class="text-center" id="data-item-umff-3">AM</td>
-                        <td class="text-right" id="data-item-cant-3">7,00</td>
-                    </tr>
                     </tbody>
             </table>
             
-        </div>
+            <div id="firma-receta-placeholder">
+                <img src="firmareceta.png" alt="Firma Receta">
+            </div>
+            </div>
         
         <div class="receta-medico">
             <div class="medico-info">
                 <label style="position: static;">MEDICO:</label>
-                <span class="data-field" id="data-medico-cmp" style="position: static; margin-left: 5px;">045187</span>
-                <span class="data-field" id="data-medico-nombre" style="position: static; margin-left: 10px;">CALLE PEÑA MOISES ANDRES</span>
+                <span class="data-field" id="data-medico-cmp" style="position: static; margin-left: 5px;"></span>
+                <span class="data-field" id="data-medico-nombre" style="position: static; margin-left: 10px;"></span>
             </div>
             <div class="medico-sello">
                 <div id="sello-placeholder" style="position: static;">
-                    
                     </div>
             </div>
         </div>
 
         <div class="receta-footer">
             <div class="footer-info">
-                <div><label style="position: static;">USUARIO:</label> <span class="data-field" id="data-usuario-imp" style="position: static;">045187</span></div>
-                <div><label style="position: static;">FEC.IMP:</label> <span class="data-field" id="data-fecha-imp" style="position: static;">27/10/2025</span></div>
-                <div><label style="position: static;">HORA:</label> <span class="data-field" id="data-hora-imp" style="position: static;">09:06:17 AM</span></div>
+                <div><label style="position: static;">USUARIO:</label> <span class="data-field" id="data-usuario-imp" style="position: static;"></span></div>
+                <div><label style="position: static;">FEC.IMP:</label> <span class="data-field" id="data-fecha-imp" style="position: static;"></span></div>
+                <div><label style="position: static;">HORA:</label> <span class="data-field" id="data-hora-imp" style="position: static;"></span></div>
             </div>
             <div class="footer-legal">
                 <p>TODA ENMENDADURA O DETERIORO INVALIDA LA RECETA</p>
                 <p>RECETA VALIDA HASTA 7 DIAS POSTERIORES A LA FECHA DE EMISION</p>
             </div>
             <div class="footer-contacto">
-                Si deseas presentar algún reclamo o conocer tus derechos de salud, acércate al Área Atención al Usuario en el primer piso o escríbenos al correo atencion.paciente@rompesalud
+                Si deseas presentar algún reclamo o conocer tus derechos de salud, acércate al Área Atención al Usuario en el primer piso.
             </div>
-        </div>
+            </div>
 
     </div>
 
