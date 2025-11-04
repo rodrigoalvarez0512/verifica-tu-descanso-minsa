@@ -295,18 +295,35 @@ legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bo
 #medicamentos-repeater-container {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem; /* Más espacio entre filas */
 }
 
 .medicamento-row {
     display: grid;
-    grid-template-columns: 2fr 3fr 1fr 1fr 50px;
+    /* Columnas: Tipo, Medicamento, MG/Unidad, Horas, Días, Turno, Botón */
+    grid-template-columns: 1.5fr 2fr 1.5fr 1fr 1fr 1fr 50px;
     gap: 1rem;
-    align-items: center;
+    align-items: flex-start; /* Alinea al inicio por si hay labels */
+    padding: 1rem;
+    border: 1px solid var(--color-borde-input);
+    border-radius: var(--radio-borde);
+    background-color: #fdfdfd;
 }
 
-/* Simplificamos los inputs del repetidor, sin labels flotantes */
-.medicamento-row input {
+/* Usamos grupos de input/label para claridad */
+.med-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    width: 100%;
+}
+.med-input-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primario);
+}
+.med-input-group input,
+.med-input-group select {
     width: 100%;
     padding: 10px 12px;
     font-size: 0.9rem;
@@ -316,7 +333,8 @@ legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bo
     border: 1px solid var(--color-borde-input);
     border-radius: var(--radio-borde);
 }
-.medicamento-row input:focus {
+.med-input-group input:focus,
+.med-input-group select:focus {
      outline: none;
      border-color: var(--color-borde-foco);
      box-shadow: 0 0 0 3px rgba(212, 39, 50, 0.15);
@@ -334,6 +352,7 @@ legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bo
     display: flex;
     align-items: center;
     justify-content: center;
+    margin-top: 20px; /* Para alinear con los inputs */
 }
 .delete-row-btn:hover {
     background-color: #fef2f2;
@@ -365,10 +384,10 @@ legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bo
 /* Media query para el repetidor en móviles */
 @media (max-width: 768px) {
     .medicamento-row {
-        grid-template-columns: 1fr; /* Todo en una columna */
+        grid-template-columns: 1fr 1fr; /* 2 columnas en móvil */
     }
     .delete-row-btn {
-        margin-top: 0.5rem;
-        padding: 0.5rem;
+        margin-top: 0;
+        grid-column: 2 / 3; /* Ocupa la segunda columna al final */
     }
 }
