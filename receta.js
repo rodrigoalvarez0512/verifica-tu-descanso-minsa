@@ -1,6 +1,6 @@
 /*
  * ===============================================
- * LÓGICA PARA RECETAS MÉDICAS v4 (Corrección de Barcode y Footer)
+ * LÓGICA PARA RECETAS MÉDICAS v6 (Barcode + QR)
  * ===============================================
  */
 
@@ -9,7 +9,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Librerías globales (cargadas en index.html)
     const { jsPDF } = window.jspdf;
     const html2canvas = window.html2canvas;
-    // const QRCode = window.QRCode; // <-- Ya no se usa
+    const QRCode = window.QRCode;
+    // JsBarcode también está disponible globalmente
     // (clienteSupabase se carga desde supabaseClient.js)
 
     // Elementos del DOM
@@ -28,22 +29,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const MEDICO_CMP_FIJO = '045187';
     const MEDICO_NOMBRE_FIJO = 'CALLE PEÑA MOISES ANDRES';
     const USUARIO_IMP_FIJO = '045187'; // Mismo que el médico
-    const VERIFICADOR_URL_BASE = 'https://tu-verificador-de-recetas.onrender.com/verificar.html'; // URL del verificador
+    
+    const currentBaseURL = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
+    const VERIFICADOR_URL_BASE = currentBaseURL + 'receta.html'; // Para el QR
+
 
     // --- LÓGICA DE AYUDA (Helpers) ---
-
-    /** Genera un número aleatorio de N dígitos como string */
+    // (Funciones: generarNumAleatorio, generarAutog, generarCodigoMed, getFormatoFecha, getFormatoHora, calcularEdad, formatearDenominacion, formatearViaAdmin, calcularCantidad)
     function generarNumAleatorio(digitos) {
         return Math.floor(Math.random() * (10 ** digitos)).toString().padStart(digitos, '0');
     }
-
-    /** Genera un AUTOG. aleatorio (10 chars, como en el ejemplo QPRS24617P) */
     function generarAutog() {
-        // Genera 10 caracteres alfanuméricos aleatorios
         return Math.random().toString(36).substring(2, 12).toUpperCase();
     }
-
-    /** Genera código de medicamento (211XXX, 212XXX, 213XXX) */
     function generarCodigoMed(tipo) {
         const sufijo = generarNumAleatorio(3);
         if (tipo === 'oral') return `211${sufijo}`;
@@ -51,33 +49,27 @@ document.addEventListener('DOMContentLoaded', function() {
         if (tipo === 'pomada') return `213${sufijo}`;
         return `000${sufijo}`;
     }
-
-    /** Formatea la fecha como DD/MM/YYYY */
     function getFormatoFecha(date) {
         if (!date) return 'N/A';
-        // Asegurarnos de que 'date' es un objeto Date
-        const d = (typeof date === 'string') ? new Date(date + 'T12:00:00') : date;
-        const day = String(d.getDate()).padStart(2, '0');
-        const month = String(d.getMonth() + 1).padStart(2, '0');
-        const year = d.getFullYear();
+        const d = (typeof date === 'string') ? new Date(date + 'T05:00:00') : date; // Zona horaria Perú
+        const day = String(d.getUTCDate()).padStart(2, '0');
+        const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+        const year = d.getUTCFullYear();
         return `${day}/${month}/${year}`;
     }
-    
-    /** Formatea la hora como HH:MM:SS AM/PM */
     function getFormatoHora(date) {
         return date.toLocaleTimeString('es-PE', { 
             hour: '2-digit', 
             minute: '2-digit', 
             second: '2-digit', 
-            hour12: true 
-        }).toUpperCase(); // .toUpperCase() para que sea "A. M." o "P. M."
+            hour12: true,
+            timeZone: 'America/Lima'
+        }).toUpperCase();
     }
-
-    /** Calcula la edad exacta */
     function calcularEdad(fechaNacStr) {
         if (!fechaNacStr) return 'N/A';
         const hoy = new Date();
-        const cumple = new Date(fechaNacStr + 'T12:00:00');
+        const cumple = new Date(fechaNacStr + 'T05:00:00'); // Zona horaria Perú
         let edadAnios = hoy.getFullYear() - cumple.getFullYear();
         let edadMeses = hoy.getMonth() - cumple.getMonth();
         let edadDias = hoy.getDate() - cumple.getDate();
@@ -93,14 +85,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return `${edadAnios} años ${edadMeses} meses ${edadDias} Días`;
     }
-
-    /** Formatea la Denominación */
     function formatearDenominacion(tipo, med, mg) {
         if (tipo === 'pomada') return med.toUpperCase();
         return `${med.toUpperCase()} ${mg.toUpperCase()}`;
     }
-    
-    /** Formatea la Vía de Administración */
     function formatearViaAdmin(tipo, horas) {
         const cada = `CADA ${horas} HORAS`;
         if (tipo === 'oral') return `1 TAB ${cada}`;
@@ -108,19 +96,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (tipo === 'pomada') return `APLICAR ${cada}`;
         return '';
     }
-
-    /** Calcula la cantidad de medicamento */
     function calcularCantidad(horas, dias) {
-        // Si es pomada, la cantidad es calculada diferente (ej. 1 por día)
-        // Por ahora, usamos la misma lógica para todos.
         const dosisPorDia = 24 / parseInt(horas);
         const cantidadTotal = dosisPorDia * parseInt(dias);
-        // Formato con comas
         return new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(cantidadTotal);
     }
 
-    // --- LÓGICA 1: REPEATER DE MEDICAMENTOS ---
 
+    // --- LÓGICA 1: REPEATER DE MEDICAMENTOS ---
     function createMedicamentoRow() {
         const row = document.createElement('div');
         row.className = 'medicamento-row';
@@ -181,13 +164,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
         repeaterContainer.appendChild(row);
     }
-
     if (addMedicamentoBtn) {
         addMedicamentoBtn.addEventListener('click', createMedicamentoRow);
     }
-    createMedicamentoRow(); // Añadir la primera fila al cargar
-
-    // --- LÓGICA 2: SELECTOR DE ENTIDAD (MINSA/ESSALUD) ---
+    if(repeaterContainer) { // Solo corre si estamos en el panel de recetas
+       createMedicamentoRow(); 
+    }
+    
     if(recetaTipoEntidad) {
         recetaTipoEntidad.addEventListener('change', function() {
             const esMinsa = this.value === 'minsa';
@@ -223,14 +206,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 dataEstablecimiento.textContent = `${datosReceta.establecimientoNombre.toUpperCase()} - MINSA - SIS`;
             } else {
                 logoMembrete.src = 'essalud.png';
-                dataEstablecimiento.textContent = '424-ESSALUD - SEGURO SOCIAL'; // Código ESSALUD actualizado
+                dataEstablecimiento.textContent = '424-ESSALUD - SEGURO SOCIAL'; 
             }
 
-            // --- 3b. Generar el BARCODE (No QR) ---
+            // --- 3b. Generar el BARCODE (Encabezado) ---
             const barcodeSVG = elementToPrint.querySelector('#barcode-svg');
             const autogParaVerificar = datosReceta.pacienteAutog; // ¡El código escaneable!
             
-            if (barcodeSVG && JsBarcode) {
+            if (barcodeSVG && typeof JsBarcode === 'function') {
                 JsBarcode(barcodeSVG, autogParaVerificar, {
                     format: "CODE128",
                     displayValue: false, // No mostrar el texto debajo
@@ -238,13 +221,27 @@ document.addEventListener('DOMContentLoaded', function() {
                     height: 60,
                     margin: 0
                 });
-                await new Promise(resolve => setTimeout(resolve, 100)); // Dar tiempo a que el SVG se renderice
             } else {
                 console.warn('No se encontró #barcode-svg o la librería JsBarcode.');
             }
 
-            // --- 3c. Rellenar cabecera (Izquierda) ---
-            elementToPrint.querySelector('#data-nro-orden').textContent = datosReceta.nroOrden; // ¡AHORA SÍ!
+            // --- 3c. Generar el QR (Pie de página) ---
+            const qrContainer = elementToPrint.querySelector('#qr-receta-placeholder');
+            const qrUrlDeVerificacion = `${VERIFICADOR_URL_BASE}?autog=${datosReceta.pacienteAutog}`;
+            
+            if (qrContainer && typeof QRCode === 'function') {
+                new QRCode(qrContainer, {
+                    text: qrUrlDeVerificacion,
+                    width: 100, height: 100,
+                    colorDark: "#000000", colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } else {
+                console.warn('No se encontró #qr-receta-placeholder o la librería QRCode.');
+            }
+            
+            // --- 3d. Rellenar cabecera (Izquierda) ---
+            elementToPrint.querySelector('#data-nro-orden').textContent = datosReceta.nroOrden; 
             elementToPrint.querySelector('#data-area-1').textContent = datosReceta.area1.toUpperCase();
             elementToPrint.querySelector('#data-area-2').textContent = datosReceta.area2.toUpperCase();
             elementToPrint.querySelector('#data-paciente-nombre').textContent = datosReceta.pacienteNombre.toUpperCase();
@@ -252,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function() {
             elementToPrint.querySelector('#data-paciente-actmed').textContent = datosReceta.pacienteActMed; // Fijo
             elementToPrint.querySelector('#data-paciente-dni').textContent = `D.N.I. ${datosReceta.pacienteDNI}`;
 
-            // --- 3d. Rellenar cabecera (Derecha) ---
+            // --- 3e. Rellenar cabecera (Derecha) ---
             elementToPrint.querySelector('#data-fecha-emision').textContent = datosReceta.fechaEmision;
             elementToPrint.querySelector('#data-paciente-pi').textContent = datosReceta.pacientePI;
             elementToPrint.querySelector('#data-farmacia').textContent = datosReceta.farmacia.toUpperCase();
@@ -260,10 +257,9 @@ document.addEventListener('DOMContentLoaded', function() {
             elementToPrint.querySelector('#data-paciente-hc').textContent = datosReceta.pacienteHC;
             elementToPrint.querySelector('#data-vigencia').textContent = datosReceta.fechaVigencia;
 
-            // --- 3e. Rellenar tabla de medicamentos ---
+            // --- 3f. Rellenar tabla de medicamentos ---
             const tablaBody = elementToPrint.querySelector('#receta-items-body');
             tablaBody.innerHTML = ''; 
-
             datosReceta.medicamentos.forEach((item, index) => {
                 const filaHTML = `
                     <tr>
@@ -281,19 +277,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 tablaBody.innerHTML += filaHTML;
             });
             
-            // --- 3f. Rellenar Médico y Footer ---
-            elementToPrint.querySelector('#data-medico-cmp').textContent = datosReceta.medicoCMP; // Fijo
-            elementToPrint.querySelector('#data-medico-nombre').textContent = datosReceta.medicoNombre.toUpperCase(); // Fijo
-            
-            // const selloImg = elementToPrint.querySelector('#sello-placeholder');
-            // selloImg.innerHTML = `<img src="sello_medico_moises.png" alt="Sello" style="width:100%; height: 100%; object-fit: contain;">`;
+            // --- 3g. Rellenar Médico y Footer ---
+            elementToPrint.querySelector('#data-medico-cmp').textContent = datosReceta.medicoCMP; 
+            elementToPrint.querySelector('#data-medico-nombre').textContent = datosReceta.medicoNombre.toUpperCase(); 
+            elementToPrint.querySelector('#data-usuario-imp').textContent = datosReceta.usuarioImp; 
+            elementToPrint.querySelector('#data-fecha-imp').textContent = datosReceta.fechaImp; 
+            elementToPrint.querySelector('#data-hora-imp').textContent = datosReceta.horaImp; 
 
-            elementToPrint.querySelector('#data-usuario-imp').textContent = datosReceta.usuarioImp; // Fijo
-            elementToPrint.querySelector('#data-fecha-imp').textContent = datosReceta.fechaImp; // Misma que emisión
-            elementToPrint.querySelector('#data-hora-imp').textContent = datosReceta.horaImp; // Hora actual
-
-
-            // 4. Esperar a que las imágenes (logo, firmas) carguen
+            // 4. Esperar a que las imágenes (logo, QR, firmas) carguen
+            // y que los scripts (QR, Barcode) se rendericen
+            await new Promise(resolve => setTimeout(resolve, 200)); // Un respiro para renderizar
             const imgElements = elementToPrint.querySelectorAll('img');
             const imgPromises = Array.from(imgElements).map(img => {
                 return new Promise((resolve) => {
@@ -320,7 +313,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error al generar la receta PDF:', error);
             showStatusMessage('Error al generar el PDF. Revise la consola.', true);
-            throw error; // Lanzar error para que el 'submit' lo atrape
+            throw error;
         } finally {
             if (container && container.parentNode) {
                 document.body.removeChild(container);
@@ -329,6 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- LÓGICA 4: SUBMIT DEL FORMULARIO ---
+    // (Esta sección no cambia, es la misma de la v4/v5)
 
     function setRecetaButtonLoading(isLoading) {
         if (!submitRecetaButton) return;
@@ -362,17 +356,13 @@ document.addEventListener('DOMContentLoaded', function() {
             setRecetaButtonLoading(true);
             showStatusMessage('Generando receta...', false);
 
-            // TODO: Integrar la lógica de créditos/plan ilimitado
-            // const activeUserDetails = JSON.parse(sessionStorage.getItem('activeUserDetails'));
-            // ... (lógica de descuento de créditos) ...
-
             try {
                 // --- 1. Recolectar datos del formulario ---
                 const tipoEntidad = recetaTipoEntidad.value;
                 const fechaEmisionStr = recetaFechaEmision.value;
                 if (!fechaEmisionStr) throw new Error('Debe seleccionar una Fecha de Emisión.');
                 
-                const fechaEmisionDate = new Date(fechaEmisionStr + 'T12:00:00');
+                const fechaEmisionDate = new Date(fechaEmisionStr + 'T05:00:00'); // Zona Perú
                 const ahora = new Date();
                 
                 const vigencia = new Date(fechaEmisionDate);
@@ -469,8 +459,6 @@ document.addEventListener('DOMContentLoaded', function() {
             } catch (error) {
                 console.error(error);
                 showStatusMessage(error.message, true);
-                // TODO: Devolver el crédito si la generación falló
-                // if (creditoDescontado) await devolverCredito(activeUserDetails);
             } finally {
                 setRecetaButtonLoading(false);
             }
@@ -478,7 +466,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // --- LÓGICA 5: PESTAÑAS (TABS) ---
-    // (Movido desde script.js para mantener la lógica de recetas junta)
     const navButtons = document.querySelectorAll('.nav-btn');
     const tabPanels = document.querySelectorAll('.tab-panel');
 
