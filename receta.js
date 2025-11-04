@@ -1,18 +1,20 @@
 /*
  * ===============================================
- * LÓGICA PARA RECETAS MÉDICAS v2
+ * LÓGICA PARA RECETAS MÉDICAS v3 (Lógica "A prueba de tontos")
  * ===============================================
- * Conecta el formulario 'recetaForm' con la
- * plantilla 'plantilla_receta.html'
+ * Conecta el formulario 'recetaForm' con la plantilla
+ * 'plantilla_receta.html' y Supabase.
  */
 
 document.addEventListener('DOMContentLoaded', function() {
 
-    // Asumimos que estas librerías estarán cargadas en la página
+    // Librerías globales (cargadas en index.html)
     const { jsPDF } = window.jspdf;
     const html2canvas = window.html2canvas;
     const QRCode = window.QRCode;
+    // (clienteSupabase se carga desde supabaseClient.js)
 
+    // Elementos del DOM
     const recetaForm = document.getElementById('recetaForm');
     const addMedicamentoBtn = document.getElementById('addMedicamentoBtn');
     const repeaterContainer = document.getElementById('medicamentos-repeater-container');
@@ -20,6 +22,101 @@ document.addEventListener('DOMContentLoaded', function() {
     const submitRecetaButton = document.getElementById('submitRecetaButton');
     const recetaTipoEntidad = document.getElementById('receta_tipoEntidad');
     const recetaMinsaGroup = document.getElementById('receta_minsaHospitalGroup');
+    const recetaFechaNacimiento = document.getElementById('receta_fechaNacimiento');
+    const recetaFechaEmision = document.getElementById('receta_fechaEmision');
+
+    // Constantes de la lógica de negocio
+    const ACT_MED_FIJO = '5287998';
+    const MEDICO_CMP_FIJO = '045187';
+    const MEDICO_NOMBRE_FIJO = 'CALLE PEÑA MOISES ANDRES';
+    const USUARIO_IMP_FIJO = '045187'; // Mismo que el médico
+    const VERIFICADOR_URL_BASE = 'https_://tu-verificador-de-recetas.onrender.com/verificar.html'; // URL del verificador
+
+    // --- LÓGICA DE AYUDA (Helpers) ---
+
+    /** Genera un número aleatorio de N dígitos como string */
+    function generarNumAleatorio(digitos) {
+        return Math.floor(Math.random() * (10 ** digitos)).toString().padStart(digitos, '0');
+    }
+
+    /** Genera un AUTOG. aleatorio (14 chars) */
+    function generarAutog() {
+        return Math.random().toString(36).substring(2, 16).toUpperCase();
+    }
+
+    /** Genera código de medicamento (211XXX, 212XXX, 213XXX) */
+    function generarCodigoMed(tipo) {
+        const sufijo = generarNumAleatorio(3);
+        if (tipo === 'oral') return `211${sufijo}`;
+        if (tipo === 'inyectable') return `212${sufijo}`;
+        if (tipo === 'pomada') return `213${sufijo}`;
+        return `000${sufijo}`;
+    }
+
+    /** Formatea la fecha como DD/MM/YYYY */
+    function getFormatoFecha(date) {
+        if (!date) return 'N/A';
+        // Asegurarnos de que 'date' es un objeto Date
+        const d = (typeof date === 'string') ? new Date(date + 'T12:00:00') : date;
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const year = d.getFullYear();
+        return `${day}/${month}/${year}`;
+    }
+    
+    /** Formatea la hora como HH:MM:SS AM/PM */
+    function getFormatoHora(date) {
+        return date.toLocaleTimeString('es-PE', { 
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit', 
+            hour12: true 
+        });
+    }
+
+    /** Calcula la edad exacta */
+    function calcularEdad(fechaNacStr) {
+        if (!fechaNacStr) return 'N/A';
+        const hoy = new Date();
+        const cumple = new Date(fechaNacStr + 'T12:00:00');
+        let edadAnios = hoy.getFullYear() - cumple.getFullYear();
+        let edadMeses = hoy.getMonth() - cumple.getMonth();
+        let edadDias = hoy.getDate() - cumple.getDate();
+
+        if (edadDias < 0) {
+            edadMeses--;
+            const ultimoDiaMesAnt = new Date(hoy.getFullYear(), hoy.getMonth(), 0).getDate();
+            edadDias += ultimoDiaMesAnt;
+        }
+        if (edadMeses < 0) {
+            edadAnios--;
+            edadMeses += 12;
+        }
+        return `${edadAnios} años ${edadMeses} meses ${edadDias} Días`;
+    }
+
+    /** Formatea la Denominación */
+    function formatearDenominacion(tipo, med, mg) {
+        if (tipo === 'pomada') return med.toUpperCase();
+        return `${med.toUpperCase()} ${mg.toUpperCase()}`;
+    }
+    
+    /** Formatea la Vía de Administración */
+    function formatearViaAdmin(tipo, horas) {
+        const cada = `CADA ${horas} HORAS`;
+        if (tipo === 'oral') return `1 TAB ${cada}`;
+        if (tipo === 'inyectable') return `1 INYECT. ${cada}`;
+        if (tipo === 'pomada') return `APLICAR ${cada}`;
+        return '';
+    }
+
+    /** Calcula la cantidad de medicamento */
+    function calcularCantidad(horas, dias) {
+        const dosisPorDia = 24 / parseInt(horas);
+        const cantidadTotal = dosisPorDia * parseInt(dias);
+        // Formato con comas, como en la imagen de ejemplo
+        return new Intl.NumberFormat('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(cantidadTotal);
+    }
 
     // --- LÓGICA 1: REPEATER DE MEDICAMENTOS ---
 
@@ -27,10 +124,41 @@ document.addEventListener('DOMContentLoaded', function() {
         const row = document.createElement('div');
         row.className = 'medicamento-row';
         row.innerHTML = `
-            <input type="text" placeholder="Denominación (ej: PARACETAMOL 500MG)" class="med-denominacion" required>
-            <input type="text" placeholder="Vía Admin (ej: 1 TAB CADA 8 HORAS)" class="med-via" required>
-            <input type="number" placeholder="Días" class="med-dias" required>
-            <input type="text" placeholder="Cant." class="med-cant" required value="1,00">
+            <div class="med-input-group">
+                <label>Tipo</label>
+                <select class="med-tipo" required>
+                    <option value="oral" selected>Vía Oral (Tableta)</option>
+                    <option value="inyectable">Inyectable</option>
+                    <option value="pomada">Pomada (Untable)</option>
+                </select>
+            </div>
+            <div class="med-input-group">
+                <label>Medicamento</label>
+                <input type="text" placeholder="Ej: CETIRIZINA" class="med-nombre" required>
+            </div>
+            <div class="med-input-group med-mg-group">
+                <label>MG / Unidad</label>
+                <input type="text" placeholder="Ej: 10MG/TABLETA" class="med-mg" required>
+            </div>
+            <div class="med-input-group">
+                <label>Cada (Hrs)</label>
+                <select class="med-horas" required>
+                    <option value="8">8 Horas</option>
+                    <option value="12">12 Horas</option>
+                    <option value="24" selected>24 Horas</option>
+                </select>
+            </div>
+            <div class="med-input-group">
+                <label>Días</label>
+                <input type="number" placeholder="Ej: 10" class="med-dias" required>
+            </div>
+            <div class="med-input-group">
+                <label>Turno</label>
+                <select class="med-turno" required>
+                    <option value="AM" selected>AM</option>
+                    <option value="PM">PM</option>
+                </select>
+            </div>
             <button type="button" class="delete-row-btn"><i class="bi bi-trash-fill"></i></button>
         `;
         
@@ -39,15 +167,26 @@ document.addEventListener('DOMContentLoaded', function() {
             row.remove();
         });
 
+        // Lógica para ocultar "MG/Unidad" si es pomada
+        const tipoSelect = row.querySelector('.med-tipo');
+        const mgGroup = row.querySelector('.med-mg-group');
+        tipoSelect.addEventListener('change', (e) => {
+            if (e.target.value === 'pomada') {
+                mgGroup.style.display = 'none';
+                mgGroup.querySelector('input').required = false;
+            } else {
+                mgGroup.style.display = 'block';
+                mgGroup.querySelector('input').required = true;
+            }
+        });
+
         repeaterContainer.appendChild(row);
     }
 
     if (addMedicamentoBtn) {
         addMedicamentoBtn.addEventListener('click', createMedicamentoRow);
     }
-    // Añadir la primera fila al cargar
-    createMedicamentoRow();
-
+    createMedicamentoRow(); // Añadir la primera fila al cargar
 
     // --- LÓGICA 2: SELECTOR DE ENTIDAD (MINSA/ESSALUD) ---
     if(recetaTipoEntidad) {
@@ -56,21 +195,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // --- LÓGICA 3: GENERACIÓN DE PDF ---
-
-    /**
-     * Función principal para generar el PDF de la Receta
-     * @param {object} datosReceta - Un objeto con toda la info de la receta.
-     */
+    // --- LÓGICA 3: GENERACIÓN DE PDF (La misma que antes, pero con IDs actualizados) ---
     async function generarRecetaPDF(datosReceta) {
         let container;
         try {
-            // 1. Cargar la plantilla HTML de la receta
             const response = await fetch('plantilla_receta.html');
             if (!response.ok) throw new Error('No se pudo cargar plantilla_receta.html.');
             const html = await response.text();
             
-            // 2. Crear un contenedor temporal para rellenar la plantilla
             container = document.createElement('div');
             container.style.position = 'absolute';
             container.style.left = '-9999px';
@@ -81,38 +213,29 @@ document.addEventListener('DOMContentLoaded', function() {
             const elementToPrint = container.querySelector('#receta-container');
             if (!elementToPrint) throw new Error('ID "#receta-container" no encontrado.');
 
-            // 3. Rellenar los datos dinámicos
-            
-            // --- 3a. Logo dinámico (SIS o ESSALUD) ---
+            // --- 3a. Logo y Establecimiento ---
             const logoMembrete = elementToPrint.querySelector('#logo-membrete');
             const dataEstablecimiento = elementToPrint.querySelector('#data-establecimiento');
-            
             if (datosReceta.tipoEntidad === 'minsa') {
                 logoMembrete.src = 'sis.png';
                 dataEstablecimiento.textContent = `${datosReceta.establecimientoNombre.toUpperCase()} - MINSA - SIS`;
             } else {
                 logoMembrete.src = 'essalud.png';
-                // TODO: Usar el nombre del hospital de ESSALUD si se añade un campo
-                dataEstablecimiento.textContent = '037 - ESSALUD MARCONA'; // Valor por defecto de ESSALUD
+                dataEstablecimiento.textContent = '424-ESSALUD - SEGURO SOCIAL'; // Código ESSALUD actualizado
             }
 
-            // --- 3b. Generar el QR (con su URL de verificación separada) ---
+            // --- 3b. Generar el QR (con URL de verificación y AUTOG) ---
             const qrContainer = elementToPrint.querySelector('#qr-placeholder');
-            // TODO: Crear una URL de verificación real para recetas
-            const qrUrlDeVerificacion = `https://mi-verificador-recetas.pe/validar?id=${datosReceta.recetaIDUnico}`;
+            const qrUrlDeVerificacion = `${VERIFICADOR_URL_BASE}?autog=${datosReceta.pacienteAutog}`; // ¡Enlaza al AUTOG!
             
             if (qrContainer && QRCode) {
                 new QRCode(qrContainer, {
                     text: qrUrlDeVerificacion,
-                    width: 100,
-                    height: 100,
-                    colorDark: "#000000",
-                    colorLight: "#ffffff",
+                    width: 100, height: 100,
+                    colorDark: "#000000", colorLight: "#ffffff",
                     correctLevel: QRCode.CorrectLevel.H
                 });
-                await new Promise(resolve => setTimeout(resolve, 100)); // Dar tiempo a que el QR se renderice
-            } else {
-                console.warn('No se encontró #qr-placeholder o la librería QRCode.');
+                await new Promise(resolve => setTimeout(resolve, 100)); 
             }
 
             // --- 3c. Rellenar cabecera (Izquierda) ---
@@ -121,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
             elementToPrint.querySelector('#data-area-2').textContent = datosReceta.area2.toUpperCase();
             elementToPrint.querySelector('#data-paciente-nombre').textContent = datosReceta.pacienteNombre.toUpperCase();
             elementToPrint.querySelector('#data-paciente-autog').textContent = datosReceta.pacienteAutog;
-            elementToPrint.querySelector('#data-paciente-actmed').textContent = datosReceta.pacienteActMed;
+            elementToPrint.querySelector('#data-paciente-actmed').textContent = datosReceta.pacienteActMed; // Fijo
             elementToPrint.querySelector('#data-paciente-dni').textContent = `D.N.I. ${datosReceta.pacienteDNI}`;
 
             // --- 3d. Rellenar cabecera (Derecha) ---
@@ -134,15 +257,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // --- 3e. Rellenar tabla de medicamentos ---
             const tablaBody = elementToPrint.querySelector('#receta-items-body');
-            tablaBody.innerHTML = ''; // Limpiar la tabla
+            tablaBody.innerHTML = ''; 
 
             datosReceta.medicamentos.forEach((item, index) => {
                 const filaHTML = `
                     <tr>
                         <td class="text-center">${index + 1}</td>
-                        <td>${item.codigo || ''}</td>
+                        <td>${item.codigo}</td>
                         <td>
-                            <div class="item-denominacion">${item.denominacion.toUpperCase()}</div>
+                            <div class="item-denominacion">${item.denominacion}</div>
                             <div class="item-via-admin">Via Admin: ${item.viaAdmin}</div>
                         </td>
                         <td class="text-center">${item.dias}</td>
@@ -154,20 +277,19 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             // --- 3f. Rellenar Médico y Footer ---
-            elementToPrint.querySelector('#data-medico-cmp').textContent = datosReceta.medicoCMP;
-            elementToPrint.querySelector('#data-medico-nombre').textContent = datosReceta.medicoNombre.toUpperCase();
+            elementToPrint.querySelector('#data-medico-cmp').textContent = datosReceta.medicoCMP; // Fijo
+            elementToPrint.querySelector('#data-medico-nombre').textContent = datosReceta.medicoNombre.toUpperCase(); // Fijo
             
-            // (Aquí iría la lógica para cargar la imagen del sello del médico)
-            // const selloImg = elementToPrint.querySelector('#sello-placeholder img');
-            // selloImg.src = datosReceta.medicoSelloUrl;
-            // selloImg.style.display = 'block';
+            // (Lógica para sello médico fijo, si lo tienes)
+            // const selloImg = elementToPrint.querySelector('#sello-placeholder');
+            // selloImg.innerHTML = `<img src="sello_medico_moises.png" alt="Sello" style="width:100%; height: 100%; object-fit: contain;">`;
 
-            elementToPrint.querySelector('#data-usuario-imp').textContent = datosReceta.usuarioImp;
-            elementToPrint.querySelector('#data-fecha-imp').textContent = datosReceta.fechaImp;
-            elementToPrint.querySelector('#data-hora-imp').textContent = datosReceta.horaImp;
+            elementToPrint.querySelector('#data-usuario-imp').textContent = datosReceta.usuarioImp; // Fijo
+            elementToPrint.querySelector('#data-fecha-imp').textContent = datosReceta.fechaImp; // Misma que emisión
+            elementToPrint.querySelector('#data-hora-imp').textContent = datosReceta.horaImp; // Hora actual
 
 
-            // 4. Esperar a que las imágenes (logo, QR, sello) carguen
+            // 4. Esperar a que las imágenes (logo, QR, firmas) carguen
             const imgElements = elementToPrint.querySelectorAll('img');
             const imgPromises = Array.from(imgElements).map(img => {
                 return new Promise((resolve) => {
@@ -176,12 +298,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
             await Promise.all(imgPromises);
-            await new Promise(resolve => setTimeout(resolve, 200)); // Un respiro extra
+            await new Promise(resolve => setTimeout(resolve, 200)); 
 
             // 5. Generar el Canvas y el PDF
             const canvas = await html2canvas(elementToPrint, { scale: 2, useCORS: true, allowTaint: true });
             const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF('p', 'mm', 'a4'); // Hoja A4
+            const pdf = new jsPDF('p', 'mm', 'a4'); 
             
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
@@ -194,6 +316,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error al generar la receta PDF:', error);
             showStatusMessage('Error al generar el PDF. Revise la consola.', true);
+            throw error; // Lanzar error para que el 'submit' lo atrape
         } finally {
             if (container && container.parentNode) {
                 document.body.removeChild(container);
@@ -229,92 +352,121 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 6000);
     }
     
-    function getFormatoFecha(date) {
-        const day = String(date.getDate()).padStart(2, '0');
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
-    }
-
     if (recetaForm) {
         recetaForm.addEventListener('submit', async function(event) {
             event.preventDefault();
             setRecetaButtonLoading(true);
+            showStatusMessage('Generando receta...', false);
 
             // TODO: Integrar la lógica de créditos/plan ilimitado
-            // Por ahora, asumimos que el usuario tiene permiso
-
-            // Recolectar datos de los medicamentos
-            const medicamentos = [];
-            const medicamentoRows = repeaterContainer.querySelectorAll('.medicamento-row');
-            if (medicamentoRows.length === 0) {
-                showStatusMessage('Debe añadir al menos un medicamento.', true);
-                setRecetaButtonLoading(false);
-                return;
-            }
-
-            medicamentoRows.forEach(row => {
-                medicamentos.push({
-                    codigo: '', // No tenemos campo para esto, lo dejamos vacío
-                    denominacion: row.querySelector('.med-denominacion').value,
-                    viaAdmin: row.querySelector('.med-via').value,
-                    dias: row.querySelector('.med-dias').value,
-                    umff: 'AM', // Valor por defecto
-                    cantidad: row.querySelector('.med-cant').value
-                });
-            });
-
-            // Preparar el objeto de datos para el PDF
-            const now = new Date();
-            const vigencia = new Date(now);
-            vigencia.setDate(now.getDate() + 7); // 7 días de vigencia
-
-            const datosRecetaParaPDF = {
-                // Info de Entidad
-                tipoEntidad: document.getElementById('receta_tipoEntidad').value,
-                establecimientoNombre: document.getElementById('receta_minsaHospitalNombre').value,
-
-                // Info de Cabecera
-                nroOrden: 'REC-' + Math.floor(100000 + Math.random() * 900000), // Nro Orden aleatorio
-                area1: document.getElementById('receta_area1').value,
-                area2: document.getElementById('receta_area2').value,
-                pacienteNombre: document.getElementById('receta_pacienteNombre').value,
-                pacienteAutog: 'AUTOG-' + Math.floor(10000 + Math.random() * 90000), // Autog aleatorio
-                pacienteActMed: 'ACTM-' + Math.floor(10000 + Math.random() * 90000), // Act.Med aleatorio
-                pacienteDNI: document.getElementById('receta_pacienteDNI').value,
-                
-                fechaEmision: getFormatoFecha(now),
-                recetaIDUnico: 'REC-' + new Date().getTime(), // ID único para el QR
-                pacientePI: 'PI-' + Math.floor(10000 + Math.random() * 90000), // P.I. aleatorio
-                farmacia: document.getElementById('receta_farmacia').value,
-                pacienteEdad: document.getElementById('receta_pacienteEdad').value,
-                pacienteHC: document.getElementById('receta_pacienteHC').value,
-                fechaVigencia: getFormatoFecha(vigencia),
-
-                // Info de Medicamentos
-                medicamentos: medicamentos,
-
-                // Info de Médico y Footer
-                medicoCMP: '045187', // TODO: Hacer dinámico
-                medicoNombre: 'CALLE PEÑA MOISES ANDRES', // TODO: Hacer dinámico
-                medicoSelloUrl: 'sello_medico.png', // (Opcional)
-                
-                usuarioImp: 'USUARIO_PRUEBA', // TODO: Cargar desde sessionStorage
-                fechaImp: getFormatoFecha(now),
-                horaImp: new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
-            };
+            // const activeUserDetails = JSON.parse(sessionStorage.getItem('activeUserDetails'));
+            // ... (lógica de descuento de créditos) ...
 
             try {
-                // TODO: Guardar la receta en la base de datos de Supabase
-                // (Crear tabla 'recetas_medicas' y hacer el insert)
-
-                await generarRecetaPDF(datosRecetaParaPDF);
-                showStatusMessage('Receta generada con éxito.', false);
-                // No reseteamos el form por si quiere imprimir de nuevo
+                // --- 1. Recolectar datos del formulario ---
+                const tipoEntidad = recetaTipoEntidad.value;
+                const fechaEmisionStr = recetaFechaEmision.value;
+                const fechaEmisionDate = new Date(fechaEmisionStr + 'T12:00:00');
+                const ahora = new Date();
                 
+                const vigencia = new Date(fechaEmisionDate);
+                vigencia.setDate(vigencia.getDate() + 7); // 7 días de vigencia
+
+                const farmaciaSeleccionada = document.getElementById('receta_farmacia').value.split('-');
+                
+                // --- 2. Recolectar Medicamentos y Calcular ---
+                const medicamentos = [];
+                const medicamentoRows = repeaterContainer.querySelectorAll('.medicamento-row');
+                if (medicamentoRows.length === 0) {
+                    throw new Error('Debe añadir al menos un medicamento.');
+                }
+
+                medicamentoRows.forEach(row => {
+                    const tipo = row.querySelector('.med-tipo').value;
+                    const horas = row.querySelector('.med-horas').value;
+                    const dias = row.querySelector('.med-dias').value;
+
+                    medicamentos.push({
+                        codigo: generarCodigoMed(tipo),
+                        denominacion: formatearDenominacion(
+                            tipo,
+                            row.querySelector('.med-nombre').value,
+                            row.querySelector('.med-mg').value
+                        ),
+                        viaAdmin: formatearViaAdmin(tipo, horas),
+                        dias: dias,
+                        umff: row.querySelector('.med-turno').value,
+                        cantidad: calcularCantidad(horas, dias)
+                    });
+                });
+
+                // --- 3. Preparar el objeto de datos ---
+                const datosRecetaParaPDF = {
+                    // Info de Entidad
+                    tipoEntidad: tipoEntidad,
+                    establecimientoNombre: document.getElementById('receta_minsaHospitalNombre').value,
+
+                    // Info de Cabecera (Generada y Fija)
+                    nroOrden: generarNumAleatorio(8),
+                    area1: document.getElementById('receta_area1').value,
+                    area2: document.getElementById('receta_area2').value,
+                    pacienteNombre: document.getElementById('receta_pacienteNombre').value,
+                    pacienteAutog: generarAutog(), // ¡CLAVE PARA VERIFICACIÓN!
+                    pacienteActMed: ACT_MED_FIJO,
+                    pacienteDNI: document.getElementById('receta_pacienteDNI').value,
+                    
+                    fechaEmision: getFormatoFecha(fechaEmisionDate),
+                    pacientePI: farmaciaSeleccionada[0],
+                    farmacia: farmaciaSeleccionada[1],
+                    pacienteEdad: calcularEdad(recetaFechaNacimiento.value),
+                    pacienteHC: generarNumAleatorio(8),
+                    fechaVigencia: getFormatoFecha(vigencia),
+
+                    // Info de Medicamentos
+                    medicamentos: medicamentos,
+
+                    // Info de Médico y Footer (Fija)
+                    medicoCMP: MEDICO_CMP_FIJO,
+                    medicoNombre: MEDICO_NOMBRE_FIJO,
+                    usuarioImp: USUARIO_IMP_FIJO,
+                    fechaImp: getFormatoFecha(fechaEmisionDate), // Misma que emisión
+                    horaImp: getFormatoHora(ahora) // Hora actual
+                };
+
+                // --- 4. Guardar en Supabase (¡CLAVE!) ---
+                // (Asegúrate de tener una tabla 'recetas_medicas' creada)
+                const { error: insertError } = await clienteSupabase
+                    .from('recetas_medicas')
+                    .insert([{
+                        nro_orden: datosRecetaParaPDF.nroOrden,
+                        autog: datosRecetaParaPDF.pacienteAutog, // El ID de verificación
+                        paciente_nombre: datosRecetaParaPDF.pacienteNombre,
+                        paciente_dni: datosRecetaParaPDF.pacienteDNI,
+                        paciente_edad: datosRecetaParaPDF.pacienteEdad,
+                        fecha_emision: fechaEmisionStr, // Guardar la fecha ISO
+                        medico_nombre: datosRecetaParaPDF.medicoNombre,
+                        medico_cmp: datosRecetaParaPDF.medicoCMP,
+                        // Guardamos los medicamentos como JSON
+                        medicamentos_json: JSON.stringify(datosRecetaParaPDF.medicamentos) 
+                    }]);
+
+                if (insertError) {
+                    throw new Error(`Error al guardar en Supabase: ${insertError.message}`);
+                }
+
+                // --- 5. Generar el PDF ---
+                await generarRecetaPDF(datosRecetaParaPDF);
+                showStatusMessage('Receta generada y guardada con éxito.', false);
+                
+                // Limpiar solo los medicamentos, no los datos del paciente
+                repeaterContainer.innerHTML = '';
+                createMedicamentoRow();
+
             } catch (error) {
                 console.error(error);
-                showStatusMessage('Error al generar la receta.', true);
+                showStatusMessage(error.message, true);
+                // TODO: Devolver el crédito si la generación falló
+                // if (creditoDescontado) await devolverCredito(activeUserDetails);
             } finally {
                 setRecetaButtonLoading(false);
             }
