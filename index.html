@@ -58,85 +58,172 @@
                 </button>
             </div>
 
-            <h1>Registro de Descanso Médico (CITT)</h1>
-            <p class="subtitle">Complete todos los campos para registrar un nuevo Certificado de Incapacidad Temporal para el Trabajo.</p>
-
-            <form id="descansoForm">
-                 <fieldset>
-                    <legend>Información del Paciente</legend>
-                    <div class="input-group">
-                        <input type="text" id="citt" name="citt" placeholder=" " required readonly>
-                        <label for="citt">Número de CITT</label>
-                    </div>
-                    <div class="input-group">
-                        <input type="text" id="nombre" name="nombre" placeholder=" " required>
-                        <label for="nombre">Apellidos y Nombres del Paciente</label>
-                        <small>Ingrese Apellido Paterno, Materno y Nombres (se guardará en mayúsculas).</small>
-                    </div>
-                    <div class="input-group">
-                        <input type="text" id="dni" name="dni" maxlength="8" pattern="\d{8}" title="Debe contener 8 dígitos numéricos" placeholder=" " required>
-                        <label for="dni">DNI</label>
-                    </div>
-                </fieldset>
-
-                 <fieldset>
-                    <legend>Información de Entidad</legend>
-                    <div class="input-group">
-                        <select id="tipoEntidad" name="tipoEntidad" required>
-                            <option value="essalud" selected>ESSALUD</option>
-                            <option value="minsa">MINSA - SIS</option>
-                        </select>
-                        <label for="tipoEntidad" class="label-select">Entidad Emisora</label>
-                    </div>
-                    <div class="input-group" id="minsaHospitalGroup" style="display: none;">
-                        <input type="text" id="minsaHospitalNombre" name="minsaHospitalNombre" placeholder=" ">
-                        <label for="minsaHospitalNombre">Nombre del Hospital (E.S.)</label>
-                        <small>El nombre se guardará en MAYÚSCULAS.</small>
-                    </div>
-                </fieldset>
-
-                 <fieldset>
-                    <legend>Detalles del Descanso</legend>
-                     <div class="input-group">
-                        <input type="text" id="contingencia" name="contingencia" placeholder=" " required>
-                        <label for="contingencia">Contingencia (Diagnóstico)</label>
-                         <small>Ingrese el motivo del descanso (se guardará en mayúsculas).</small>
-                    </div>
-                    <div class="fechas-grid">
-                        <div class="input-group">
-                            <input type="date" id="fechaInicio" name="fechaInicio" placeholder=" " required>
-                            <label for="fechaInicio">Fecha de Inicio</label>
-                        </div>
-                        <div class="input-group">
-                            <input type="date" id="fechaFin" name="fechaFin" placeholder=" " required>
-                            <label for="fechaFin">Fecha de Fin</label>
-                        </div>
-                        <div class="input-group">
-                            <input type="number" id="totalDias" name="totalDias" placeholder=" " readonly>
-                            <label for="totalDias">Total de Días</label>
-                        </div>
-                        <div class="input-group">
-                            <input type="date" id="fechaOtorgamiento" name="fechaOtorgamiento" placeholder=" " required readonly>
-                            <label for="fechaOtorgamiento">Fecha de Otorgamiento</label>
-                        </div>
-                    </div>
-                </fieldset>
-
-                <button type="submit" id="submitButton">
-                    <span class="button-text">Registrar y Generar PDF</span>
-                    <span class="button-loader hidden"></span>
+            <div class="panel-nav">
+                <button id="nav-citt-btn" class="nav-btn active" data-panel="citt-panel">
+                    <i class="bi bi-clipboard2-pulse-fill"></i> Descanso Médico (CITT)
                 </button>
+                <button id="nav-receta-btn" class="nav-btn" data-panel="receta-panel">
+                    <i class="bi bi-file-earmark-medical-fill"></i> Receta Médica
+                </button>
+            </div>
+            <div id="citt-panel" class="tab-panel active">
+                <h1>Registro de Descanso Médico (CITT)</h1>
+                <p class="subtitle">Complete todos los campos para registrar un nuevo Certificado de Incapacidad Temporal para el Trabajo.</p>
 
-                <div id="statusMessage"></div>
-                <div class="telegram-contact">
-                    <span>¿Necesitas acceso o más créditos?</span>
-                    <a href="https://t.me/whiskyper" target="_blank">
-                        <i class="bi bi-telegram"></i>
-                        <span>Contáctame en Telegram</span>
-                    </a>
-                </div>
-            </form>
-        </div>
+                <form id="descansoForm">
+                    <fieldset>
+                        <legend>Información del Paciente</legend>
+                        <div class="input-group">
+                            <input type="text" id="citt" name="citt" placeholder=" " required readonly>
+                            <label for="citt">Número de CITT</label>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="nombre" name="nombre" placeholder=" " required>
+                            <label for="nombre">Apellidos y Nombres del Paciente</label>
+                            <small>Ingrese Apellido Paterno, Materno y Nombres (se guardará en mayúsculas).</small>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="dni" name="dni" maxlength="8" pattern="\d{8}" title="Debe contener 8 dígitos numéricos" placeholder=" " required>
+                            <label for="dni">DNI</label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Información de Entidad</legend>
+                        <div class="input-group">
+                            <select id="tipoEntidad" name="tipoEntidad" required>
+                                <option value="essalud" selected>ESSALUD</option>
+                                <option value="minsa">MINSA - SIS</option>
+                            </select>
+                            <label for="tipoEntidad" class="label-select">Entidad Emisora</label>
+                        </div>
+                        <div class="input-group" id="minsaHospitalGroup" style="display: none;">
+                            <input type="text" id="minsaHospitalNombre" name="minsaHospitalNombre" placeholder=" ">
+                            <label for="minsaHospitalNombre">Nombre del Hospital (E.S.)</label>
+                            <small>El nombre se guardará en MAYÚSCULAS.</small>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Detalles del Descanso</legend>
+                        <div class="input-group">
+                            <input type="text" id="contingencia" name="contingencia" placeholder=" " required>
+                            <label for="contingencia">Contingencia (Diagnóstico)</label>
+                            <small>Ingrese el motivo del descanso (se guardará en mayúsculas).</small>
+                        </div>
+                        <div class="fechas-grid">
+                            <div class="input-group">
+                                <input type="date" id="fechaInicio" name="fechaInicio" placeholder=" " required>
+                                <label for="fechaInicio">Fecha de Inicio</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="date" id="fechaFin" name="fechaFin" placeholder=" " required>
+                                <label for="fechaFin">Fecha de Fin</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="number" id="totalDias" name="totalDias" placeholder=" " readonly>
+                                <label for="totalDias">Total de Días</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="date" id="fechaOtorgamiento" name="fechaOtorgamiento" placeholder=" " required readonly>
+                                <label for="fechaOtorgamiento">Fecha de Otorgamiento</label>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <button type="submit" id="submitButton">
+                        <span class="button-text">Registrar y Generar PDF</span>
+                        <span class="button-loader hidden"></span>
+                    </button>
+
+                    <div id="statusMessage"></div>
+                    <div class="telegram-contact">
+                        <span>¿Necesitas acceso o más créditos?</span>
+                        <a href="https://t.me/whiskyper" target="_blank">
+                            <i class="bi bi-telegram"></i>
+                            <span>Contáctame en Telegram</span>
+                        </a>
+                    </div>
+                </form>
+            </div>
+            <div id="receta-panel" class="tab-panel hidden">
+                <h1>Registro de Receta Médica</h1>
+                <p class="subtitle">Complete los campos para generar una nueva Receta Médica.</p>
+
+                <form id="recetaForm">
+                    <fieldset>
+                        <legend>Información de Entidad</legend>
+                        <div class="input-group">
+                            <select id="receta_tipoEntidad" name="receta_tipoEntidad" required>
+                                <option value="essalud" selected>ESSALUD</option>
+                                <option value="minsa">MINSA - SIS</option>
+                            </select>
+                            <label for="receta_tipoEntidad" class="label-select">Entidad Emisora</label>
+                        </div>
+                        <div class="input-group" id="receta_minsaHospitalGroup" style="display: none;">
+                            <input type="text" id="receta_minsaHospitalNombre" name="receta_minsaHospitalNombre" placeholder=" ">
+                            <label for="receta_minsaHospitalNombre">Nombre del Hospital (E.S.)</label>
+                            <small>El nombre se guardará en MAYÚSCULAS.</small>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Información del Paciente</legend>
+                        <div class="fechas-grid">
+                            <div class="input-group">
+                                <input type="text" id="receta_pacienteNombre" placeholder=" " required>
+                                <label for="receta_pacienteNombre">Apellidos y Nombres</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="receta_pacienteDNI" maxlength="8" pattern="\d{8}" placeholder=" " required>
+                                <label for="receta_pacienteDNI">DNI</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="receta_pacienteEdad" placeholder=" ">
+                                <label for="receta_pacienteEdad">Edad (ej: 29 años 7 meses)</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="receta_pacienteHC" placeholder=" ">
+                                <label for="receta_pacienteHC">Historia Clínica (H/C)</label>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Detalles de Atención</legend>
+                        <div class="fechas-grid">
+                            <div class="input-group">
+                                <input type="text" id="receta_area1" placeholder=" " value="EMERGENCIA">
+                                <label for="receta_area1">Área Principal</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="receta_area2" placeholder=" " value="MEDICINA GENERAL">
+                                <label for="receta_area2">Área Secundaria</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="receta_farmacia" placeholder=" " value="FARMACIA PRINCIPAL">
+                                <label for="receta_farmacia">Farmacia</label>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Medicamentos</legend>
+                        <div id="medicamentos-repeater-container">
+                            </div>
+                        <button type="button" id="addMedicamentoBtn" class="add-row-btn">
+                            <i class="bi bi-plus-circle-fill"></i> Añadir Medicamento
+                        </button>
+                    </fieldset>
+
+                    <button type="submit" id="submitRecetaButton">
+                        <span class="button-text">Registrar y Generar Receta</span>
+                        <span class="button-loader hidden"></span>
+                    </button>
+                    <div id="recetaStatusMessage" class="status-message"></div>
+                </form>
+            </div>
+            </div>
     </div>
 
     <footer class="main-footer">
@@ -149,5 +236,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabaseClient.js"></script>
-    <script src="script.js"></script> </body>
+    <script src="script.js"></script>
+    <script src="receta.js"></script> </body>
 </html>
