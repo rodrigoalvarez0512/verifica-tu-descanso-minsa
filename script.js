@@ -552,3 +552,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
     verificarSesionExistente();
 });
+
+// ===============================================
+// LÓGICA DE PESTAÑAS (TABS)
+// ===============================================
+document.addEventListener('DOMContentLoaded', function() {
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const tabPanels = document.querySelectorAll('.tab-panel');
+
+    navButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // 1. Quitar 'active' de todos los botones y paneles
+            navButtons.forEach(btn => btn.classList.remove('active'));
+            tabPanels.forEach(panel => panel.classList.add('hidden'));
+
+            // 2. Añadir 'active' al botón clickeado
+            button.classList.add('active');
+
+            // 3. Mostrar el panel correspondiente
+            const panelId = button.getAttribute('data-panel');
+            const activePanel = document.getElementById(panelId);
+            if (activePanel) {
+                activePanel.classList.remove('hidden');
+            }
+        });
+    });
+});
