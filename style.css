@@ -391,3 +391,86 @@ legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bo
         grid-column: 2 / 3; /* Ocupa la segunda columna al final */
     }
 }
+
+/* ===============================================
+   ESTILOS (CORREGIDOS) PARA REPETIDOR DE RECETAS
+   =============================================== */
+
+/* La nueva fila de cabecera */
+.medicamento-header-row {
+    display: grid;
+    /* Mismas columnas que la fila de inputs */
+    grid-template-columns: 1.5fr 2fr 1.5fr 1fr 1fr 1fr 50px;
+    gap: 1rem;
+    padding: 0 0.5rem 0.5rem 0.5rem;
+    border-bottom: 2px solid var(--color-borde-input);
+    margin-bottom: 1rem;
+}
+.medicamento-header-row span {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-texto-secundario);
+    text-transform: uppercase;
+}
+
+/* Contenedor de filas */
+#medicamentos-repeater-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem; 
+}
+
+/* Fila de inputs (simplificada) */
+.medicamento-row {
+    display: grid;
+    grid-template-columns: 1.5fr 2fr 1.5fr 1fr 1fr 1fr 50px;
+    gap: 1rem;
+    align-items: center; /* Centrar verticalmente */
+    /* Ya no necesitamos el padding o borde de antes */
+}
+
+/* --- ESTOS ESTILOS SON EL PROBLEMA: ¡BÓRRALOS! --- */
+/*
+.med-input-group { ... }
+.med-input-group label { ... }
+*/
+
+/* Estilo directo para inputs y selects en la fila */
+.medicamento-row input,
+.medicamento-row select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    font-family: var(--fuente-principal);
+    color: var(--color-texto-principal);
+    background-color: var(--color-fondo-input);
+    border: 1px solid var(--color-borde-input);
+    border-radius: var(--radio-borde);
+}
+.medicamento-row input:focus,
+.medicamento-row select:focus {
+     outline: none;
+     border-color: var(--color-borde-foco);
+     box-shadow: 0 0 0 3px rgba(212, 39, 50, 0.15);
+}
+
+.delete-row-btn {
+    background-color: transparent;
+    color: var(--color-error);
+    border: 2px solid var(--color-borde-input);
+    border-radius: var(--radio-borde);
+    font-size: 1.1rem;
+    padding: 6px 0; /* Ajuste de padding */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0; /* Ya no se necesita */
+}
+.delete-row-btn:hover {
+    background-color: #fef2f2;
+    border-color: var(--color-error);
+}
+
+/* (El estilo de .add-row-btn no necesita cambios) */
