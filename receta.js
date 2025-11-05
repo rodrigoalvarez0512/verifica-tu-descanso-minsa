@@ -104,66 +104,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // --- LÓGICA 1: REPEATER DE MEDICAMENTOS ---
-    function createMedicamentoRow() {
-        const row = document.createElement('div');
-        row.className = 'medicamento-row';
-        row.innerHTML = `
-            <div class="med-input-group">
-                <label>Tipo</label>
-                <select class="med-tipo" required>
-                    <option value="oral" selected>Vía Oral (Tableta)</option>
-                    <option value="inyectable">Inyectable</option>
-                    <option value="pomada">Pomada (Untable)</option>
-                </select>
-            </div>
-            <div class="med-input-group">
-                <label>Medicamento</label>
-                <input type="text" placeholder="Ej: CETIRIZINA" class="med-nombre" required>
-            </div>
-            <div class="med-input-group med-mg-group">
-                <label>MG / Unidad</label>
-                <input type="text" placeholder="Ej: 10MG/TABLETA" class="med-mg" required>
-            </div>
-            <div class="med-input-group">
-                <label>Cada (Hrs)</label>
-                <select class="med-horas" required>
-                    <option value="8">8 Horas</option>
-                    <option value="12">12 Horas</option>
-                    <option value="24" selected>24 Horas</option>
-                </select>
-            </div>
-            <div class="med-input-group">
-                <label>Días</label>
-                <input type="number" placeholder="Ej: 10" class="med-dias" required>
-            </div>
-            <div class="med-input-group">
-                <label>Turno</label>
-                <select class="med-turno" required>
-                    <option value="AM" selected>AM</option>
-                    <option value="PM">PM</option>
-                </select>
-            </div>
-            <button type="button" class="delete-row-btn"><i class="bi bi-trash-fill"></i></button>
-        `;
-        
-        row.querySelector('.delete-row-btn').addEventListener('click', () => {
-            row.remove();
-        });
+    // REEMPLAZA ESTA FUNCIÓN EN TU RECETA.JS
+function createMedicamentoRow() {
+    const row = document.createElement('div');
+    row.className = 'medicamento-row';
+    
+    // --- HTML SIMPLIFICADO ---
+    // Sin labels, sin input-groups. Solo los inputs directos.
+    row.innerHTML = `
+        <select class="med-tipo" required>
+            <option value="oral" selected>Vía Oral (Tableta)</option>
+            <option value="inyectable">Inyectable</option>
+            <option value="pomada">Pomada (Untable)</option>
+        </select>
+        <input type="text" placeholder="Ej: CETIRIZINA" class="med-nombre" required>
+        <input type="text" placeholder="Ej: 10MG/TABLETA" class="med-mg" required>
+        <select class="med-horas" required>
+            <option value="8">8 Horas</option>
+            <option value="12">12 Horas</option>
+            <option value="24" selected>24 Horas</option>
+        </select>
+        <input type="number" placeholder="Días" class="med-dias" required>
+        <select class="med-turno" required>
+            <option value="AM" selected>AM</option>
+            <option value="PM">PM</option>
+        </select>
+        <button type="button" class="delete-row-btn"><i class="bi bi-trash-fill"></i></button>
+    `;
+    
+    row.querySelector('.delete-row-btn').addEventListener('click', () => {
+        row.remove();
+    });
 
-        const tipoSelect = row.querySelector('.med-tipo');
-        const mgGroup = row.querySelector('.med-mg-group');
-        tipoSelect.addEventListener('change', (e) => {
-            if (e.target.value === 'pomada') {
-                mgGroup.style.display = 'none';
-                mgGroup.querySelector('input').required = false;
-            } else {
-                mgGroup.style.display = 'block';
-                mgGroup.querySelector('input').required = true;
-            }
-        });
+    // Lógica para ocultar "MG/Unidad"
+    const tipoSelect = row.querySelector('.med-tipo');
+    const mgInput = row.querySelector('.med-mg'); // Ahora es solo el input
+    tipoSelect.addEventListener('change', (e) => {
+        if (e.target.value === 'pomada') {
+            mgInput.style.display = 'none';
+            mgInput.required = false;
+            mgInput.value = ''; // Limpiar valor
+        } else {
+            mgInput.style.display = 'block';
+            mgInput.required = true;
+        }
+    });
 
-        repeaterContainer.appendChild(row);
-    }
+    repeaterContainer.appendChild(row);
+}
+// (El resto de receta.js no cambia)
     if (addMedicamentoBtn) {
         addMedicamentoBtn.addEventListener('click', createMedicamentoRow);
     }
@@ -543,3 +532,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
