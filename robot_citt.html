@@ -5,42 +5,159 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plantilla CITT (Robot)</title>
     <style>
-        /* --- ESTILOS DE LA PLANTILLA --- */
-        body { font-family: Arial, Helvetica, sans-serif; background-color: #525659; margin: 0; padding: 20px; display: grid; place-items: center; }
-        #citt-container { width: 794px; min-height: 1200px; background-color: #ffffff; border: 1px solid #000000; position: relative; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); box-sizing: border-box; padding: 40px 60px; }
-        .sello-superior { position: absolute; width: 150px; height: 150px; opacity: 0.7; display: grid; place-items: center; font-size: 12px; color: #aaa; z-index: 1; }
+        /* === CSS CORREGIDO para ROBOTS === */
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #ffffff; /* <-- ARREGLO #1: Fondo blanco */
+            margin: 0; /* <-- ARREGLO #2: Sin margen */
+            padding: 0; /* <-- ARREGLO #2: Sin padding */
+        }
+
+        #citt-container {
+            width: 794px;
+            height: 1123px; /* <-- ARREGLO #3: Alto FIJO de A4 */
+            background-color: #ffffff;
+            border: 1px solid #000000;
+            position: relative;
+            box-sizing: border-box;
+            padding: 40px 60px;
+        }
+        /* === FIN DE CORRECCIONES === */
+
+        /* --- IMÁGENES DE FONDO (SELLOS) --- */
+        .sello-superior {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            opacity: 0.7;
+            display: grid;
+            place-items: center;
+            font-size: 12px;
+            color: #aaa;
+            z-index: 1; /* Detrás del texto */
+        }
         #sello-direccion { top: 60px; left: 60px; }
         #sello-medico { top: 60px; right: 60px; }
-        .data { font-family: 'Courier New', Courier, monospace; font-size: 13px; font-weight: 700; color: #000; position: absolute; white-space: nowrap; line-height: 1.2; z-index: 2; }
-        .label { font-size: 12px; color: #333; font-weight: 400; position: absolute; white-space: nowrap; line-height: 1.2; z-index: 2; }
-        .section-title { font-size: 14px; font-weight: 700; letter-spacing: 1px; border-bottom: 1.5px solid #000; padding-bottom: 2px; position: absolute; text-align: left; z-index: 2; }
-        .subsection-title { font-size: 14px; font-weight: 700; letter-spacing: 1px; position: absolute; text-align: left; line-height: 1.2; z-index: 2; }
-        .separator-line { position: absolute; left: 60px; width: calc(100% - 120px); height: 2px; background-color: #000; z-index: 2; }
-        #citt-header { display: flex; justify-content: space-between; align-items: center; position: absolute; top: 40px; left: 60px; width: calc(100% - 120px); z-index: 2; }
+
+        /* --- CLASES DE TEXTO --- */
+        .data {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 13px;
+            font-weight: 700;
+            color: #000;
+            position: absolute;
+            white-space: nowrap;
+            line-height: 1.2;
+            z-index: 2;
+        }
+        .label {
+            font-size: 12px;
+            color: #333;
+            font-weight: 400;
+            position: absolute;
+            white-space: nowrap;
+            line-height: 1.2;
+            z-index: 2;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            border-bottom: 1.5px solid #000;
+            padding-bottom: 2px;
+            position: absolute;
+            text-align: left;
+            z-index: 2;
+        }
+
+        .subsection-title {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            position: absolute;
+            text-align: left;
+            line-height: 1.2;
+            z-index: 2;
+        }
+
+        .separator-line {
+            position: absolute;
+            left: 60px;
+            width: calc(100% - 120px);
+            height: 2px;
+            background-color: #000;
+            z-index: 2;
+        }
+
+        /* --- POSICIONAMIENTO PRECISO DE ELEMENTOS --- */
+
+        #citt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            top: 40px;
+            left: 60px;
+            width: calc(100% - 120px);
+            z-index: 2;
+        }
         #form-id { position: static; font-weight: 700; }
         #user-id { position: static; font-weight: 700; }
-        #main-title { position: absolute; top: 90px; left: 50%; transform: translateX(-50%); font-size: 16px; font-weight: 700; text-align: center; width: 80%; z-index: 2; }
+
+        #main-title {
+            position: absolute;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            font-weight: 700;
+            text-align: center;
+            width: 80%;
+            z-index: 2;
+        }
+
+        /* Bloque 1: CITT */
         .label-eess { top: 140px; left: 60px; }
         #data-eess { top: 140px; left: 190px; }
         .label-citt { top: 175px; left: 60px; }
-        #data-citt { top: 175px; left: 190px; font-size: 22px; font-weight: 900; transform: translateY(-3px); }
+        #data-citt {
+            top: 175px;
+            left: 190px;
+            font-size: 22px;
+            font-weight: 900;
+            transform: translateY(-3px);
+        }
         .label-acto { top: 215px; left: 60px; }
         #data-acto-medico { top: 215px; left: 190px; }
         .label-servicio { top: 240px; left: 60px; }
         #data-servicio { top: 240px; left: 190px; }
+
+        /* Bloque 2: Línea y Paciente */
         #linea-separadora-1 { top: 270px; }
         .label-asegurado { top: 290px; left: 60px; }
         #data-paciente-nombre { top: 290px; left: 190px; }
         .label-doc { top: 315px; left: 60px; }
-        #label-dni-sub { top: 315px; left: 190px; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 400; }
+        #label-dni-sub {
+            top: 315px;
+            left: 190px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            font-weight: 400;
+        }
         #data-paciente-dni { top: 315px; left: 260px; }
         .label-autogen { top: 340px; left: 60px; }
         #data-autogenerado { top: 340px; left: 190px; }
+
+        /* Bloque 3: Atención y Contingencia */
         .label-atencion { top: 380px; left: 60px; }
         #data-tipo-atencion { top: 380px; left: 190px; }
         .label-contingencia { top: 405px; left: 60px; }
         #data-contingencia { top: 405px; left: 190px; }
+
         #linea-separadora-2 { top: 435px; }
+
+        /* Bloque 4: Periodo Incapacidad */
         #title-periodo { top: 460px; left: 60px; }
         .label-f-inicio { top: 490px; left: 60px; }
         #data-fecha-inicio { top: 490px; left: 190px; }
@@ -50,6 +167,8 @@
         #data-total-dias { top: 540px; left: 190px; }
         .label-f-otorga { top: 565px; left: 60px; }
         #data-fecha-otorgamiento { top: 565px; left: 190px; }
+
+        /* Bloque 5, 6, 7: Acumulados, Médico y RUC */
         #linea-separadora-3 { top: 595px; }
         #title-acumulados { top: 620px; left: 60px; }
         .label-consec { top: 650px; left: 60px; }
@@ -64,6 +183,8 @@
         #data-medico-rne { top: 750px; left: 190px; }
         .label-ruc { top: 775px; left: 60px; }
         #data-ruc { top: 775px; left: 190px; }
+
+        /* Bloque 8 y 9: Pie de página */
         #linea-separadora-4 { top: 805px; }
         .label-obs { top: 830px; left: 60px; font-weight: 700; }
         .label-dias-acum { top: 855px; left: 60px; }
@@ -71,13 +192,19 @@
         #linea-separadora-5 { top: 885px; }
         .label-usuario { top: 910px; left: 60px; }
         #data-usuario-registro { top: 910px; left: 120px; font-size: 11px; }
+
+        /* Fecha y Hora en el pie de página */
         .label-fecha-reg { top: 1120px; left: 60px; }
         #data-fecha-registro { top: 1120px; left: 110px; }
         .label-hora-reg { top: 1120px; right: 150px; }
         #data-hora-registro { top: 1120px; right: 60px; }
-        .signature-box { position: absolute; width: 200px; height: 150px; display: grid; place-items: center; font-size: 14px; color: #aaa; z-index: 1; bottom: 110px; }
+
+        /* Sello y Firma (Footer) - Usando Absolute */
+         .signature-box { position: absolute; width: 200px; height: 150px; display: grid; place-items: center; font-size: 14px; color: #aaa; z-index: 1; bottom: 110px; }
         #sello-final { left: 100px; }
         #firma-final { right: 100px; }
+
+        /* --- ESTILOS PARA EL CÓDIGO QR --- */
         #qr-code-container { position: absolute; top: 140px; right: 60px; width: 100px; height: 100px; z-index: 2; }
         #qr-code-container img { display: block; width: 100%; height: 100%; }
     </style>
@@ -172,5 +299,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabaseClient.js"></script>
     <script src="robot_citt.js"></script>
-    </body>
+
+</body>
 </html>
