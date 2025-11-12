@@ -5,25 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plantilla de Receta Médica (Robot)</title>
     <style>
-        /* === CSS CORREGIDO para ROBOTS === */
+        /* === CSS CORREGIDO v4 (FOOTER AJUSTADO) === */
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background-color: #ffffff; /* <-- ARREGLO #1: Fondo blanco */
-            margin: 0; /* <-- ARREGLO #2: Sin margen */
-            padding: 0; /* <-- ARREGLO #2: Sin padding */
+            background-color: #ffffff; 
+            margin: 0; 
+            padding: 0; 
             line-height: 1.4;
         }
 
         #receta-container {
             width: 794px; /* Ancho A4 */
-            height: 1123px; /* <-- ARREGLO #3: Alto FIJO de A4 */
+            height: 1123px; /* Alto FIJO de A4 */
             background-color: #ffffff;
-            /* border: 1px solid #000; */ /* <-- ARREGLO #1: Borde eliminado */
+            /* border: 1px solid #000; */ /* Borde quitado */
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
             box-sizing: border-box;
             padding: 40px;
-            font-size: 11px; /* Tamaño de fuente base */
-            position: relative; /* CLAVE PARA POSICIONAMIENTO */
+            font-size: 11px;
+            position: relative;
         }
         /* === FIN DE CORRECCIONES === */
 
@@ -34,18 +34,16 @@
             position: absolute;
             white-space: nowrap;
         }
-
         .label {
             font-weight: bold;
             display: inline-block;
             position: absolute;
             white-space: nowrap;
         }
-        
         #barcode-placeholder {
             position: absolute;
-            height: 60px; /* Rectangular */
-            width: 220px; /* Rectangular */
+            height: 60px;
+            width: 220px;
             display: grid;
             place-items: center;
         }
@@ -53,14 +51,12 @@
             width: 100%;
             height: 100%;
         }
-
         #qr-receta-placeholder {
-            height: 100px; /* QR es cuadrado */
-            width: 100px;  /* QR es cuadrado */
+            height: 100px;
+            width: 100px;
             display: grid;
             place-items: center;
         }
-
         #logo-membrete {
             position: absolute;
             top: 30px; 
@@ -69,7 +65,6 @@
             width: auto;
             z-index: 10;
         }
-
         .receta-body {
             margin-top: 275px; 
             border-top: 2px solid #000;
@@ -89,7 +84,6 @@
             background-color: #f4f4f4;
             text-align: left;
         }
-        
         .item-denominacion {
             font-weight: bold;
             font-size: 12px;
@@ -100,33 +94,28 @@
         }
         .text-center { text-align: center; }
         .text-right { text-align: right; }
-
         .firma-qr-block {
             display: flex;
-            justify-content: space-between; /* QR a la izq, Firma a la der */
-            align-items: flex-end; /* Alinear al fondo */
+            justify-content: space-between;
+            align-items: flex-end;
             margin-top: 10px;
             width: 100%;
         }
-        
         #firma-receta-placeholder img {
-            width: 180px; /* Más pequeña */
+            width: 180px;
             height: auto;
         }
-
         .footer-wrapper {
             position: absolute;
-            bottom: 40px; /* Ancla todo el bloque al fondo */
+            bottom: 40px;
             left: 40px;
             right: 40px;
         }
-        
         .receta-medico {
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
         }
-        
         .medico-info {
             flex-basis: 50%;
         }
@@ -143,15 +132,10 @@
             color: #999;
             font-size: 12px;
         }
-
         .footer-line {
             height: 1px;
             background-color: #000;
-            margin: 5px 0; /* Espacio entre medico y usuario */
-        }
-
-        .receta-footer {
-            /* ya no necesita position: absolute */
+            margin: 5px 0;
         }
         .footer-info {
             display: flex;
@@ -179,47 +163,33 @@
     <div id="receta-container">
         
         <img id="logo-membrete" src="sis.png" alt="Logo Institucional">
-        
         <span class="label" style="top: 140px; left: 40px;">No. DE ORDEN:</span>
         <span class="data-field" id="data-nro-orden" style="top: 140px; left: 150px;"></span>
-        
         <span class="data-field" id="data-establecimiento" style="top: 160px; left: 40px;"></span>
-
         <span class="data-field" id="data-area-1" style="top: 190px; left: 40px;"></span>
         <span class="data-field" id="data-area-2" style="top: 205px; left: 40px;"></span>
-        
         <span class="label" style="top: 230px; left: 40px;">ASEGU:</span>
         <span class="data-field" id="data-paciente-nombre" style="top: 230px; left: 100px;"></span>
-        
         <span class="label" style="top: 245px; left: 40px;">AUTOG.:</span>
         <span class="data-field" id="data-paciente-autog" style="top: 245px; left: 100px;"></span>
-
         <span class="label" style="top: 260px; left: 40px;">ACT.MED:</span>
         <span class="data-field" id="data-paciente-actmed" style="top: 260px; left: 100px;"></span>
-        
         <span class="label" style="top: 275px; left: 40px;">DOC.ID:</span>
         <span class="data-field" id="data-paciente-dni" style="top: 275px; left: 100px;"></span>
-
         <span class="label" style="top: 140px; right: 150px;">FECHA EMISION:</span>
         <span class="data-field" id="data-fecha-emision" style="top: 140px; right: 40px;"></span>
-
         <div id="barcode-placeholder" style="top: 160px; right: 40px;">
              <svg id="barcode-svg"></svg>
         </div>
         <span class="label" style="top: 230px; right: 250px;">P.I.:</span>
         <span class="data-field" id="data-paciente-pi" style="top: 230px; right: 40px;"></span>
-
         <span class="data-field" id="data-farmacia" style="top: 245px; right: 40px;"></span>
-
         <span class="label" style="top: 265px; right: 250px;">EDAD:</span>
         <span class="data-field" id="data-paciente-edad" style="top: 265px; right: 40px;"></span>
-
         <span class="label" style="top: 280px; right: 250px;">H/C:</span>
         <span class="data-field" id="data-paciente-hc" style="top: 280px; right: 40px;"></span>
-        
         <span class="label" style="top: 295px; right: 250px;">VIGENCIA:</span>
         <span class="data-field" id="data-vigencia" style="top: 295px; right: 40px;"></span>
-
         <div class="receta-body">
             <table class="receta-tabla">
                 <thead>
@@ -232,20 +202,15 @@
                         <th style="width: 15%;" class="text-right">Cant.</th>
                     </tr>
                 </thead>
-                <tbody id="receta-items-body">
-                    </tbody>
+                <tbody id="receta-items-body"></tbody>
             </table>
-            
             <div class="firma-qr-block">
-                <div id="qr-receta-placeholder">
-                    </div>
+                <div id="qr-receta-placeholder"></div>
                 <div id="firma-receta-placeholder">
                     <img src="firmareceta.png" alt="Firma Receta">
                 </div>
             </div>
-
         </div>
-        
         <div class="footer-wrapper">
             <div class="receta-medico">
                 <div class="medico-info">
@@ -254,13 +219,10 @@
                     <span class="data-field" id="data-medico-nombre" style="position: static; margin-left: 10px;"></span>
                 </div>
                 <div class="medico-sello">
-                    <div id="sello-placeholder" style="position: static;">
-                         </div>
+                    <div id="sello-placeholder" style="position: static;"></div>
                 </div>
             </div>
-
             <div class="footer-line"></div>
-
             <div class="receta-footer">
                 <div class="footer-info">
                     <div><label style="position: static;">USUARIO:</label> <span class="data-field" id="data-usuario-imp" style="position: static;"></span></div>
