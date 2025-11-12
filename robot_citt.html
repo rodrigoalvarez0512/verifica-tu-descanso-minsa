@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plantilla CITT (Robot)</title>
     <style>
-        /* === CSS CORREGIDO para ROBOTS (Final) === */
+        /* === CSS CORREGIDO v3 (SIN BORDES, FOOTER ARREGLADO) === */
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background-color: #ffffff;
+            background-color: #ffffff; /* Fondo blanco */
             margin: 0;
             padding: 0;
         }
 
         #citt-container {
             width: 794px;
-            height: 1123px;
+            height: 1123px; /* Alto FIJO de A4 */
             background-color: #ffffff;
-            /* border: 1px solid #000000; <-- ELIMINADO: SIN MARCO NEGRO */
+            /* border: 1px solid #000000; */ /* <-- ARREGLO #1: Borde eliminado */
             position: relative;
             box-sizing: border-box;
             padding: 40px 60px;
@@ -34,7 +34,7 @@
             place-items: center;
             font-size: 12px;
             color: #aaa;
-            z-index: 1; /* Detrás del texto */
+            z-index: 1;
         }
         #sello-direccion { top: 60px; left: 60px; }
         #sello-medico { top: 60px; right: 60px; }
@@ -57,17 +57,6 @@
             position: absolute;
             white-space: nowrap;
             line-height: 1.2;
-            z-index: 2;
-        }
-
-        .section-title {
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            border-bottom: 1.5px solid #000;
-            padding-bottom: 2px;
-            position: absolute;
-            text-align: left;
             z-index: 2;
         }
 
@@ -190,33 +179,37 @@
         .label-dias-acum { top: 855px; left: 60px; }
         #data-dias-acumulados { top: 855px; left: 320px; }
         #linea-separadora-5 { top: 885px; }
-        .label-usuario { top: 910px; left: 60px; }
-        #data-usuario-registro { top: 910px; left: 120px; font-size: 11px; }
 
-        /* Fecha y Hora en el pie de página */
-        .label-fecha-reg { top: 1040px; left: 60px; } /* Ajustado */
-        #data-fecha-registro { top: 1040px; left: 110px; } /* Ajustado */
-        .label-hora-reg { top: 1040px; right: 150px; } /* Ajustado */
-        #data-hora-registro { top: 1040px; right: 60px; } /* Ajustado */
+        /* --- ARREGLO #2: RE-ANCLAR FOOTER --- */
+        .label-usuario { top: 900px; left: 60px; } /* Subido */
+        #data-usuario-registro { top: 900px; left: 120px; font-size: 11px; } /* Subido */
 
         /* Sello y Firma (Footer) - Usando Absolute */
-        .signature-box {
-            position: absolute;
-            width: 200px;
-            height: 150px;
-            display: grid;
-            place-items: center;
-            font-size: 14px;
-            color: #aaa;
-            z-index: 1;
-            bottom: 150px; /* <-- AJUSTADO: Baja la firma/sello */
+         .signature-box { 
+            position: absolute; 
+            width: 200px; 
+            height: 150px; 
+            display: grid; 
+            place-items: center; 
+            font-size: 14px; 
+            color: #aaa; 
+            z-index: 1; 
+            bottom: 80px; /* Subido para no chocar con fecha/hora */
         }
         #sello-final { left: 100px; }
         #firma-final { right: 100px; }
 
+        /* Fecha y Hora en el pie de página */
+        .label-fecha-reg { bottom: 40px; left: 60px; top: auto; } /* Re-anclado */
+        #data-fecha-registro { bottom: 40px; left: 110px; top: auto; } /* Re-anclado */
+        .label-hora-reg { bottom: 40px; right: 150px; top: auto; } /* Re-anclado */
+        #data-hora-registro { bottom: 40px; right: 60px; top: auto; } /* Re-anclado */
+        /* --- FIN ARREGLO #2 --- */
+
         /* --- ESTILOS PARA EL CÓDIGO QR --- */
         #qr-code-container { position: absolute; top: 140px; right: 60px; width: 100px; height: 100px; z-index: 2; }
         #qr-code-container img { display: block; width: 100%; height: 100%; }
+    
     </style>
 </head>
 <body>
