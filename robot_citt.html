@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plantilla CITT (Robot)</title>
     <style>
-        /* === CSS CORREGIDO para ROBOTS === */
+        /* === CSS CORREGIDO para ROBOTS (Final) === */
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background-color: #ffffff; /* <-- ARREGLO #1: Fondo blanco */
-            margin: 0; /* <-- ARREGLO #2: Sin margen */
-            padding: 0; /* <-- ARREGLO #2: Sin padding */
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
         }
 
         #citt-container {
             width: 794px;
-            height: 1123px; /* <-- ARREGLO #3: Alto FIJO de A4 */
+            height: 1123px;
             background-color: #ffffff;
-            border: 1px solid #000000;
+            /* border: 1px solid #000000; <-- ELIMINADO: SIN MARCO NEGRO */
             position: relative;
             box-sizing: border-box;
             padding: 40px 60px;
@@ -194,13 +194,23 @@
         #data-usuario-registro { top: 910px; left: 120px; font-size: 11px; }
 
         /* Fecha y Hora en el pie de página */
-        .label-fecha-reg { top: 1120px; left: 60px; }
-        #data-fecha-registro { top: 1120px; left: 110px; }
-        .label-hora-reg { top: 1120px; right: 150px; }
-        #data-hora-registro { top: 1120px; right: 60px; }
+        .label-fecha-reg { top: 1040px; left: 60px; } /* Ajustado */
+        #data-fecha-registro { top: 1040px; left: 110px; } /* Ajustado */
+        .label-hora-reg { top: 1040px; right: 150px; } /* Ajustado */
+        #data-hora-registro { top: 1040px; right: 60px; } /* Ajustado */
 
         /* Sello y Firma (Footer) - Usando Absolute */
-         .signature-box { position: absolute; width: 200px; height: 150px; display: grid; place-items: center; font-size: 14px; color: #aaa; z-index: 1; bottom: 110px; }
+        .signature-box {
+            position: absolute;
+            width: 200px;
+            height: 150px;
+            display: grid;
+            place-items: center;
+            font-size: 14px;
+            color: #aaa;
+            z-index: 1;
+            bottom: 150px; /* <-- AJUSTADO: Baja la firma/sello */
+        }
         #sello-final { left: 100px; }
         #firma-final { right: 100px; }
 
