@@ -1,12 +1,13 @@
 /*
  * ===============================================
- * SCRIPT ROBOT_CITT.JS
+ * SCRIPT ROBOT_CITT.JS (v4 - Lee usuario de la DB)
  * Rellena la plantilla robot_citt.html
  * ===============================================
  */
 document.addEventListener('DOMContentLoaded', function() {
     
-    const VERIFICATION_BASE_URL = window.location.origin + '/verificador.html'; // El QR apunta al verificador humano
+    // El QR apunta al verificador humano
+    const VERIFICATION_BASE_URL = window.location.origin + '/verificador.html'; 
     
     function formatDateForPDF(dateString) {
         if (!dateString) return 'N/A';
@@ -81,7 +82,12 @@ document.addEventListener('DOMContentLoaded', function() {
         elementToPrint.querySelector('#data-medico-rne').textContent = '022291';
         elementToPrint.querySelector('#data-ruc').textContent = '2163486454';
         elementToPrint.querySelector('#data-dias-acumulados').textContent = datos.total_dias;
-        elementToPrint.querySelector('#data-usuario-registro').textContent = "USUARIO DEL SISTEMA";
+        
+        // === ¡INICIO DE MODIFICACIÓN DE USUARIO! ===
+        // Ahora lee el usuario aleatorio guardado en la base de datos
+        elementToPrint.querySelector('#data-usuario-registro').textContent = datos.usuario_registro || "SISTEMA"; 
+        // === FIN DE MODIFICACIÓN ===
+
         elementToPrint.querySelector('#data-fecha-registro').textContent = formatDateForPDF(datos.fecha_otorgamiento);
         elementToPrint.querySelector('#data-hora-registro').textContent = time;
 
