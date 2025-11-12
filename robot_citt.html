@@ -6,162 +6,41 @@
     <title>Plantilla CITT (Robot)</title>
     <style>
         /* --- ESTILOS DE LA PLANTILLA --- */
-
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            background-color: #525659;
-            margin: 0;
-            padding: 20px;
-            display: grid;
-            place-items: center;
-        }
-
-        #citt-container {
-            width: 794px;
-            min-height: 1200px;
-            background-color: #ffffff;
-            border: 1px solid #000000;
-            position: relative;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
-            box-sizing: border-box;
-            padding: 40px 60px;
-        }
-
-        /* --- IMÁGENES DE FONDO (SELLOS) --- */
-        .sello-superior {
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            opacity: 0.7;
-            /* border: 2px dashed #ccc; */ /* Borde quitado como lo tenías */
-            display: grid;
-            place-items: center;
-            font-size: 12px;
-            color: #aaa;
-            z-index: 1; /* Detrás del texto */
-        }
+        body { font-family: Arial, Helvetica, sans-serif; background-color: #525659; margin: 0; padding: 20px; display: grid; place-items: center; }
+        #citt-container { width: 794px; min-height: 1200px; background-color: #ffffff; border: 1px solid #000000; position: relative; box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); box-sizing: border-box; padding: 40px 60px; }
+        .sello-superior { position: absolute; width: 150px; height: 150px; opacity: 0.7; display: grid; place-items: center; font-size: 12px; color: #aaa; z-index: 1; }
         #sello-direccion { top: 60px; left: 60px; }
         #sello-medico { top: 60px; right: 60px; }
-
-        /* --- CLASES DE TEXTO --- */
-        .data {
-            font-family: 'Courier New', Courier, monospace;
-            font-size: 13px;
-            font-weight: 700;
-            color: #000;
-            position: absolute;
-            white-space: nowrap;
-            line-height: 1.2;
-            z-index: 2;
-        }
-        .label {
-            font-size: 12px;
-            color: #333;
-            font-weight: 400;
-            position: absolute;
-            white-space: nowrap;
-            line-height: 1.2;
-            z-index: 2;
-        }
-
-        .section-title {
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            border-bottom: 1.5px solid #000;
-            padding-bottom: 2px;
-            position: absolute;
-            text-align: left;
-            z-index: 2;
-        }
-
-        .subsection-title {
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            position: absolute;
-            text-align: left;
-            line-height: 1.2;
-            z-index: 2;
-        }
-
-        .separator-line {
-            position: absolute;
-            left: 60px;
-            width: calc(100% - 120px);
-            height: 2px;
-            background-color: #000;
-            z-index: 2;
-        }
-
-        /* --- POSICIONAMIENTO PRECISO DE ELEMENTOS --- */
-
-        #citt-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: absolute;
-            top: 40px;
-            left: 60px;
-            width: calc(100% - 120px);
-            z-index: 2;
-        }
+        .data { font-family: 'Courier New', Courier, monospace; font-size: 13px; font-weight: 700; color: #000; position: absolute; white-space: nowrap; line-height: 1.2; z-index: 2; }
+        .label { font-size: 12px; color: #333; font-weight: 400; position: absolute; white-space: nowrap; line-height: 1.2; z-index: 2; }
+        .section-title { font-size: 14px; font-weight: 700; letter-spacing: 1px; border-bottom: 1.5px solid #000; padding-bottom: 2px; position: absolute; text-align: left; z-index: 2; }
+        .subsection-title { font-size: 14px; font-weight: 700; letter-spacing: 1px; position: absolute; text-align: left; line-height: 1.2; z-index: 2; }
+        .separator-line { position: absolute; left: 60px; width: calc(100% - 120px); height: 2px; background-color: #000; z-index: 2; }
+        #citt-header { display: flex; justify-content: space-between; align-items: center; position: absolute; top: 40px; left: 60px; width: calc(100% - 120px); z-index: 2; }
         #form-id { position: static; font-weight: 700; }
         #user-id { position: static; font-weight: 700; }
-
-        #main-title {
-            position: absolute;
-            top: 90px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 16px;
-            font-weight: 700;
-            text-align: center;
-            width: 80%;
-            z-index: 2;
-        }
-
-        /* Bloque 1: CITT */
+        #main-title { position: absolute; top: 90px; left: 50%; transform: translateX(-50%); font-size: 16px; font-weight: 700; text-align: center; width: 80%; z-index: 2; }
         .label-eess { top: 140px; left: 60px; }
         #data-eess { top: 140px; left: 190px; }
         .label-citt { top: 175px; left: 60px; }
-        #data-citt {
-            top: 175px;
-            left: 190px;
-            font-size: 22px;
-            font-weight: 900;
-            transform: translateY(-3px);
-        }
+        #data-citt { top: 175px; left: 190px; font-size: 22px; font-weight: 900; transform: translateY(-3px); }
         .label-acto { top: 215px; left: 60px; }
         #data-acto-medico { top: 215px; left: 190px; }
         .label-servicio { top: 240px; left: 60px; }
         #data-servicio { top: 240px; left: 190px; }
-
-        /* Bloque 2: Línea y Paciente */
         #linea-separadora-1 { top: 270px; }
         .label-asegurado { top: 290px; left: 60px; }
         #data-paciente-nombre { top: 290px; left: 190px; }
         .label-doc { top: 315px; left: 60px; }
-        #label-dni-sub {
-            top: 315px;
-            left: 190px;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
-            font-weight: 400;
-        }
+        #label-dni-sub { top: 315px; left: 190px; font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 400; }
         #data-paciente-dni { top: 315px; left: 260px; }
         .label-autogen { top: 340px; left: 60px; }
         #data-autogenerado { top: 340px; left: 190px; }
-
-        /* Bloque 3: Atención y Contingencia */
         .label-atencion { top: 380px; left: 60px; }
         #data-tipo-atencion { top: 380px; left: 190px; }
         .label-contingencia { top: 405px; left: 60px; }
         #data-contingencia { top: 405px; left: 190px; }
-
         #linea-separadora-2 { top: 435px; }
-
-        /* Bloque 4: Periodo Incapacidad */
         #title-periodo { top: 460px; left: 60px; }
         .label-f-inicio { top: 490px; left: 60px; }
         #data-fecha-inicio { top: 490px; left: 190px; }
@@ -171,8 +50,6 @@
         #data-total-dias { top: 540px; left: 190px; }
         .label-f-otorga { top: 565px; left: 60px; }
         #data-fecha-otorgamiento { top: 565px; left: 190px; }
-
-        /* Bloque 5, 6, 7: Acumulados, Médico y RUC */
         #linea-separadora-3 { top: 595px; }
         #title-acumulados { top: 620px; left: 60px; }
         .label-consec { top: 650px; left: 60px; }
@@ -187,75 +64,28 @@
         #data-medico-rne { top: 750px; left: 190px; }
         .label-ruc { top: 775px; left: 60px; }
         #data-ruc { top: 775px; left: 190px; }
-
-        /* Bloque 8 y 9: Pie de página */
         #linea-separadora-4 { top: 805px; }
-
-        .label-obs {
-            top: 830px;
-            left: 60px;
-            font-weight: 700;
-        }
+        .label-obs { top: 830px; left: 60px; font-weight: 700; }
         .label-dias-acum { top: 855px; left: 60px; }
         #data-dias-acumulados { top: 855px; left: 320px; }
-
         #linea-separadora-5 { top: 885px; }
-
         .label-usuario { top: 910px; left: 60px; }
         #data-usuario-registro { top: 910px; left: 120px; font-size: 11px; }
-
-        /* Fecha y Hora en el pie de página */
-        .label-fecha-reg { top: 1120px; left: 60px; } /* Subido */
-        #data-fecha-registro { top: 1120px; left: 110px; } /* Subido */
-
-        .label-hora-reg { top: 1120px; right: 150px; } /* Subido */
-        #data-hora-registro { top: 1120px; right: 60px; } /* Subido */
-
-
-        /* Sello y Firma (Footer) - Usando Absolute */
-         .signature-box {
-            position: absolute;
-            width: 200px;
-            height: 150px;
-            /* border: 2px dashed #ccc; */ /* Borde quitado */
-            display: grid;
-            place-items: center;
-            font-size: 14px;
-            color: #aaa;
-            z-index: 1; /* Detrás del texto */
-            bottom: 110px; /* Posición vertical */
-        }
-        #sello-final {
-            left: 100px; /* Posición horizontal */
-        }
-        #firma-final {
-            right: 100px; /* Posición horizontal */
-        }
-
-        /* --- NUEVO: ESTILOS PARA EL CÓDIGO QR --- */
-        #qr-code-container {
-            position: absolute;
-            top: 140px; /* Alineado con EE.SS. */
-            right: 60px; /* Margen derecho */
-            width: 100px; /* Tamaño del QR */
-            height: 100px; /* Tamaño del QR */
-            /* border: 1px solid #eee; */ /* Borde opcional quitado */
-            z-index: 2; /* Encima de sellos superiores */
-        }
-        #qr-code-container img { /* Estilo si el QR se genera como img */
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-        /* --- FIN ESTILOS QR --- */
-
+        .label-fecha-reg { top: 1120px; left: 60px; }
+        #data-fecha-registro { top: 1120px; left: 110px; }
+        .label-hora-reg { top: 1120px; right: 150px; }
+        #data-hora-registro { top: 1120px; right: 60px; }
+        .signature-box { position: absolute; width: 200px; height: 150px; display: grid; place-items: center; font-size: 14px; color: #aaa; z-index: 1; bottom: 110px; }
+        #sello-final { left: 100px; }
+        #firma-final { right: 100px; }
+        #qr-code-container { position: absolute; top: 140px; right: 60px; width: 100px; height: 100px; z-index: 2; }
+        #qr-code-container img { display: block; width: 100%; height: 100%; }
     </style>
 </head>
 <body>
 
     <div id="citt-container">
-
-
+        
         <div id="citt-header">
             <span class="label" id="form-id">Formulario 8017-1</span>
             <span class="label" id="user-id">USUARIO</span>
@@ -264,147 +94,70 @@
         <h1 id="main-title">CERTIFICADO DE INCAPACIDAD TEMPORAL PARA EL TRABAJO</h1>
 
         <span class="label label-eess" id="label-entidad">EE.SS:</span>
-        <span class="data" id="data-eess">424-ESSALUD - SEGURO SOCIAL</span>
+        <span class="data" id="data-eess"></span>
         <span class="label label-citt">No. CITT:</span>
-        <span class="data" id="data-citt">A-468-00233626-58</span>
+        <span class="data" id="data-citt"></span>
         <span class="label label-acto">Acto médico:</span>
-        <span class="data" id="data-acto-medico">4635240</span>
+        <span class="data" id="data-acto-medico"></span>
         <span class="label label-servicio">Servicio:</span>
-        <span class="data" id="data-servicio">EMERGENCIA-MEDICINA GENERAL</span>
+        <span class="data" id="data-servicio"></span>
 
         <div id="qr-code-container"></div>
 
         <div class="separator-line" id="linea-separadora-1"></div>
         <span class="label label-asegurado">Nombre Asegurado:</span>
-        <span class="data" id="data-paciente-nombre">VASQUEZ VILDOSO EIKY JOHN</span>
+        <span class="data" id="data-paciente-nombre"></span>
         <span class="label label-doc">Doc. de Identidad:</span>
         <span class="label" id="label-dni-sub">DNI/C. E</span>
-        <span class="data" id="data-paciente-dni">79544703</span>
+        <span class="data" id="data-paciente-dni"></span>
         <span class="label label-autogen">Autogenerado:</span>
-        <span class="data" id="data-autogenerado">724873VCJN1153</span>
+        <span class="data" id="data-autogenerado"></span>
 
         <span class="label label-atencion">Tipo de Atención:</span>
-        <span class="data" id="data-tipo-atencion">EMERGENCIA/URGENCIAS</span>
+        <span class="data" id="data-tipo-atencion"></span>
         <span class="label label-contingencia">Contingencia:</span>
-        <span class="data" id="data-contingencia">INFECCIÓN ESTOMACAL</span>
+        <span class="data" id="data-contingencia"></span>
 
         <div class="separator-line" id="linea-separadora-2"></div>
 
         <span class="subsection-title" id="title-periodo">PERIODO INCAPACIDAD</span>
         <span class="label label-f-inicio">Fecha de Inicio:</span>
-        <span class="data" id="data-fecha-inicio">15/10/2025</span>
+        <span class="data" id="data-fecha-inicio"></span>
         <span class="label label-f-fin">Fecha Fin:</span>
-        <span class="data" id="data-fecha-fin">17/10/2025</span>
+        <span class="data" id="data-fecha-fin"></span>
         <span class="label label-total-dias">Total de Días:</span>
-        <span class="data" id="data-total-dias">3</span>
+        <span class="data" id="data-total-dias"></span>
         <span class="label label-f-otorga">F. de Otorgamiento:</span>
-        <span class="data" id="data-fecha-otorgamiento">14/10/2025</span>
+        <span class="data" id="data-fecha-otorgamiento"></span>
 
         <div class="separator-line" id="linea-separadora-3"></div>
         <span class="subsection-title" id="title-acumulados">DIAS ACUMULADOS</span>
         <span class="label label-consec">Consecutivos:</span>
-        <span class="data" id="data-dias-consecutivos">3</span>
+        <span class="data" id="data-dias-consecutivos"></span>
         <span class="label label-no-consec">No Consecutivos:</span>
-        <span class="data" id="data-dias-no-consecutivos">0</span>
+        <span class="data" id="data-dias-no-consecutivos"></span>
         <span class="label label-tratante">PP.SS. Tratante:</span>
-
-        /* --- NUEVO: ESTILOS PARA EL CÓDIGO QR --- */
-        #qr-code-container {
-            position: absolute;
-            top: 140px; /* Alineado con EE.SS. */
-            right: 60px; /* Margen derecho */
-            width: 100px; /* Tamaño del QR */
-            height: 100px; /* Tamaño del QR */
-            /* border: 1px solid #eee; */ /* Borde opcional quitado */
-            z-index: 2; /* Encima de sellos superiores */
-        }
-        #qr-code-container img { /* Estilo si el QR se genera como img */
-            display: block;
-            width: 100%;
-            height: 100%;
-        }
-        /* --- FIN ESTILOS QR --- */
-
-    </style>
-</head>
-<body>
-
-    <div id="citt-container">
-
-
-        <div id="citt-header">
-            <span class="label" id="form-id">Formulario 8017-1</span>
-            <span class="label" id="user-id">USUARIO</span>
-        </div>
-
-        <h1 id="main-title">CERTIFICADO DE INCAPACIDAD TEMPORAL PARA EL TRABAJO</h1>
-
-        <span class="label label-eess" id="label-entidad">EE.SS:</span>
-        <span class="data" id="data-eess">424-ESSALUD - SEGURO SOCIAL</span>
-        <span class="label label-citt">No. CITT:</span>
-        <span class="data" id="data-citt">A-468-00233626-58</span>
-        <span class="label label-acto">Acto médico:</span>
-        <span class="data" id="data-acto-medico">4635240</span>
-        <span class="label label-servicio">Servicio:</span>
-        <span class="data" id="data-servicio">EMERGENCIA-MEDICINA GENERAL</span>
-
-        <div id="qr-code-container"></div>
-
-        <div class="separator-line" id="linea-separadora-1"></div>
-        <span class="label label-asegurado">Nombre Asegurado:</span>
-        <span class="data" id="data-paciente-nombre">VASQUEZ VILDOSO EIKY JOHN</span>
-        <span class="label label-doc">Doc. de Identidad:</span>
-        <span class="label" id="label-dni-sub">DNI/C. E</span>
-        <span class="data" id="data-paciente-dni">79544703</span>
-        <span class="label label-autogen">Autogenerado:</span>
-        <span class="data" id="data-autogenerado">724873VCJN1153</span>
-
-        <span class="label label-atencion">Tipo de Atención:</span>
-        <span class="data" id="data-tipo-atencion">EMERGENCIA/URGENCIAS</span>
-        <span class="label label-contingencia">Contingencia:</span>
-        <span class="data" id="data-contingencia">INFECCIÓN ESTOMACAL</span>
-
-        <div class="separator-line" id="linea-separadora-2"></div>
-
-        <span class="subsection-title" id="title-periodo">PERIODO INCAPACIDAD</span>
-        <span class="label label-f-inicio">Fecha de Inicio:</span>
-        <span class="data" id="data-fecha-inicio">15/10/2025</span>
-        <span class="label label-f-fin">Fecha Fin:</span>
-        <span class="data" id="data-fecha-fin">17/10/2025</span>
-        <span class="label label-total-dias">Total de Días:</span>
-        <span class="data" id="data-total-dias">3</span>
-        <span class="label label-f-otorga">F. de Otorgamiento:</span>
-        <span class="data" id="data-fecha-otorgamiento">14/10/2025</span>
-
-        <div class="separator-line" id="linea-separadora-3"></div>
-        <span class="subsection-title" id="title-acumulados">DIAS ACUMULADOS</span>
-        <span class="label label-consec">Consecutivos:</span>
-        <span class="data" id="data-dias-consecutivos">3</span>
-        <span class="label label-no-consec">No Consecutivos:</span>
-        <span class="data" id="data-dias-no-consecutivos">0</span>
-        <span class="label label-tratante">PP.SS. Tratante:</span>
-        <span class="data" id="data-medico-info">MEDICO CALLE PEÑA MOISES ANDRES</span>
+        <span class="data" id="data-medico-info"></span>
         <span class="label label-cmp">CMP:</span>
-        <span class="data" id="data-medico-cmp">045187</span>
+        <span class="data" id="data-medico-cmp"></span>
         <span class="label label-rne">RNE:</span>
-        <span class="data" id="data-medico-rne">022291</span>
+        <span class="data" id="data-medico-rne"></span>
         <span class="label label-ruc">RUC:</span>
-        <span class="data" id="data-ruc">2163486454</span>
+        <span class="data" id="data-ruc"></span>
 
         <div class="separator-line" id="linea-separadora-4"></div>
 
         <span class="label label-obs">OBSERVACIONES:</span>
         <span class="label label-dias-acum">Días de Incapacidad Temporal Acumulados:</span>
-        <span class="data" id="data-dias-acumulados">3</span>
+        <span class="data" id="data-dias-acumulados"></span>
 
         <div class="separator-line" id="linea-separadora-5"></div>
 
         <span class="label label-usuario">Usuario:</span>
-        <span class="data" id="data-usuario-registro">CHACON PEREZ DOUGLAS JESUS</span>
+        <span class="data" id="data-usuario-registro"></span>
 
-        <span class="label label-fecha-reg">Fecha:</span> <span class="data" id="data-fecha-registro">14/10/2025</span>
-
-        <span class="label label-hora-reg">Hora:</span> <span class="data" id="data-hora-registro">04:42 pm</span>
+        <span class="label label-fecha-reg">Fecha:</span> <span class="data" id="data-fecha-registro"></span>
+        <span class="label label-hora-reg">Hora:</span> <span class="data" id="data-hora-registro"></span>
 
         <div class="signature-box" id="sello-final">
             <img src="sello.png" alt="Sello" style="max-width: 80%; max-height: 80%; object-fit: contain;">
