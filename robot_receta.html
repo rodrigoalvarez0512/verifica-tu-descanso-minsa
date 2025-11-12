@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plantilla de Receta Médica (Robot)</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f0f0f0;
+            display: grid;
+            place-items: center;
+            padding: 2rem;
+            line-height: 1.4;
+        } 
+
+        #receta-container {
+            width: 794px; /* Ancho A4 */ 
+            height: 1123px; /* Alto A4 (para anclar el footer) */ 
+            background-color: #ffffff;
+            border: 1px solid #000;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box;
+            padding: 40px;
+            font-size: 11px; /* Tamaño de fuente base */ 
+            position: relative; /* CLAVE PARA POSICIONAMIENTO */ 
+        } 
+
+        .data-field {
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 12px;
+            position: absolute;
+            white-space: nowrap;
+        } 
+
+        .label {
+            font-weight: bold;
+            display: inline-block;
+            position: absolute;
+            white-space: nowrap;
+        } 
+        
+        /* ================== CÓDIGO DE BARRAS (VUELVE) ================== */
+        #barcode-placeholder {
+            position: absolute;
+            height: 60px; /* Rectangular */ 
+            width: 220px; /* Rectangular */ 
+            display: grid;
+            place-items: center;
+        } 
+        #barcode-placeholder svg {
+            width: 100%;
+            height: 100%;
+        } 
+        /* ================== FIN CÓDIGO DE BARRAS ================== */
+
+        #qr-receta-placeholder {
+            height: 100px; /* QR es cuadrado */ 
+            width: 100px;  /* QR es cuadrado */ 
+            display: grid;
+            place-items: center;
+        } 
+
+        #logo-membrete {
+            position: absolute;
+            top: 30px; 
+            left: 40px; 
+            height: 100px; 
+            width: auto;
+            z-index: 10;
+        } 
+
+        .receta-body {
+            margin-top: 275px; 
+            border-top: 2px solid #000;
+            padding-top: 15px;
+        } 
+        .receta-tabla {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        } 
+        .receta-tabla th, .receta-tabla td {
+            border: 1px solid #000;
+            padding: 6px 8px;
+            vertical-align: top;
+        } 
+        .receta-tabla th {
+            background-color: #f4f4f4;
+            text-align: left;
+        } 
+        
+        .item-denominacion {
+            font-weight: bold;
+            font-size: 12px;
+        } 
+        .item-via-admin, .item-indicacion {
+            font-size: 10px;
+            padding-left: 10px;
+        } 
+        .text-center { text-align: center; } 
+        .text-right { text-align: right; } 
+
+        .firma-qr-block {
+            display: flex;
+            justify-content: space-between; /* QR a la izq, Firma a la der */ 
+            align-items: flex-end; /* Alinear al fondo */ 
+            margin-top: 10px;
+            width: 100%;
+        } 
+        
+        #firma-receta-placeholder img {
+            width: 180px; /* Más pequeña */ 
+            height: auto;
+        } 
+
+        .footer-wrapper {
+            position: absolute;
+            bottom: 40px; /* Ancla todo el bloque al fondo */ 
+            left: 40px;
+            right: 40px;
+        } 
+        
+        .receta-medico {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        } 
+        
+        .medico-info {
+            flex-basis: 50%;
+        } 
+        .medico-sello {
+            flex-basis: 40%;
+            display: flex;
+            justify-content: flex-end;
+        } 
+        #sello-placeholder {
+            width: 250px;
+            height: 120px;
+            display: grid;
+            place-items: center;
+            color: #999;
+            font-size: 12px;
+        } 
+
+        .footer-line {
+            height: 1px;
+            background-color: #000;
+            margin: 5px 0; /* Espacio entre medico y usuario */ 
+        } 
+
+        .footer-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            margin-bottom: 10px;
+        } 
+        .footer-legal {
+            font-weight: bold;
+            text-align: center;
+            font-size: 10px;
+        } 
+        .footer-legal p {
+            margin: 4px 0;
+        } 
+        .footer-contacto {
+            text-align: center;
+            font-size: 9px;
+            margin-top: 15px;
+        } 
+    </style>
+</head>
+<body>
+
+    <div id="receta-container"> 
+        
+        <img id="logo-membrete" src="sis.png" alt="Logo Institucional"> 
+        
+        <span class="label" style="top: 140px; left: 40px;">No. DE ORDEN:</span> 
+        <span class="data-field" id="data-nro-orden" style="top: 140px; left: 150px;"></span> 
+        
+        <span class="data-field" id="data-establecimiento" style="top: 160px; left: 40px;"></span> 
+
+        <span class="data-field" id="data-area-1" style="top: 190px; left: 40px;"></span> 
+        <span class="data-field" id="data-area-2" style="top: 205px; left: 40px;"></span> 
+        
+        <span class="label" style="top: 230px; left: 40px;">ASEGU:</span> 
+        <span class="data-field" id="data-paciente-nombre" style="top: 230px; left: 100px;"></span> 
+        
+        <span class="label" style="top: 245px; left: 40px;">AUTOG.:</span> 
+        <span class="data-field" id="data-paciente-autog" style="top: 245px; left: 100px;"></span> 
+
+        <span class="label" style="top: 260px; left: 40px;">ACT.MED:</span> 
+        <span class="data-field" id="data-paciente-actmed" style="top: 260px; left: 100px;"></span> 
+        
+        <span class="label" style="top: 275px; left: 40px;">DOC.ID:</span> 
+        <span class="data-field" id="data-paciente-dni" style="top: 275px; left: 100px;"></span> 
+
+        <span class="label" style="top: 140px; right: 150px;">FECHA EMISION:</span> 
+        <span class="data-field" id="data-fecha-emision" style="top: 140px; right: 40px;"></span> 
+
+        <div id="barcode-placeholder" style="top: 160px; right: 40px;"> 
+             <svg id="barcode-svg"></svg> 
+        </div> 
+        <span class="label" style="top: 230px; right: 250px;">P.I.:</span> 
+        <span class="data-field" id="data-paciente-pi" style="top: 230px; right: 40px;"></span> 
+
+        <span class="data-field" id="data-farmacia" style="top: 245px; right: 40px;"></span> 
+
+        <span class="label" style="top: 265px; right: 250px;">EDAD:</span> 
+        <span class="data-field" id="data-paciente-edad" style="top: 265px; right: 40px;"></span> 
+
+        <span class="label" style="top: 280px; right: 250px;">H/C:</span> 
+        <span class="data-field" id="data-paciente-hc" style="top: 280px; right: 40px;"></span> 
+        
+        <span class="label" style="top: 295px; right: 250px;">VIGENCIA:</span> 
+        <span class="data-field" id="data-vigencia" style="top: 295px; right: 40px;"></span> 
+
+        <div class="receta-body"> 
+            <table class="receta-tabla"> 
+                <thead> 
+                    <tr> 
+                        <th style="width: 5%;">No.</th> 
+                        <th style="width: 10%;">CODIGO</th> 
+                        <th style="width: 50%;">DENOMINACION</th> 
+                        <th style="width: 10%;" class="text-center">DIAS</th> 
+                        <th style="width: 10%;" class="text-center">UM/FF</th> 
+                        <th style="width: 15%;" class="text-right">Cant.</th> 
+                    </tr> 
+                </thead> 
+                <tbody id="receta-items-body"> 
+                    </tbody> 
+            </table> 
+            
+            <div class="firma-qr-block"> 
+                <div id="qr-receta-placeholder"> 
+                    </div> 
+                <div id="firma-receta-placeholder"> 
+                    <img src="firmareceta.png" alt="Firma Receta"> 
+                </div> 
+            </div> 
+
+        </div> 
+        
+        <div class="footer-wrapper"> 
+            <div class="receta-medico"> 
+                <div class="medico-info"> 
+                    <label style="position: static;">MEDICO:</label> 
+                    <span class="data-field" id="data-medico-cmp" style="position: static; margin-left: 5px;"></span> 
+                    <span class="data-field" id="data-medico-nombre" style="position: static; margin-left: 10px;"></span> 
+                </div> 
+                <div class="medico-sello"> 
+                    <div id="sello-placeholder" style="position: static;"> 
+                         </div> 
+                </div> 
+            </div> 
+
+            <div class="footer-line"></div> 
+
+            <div class="receta-footer"> 
+                <div class="footer-info"> 
+                    <div><label style="position: static;">USUARIO:</label> <span class="data-field" id="data-usuario-imp" style="position: static;"></span></div> 
+                    <div><label style="position: static;">FEC.IMP:</label> <span class="data-field" id="data-fecha-imp" style="position: static;"></span></div> 
+                    <div><label style="position: static;">HORA:</label> <span class="data-field" id="data-hora-imp" style="position: static;"></span></div> 
+                </div> 
+                <div class="footer-legal"> 
+                    <p>TODA ENMENDADURA O DETERIORO INVALIDA LA RECETA</p> 
+                    <p>RECETA VALIDA HASTA 7 DIAS POSTERIORES A LA FECHA DE EMISION</p> 
+                </div> 
+                <div class="footer-contacto"> 
+                    Si deseas presentar algún reclamo o conocer tus derechos de salud, acércate al Área Atención al Usuario en el primer piso.
+                </div> 
+            </div> 
+        </div> 
+    </div> 
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
+    <script src="robot_receta.js"></script>
+    </body>
+</html>
