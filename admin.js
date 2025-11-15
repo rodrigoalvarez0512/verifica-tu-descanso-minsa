@@ -1,6 +1,6 @@
 /*
  * ===============================================
- * SCRIPT ADMIN.JS (v4 - REDISEÑO + RESET PASSWORD)
+ * SCRIPT ADMIN.JS (v5 - USA EDGE FUNCTION)
  * ===============================================
  */
 
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const modalConfirmBtn = document.getElementById('modalConfirmBtn');
     const modalCancelBtn = document.getElementById('modalCancelBtn');
 
-    // Modal de Reset Password (¡NUEVO!)
+    // Modal de Reset Password
     const resetPasswordModal = document.getElementById('resetPasswordModal');
     const resetPassUsername = document.getElementById('resetPassUsername');
     const resetPassInput = document.getElementById('resetPassInput');
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', async function() {
         actionStatusMessage.className = `status-message ${isError ? 'status-error' : 'status-success'}`;
         actionStatusMessage.style.display = 'block';
         
-        // Aumentado a 10 segundos para dar tiempo a copiar contraseñas
+        // 10 segundos para dar tiempo a copiar contraseñas
         setTimeout(() => {
              if (actionStatusMessage.textContent === message) {
                  actionStatusMessage.style.display = 'none';
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', async function() {
                 }
             }
             
-            // ¡HTML de la fila actualizado con nuevos botones!
+            // HTML de la fila actualizado con nuevos botones
             tr.innerHTML = `
                 <td><strong>${user.username}</strong></td>
                 <td>${user.creditos}</td>
@@ -316,9 +316,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                     await logActivity('Eliminar Usuario', `Se eliminó al usuario: ${username}`);
                     fetchAndDisplayUsers();
                     
-                    // Nota: Borrar de 'auth.users' requiere una "Edge Function"
-                    // o la llave "service_role", lo cual es inseguro desde el cliente.
-                    // Por ahora, solo lo borramos de la tabla de créditos.
+                    // Nota: El borrado de 'auth.users' debe hacerse manualmente
+                    // o con una Edge Function de borrado.
                     
                 } catch (error) {
                     showActionMessage(error.message, true);
@@ -326,7 +325,7 @@ document.addEventListener('DOMContentLoaded', async function() {
             }
         }
         
-        // --- Lógica para RESTABLECER CONTRASEÑA (¡NUEVO!) ---
+        // --- Lógica para RESTABLECER CONTRASEÑA (USA EDGE FUNCTION) ---
         const resetButton = e.target.closest('.reset');
         if (resetButton) {
             const username = resetButton.dataset.username;
@@ -357,19 +356,24 @@ document.addEventListener('DOMContentLoaded', async function() {
                     return;
                 }
                 
+                // Deshabilitar botón para evitar doble clic
+                modalConfirmResetBtn.disabled = true;
+                resetPassError.style.display = 'none';
+
                 try {
-                    // Esta es la función mágica de Admin API
-                    const { data, error } = await clienteSupabase.auth.admin.updateUserById(
-                        userId, // El UUID del usuario
-                        { password: newPassword } // El objeto con la nueva contraseña
-                    );
-                    
-                    if (error) {
-                        // Captura errores comunes de Supabase (ej: contraseña débil)
-                        if (error.message.includes("weak password")) {
-                           throw new Error("Contraseña débil. Use una más larga o compleja.");
+                    // ¡Llamada a la Edge Function!
+                    const { data, error } = await clienteSupabase.functions.invoke('reset-user-password', {
+                        body: { 
+                            user_id: userId,
+                            new_password: newPassword
                         }
-                        throw error;
+                    });
+
+                    if (error) throw error; // Captura errores de red o CORS
+
+                    // El error 'data.error' es el error devuelto por la función
+                    if (data.error) {
+                        throw new Error(data.error);
                     }
 
                     // ¡Éxito!
@@ -380,6 +384,9 @@ document.addEventListener('DOMContentLoaded', async function() {
                 } catch (error) {
                     resetPassError.textContent = `Error: ${error.message}`;
                     resetPassError.style.display = 'block';
+                } finally {
+                    // Volver a habilitar el botón
+                    modalConfirmResetBtn.disabled = false;
                 }
             };
         }
