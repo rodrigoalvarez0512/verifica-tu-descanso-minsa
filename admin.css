@@ -1,8 +1,8 @@
 /* ===============================================
- * HOJA DE ESTILOS ADMIN.CSS (REDiseñada)
+ * HOJA DE ESTILOS ADMIN.CSS (REDiseñada v10000)
  * =============================================== */
 
-/* --- Variables Globales --- */
+/* --- Variables Globales (Sistema de Diseño) --- */
 :root {
     --color-primary: #007bff;
     --color-primary-hover: #0056b3;
@@ -10,8 +10,8 @@
     --color-danger-hover: #a71d2a;
     --color-secondary: #6c757d;
     --color-secondary-hover: #545b62;
-    --color-bg-light: #f8f9fa;
-    --color-bg-white: #ffffff;
+    --color-bg-light: #f8f9fa; /* Fondo general del body */
+    --color-bg-white: #ffffff; /* Fondo de las "tarjetas" */
     --color-border: #dee2e6;
     --color-text-dark: #212529;
     --color-text-light: #6c757d;
@@ -42,7 +42,8 @@ body {
 /* --- Estructura Principal (Grid) --- */
 .admin-grid-container {
     display: grid;
-    grid-template-columns: 320px 1fr; /* Barra lateral de 320px y contenido flexible */
+    /* Columna 1 (sidebar) fija, Columna 2 (contenido) flexible */
+    grid-template-columns: 320px 1fr; 
     min-height: 100vh;
 }
 
@@ -56,6 +57,8 @@ body {
     flex-direction: column;
     padding: 1.5rem;
     box-shadow: var(--shadow-sm);
+    /* Permite scroll si hay muchos widgets */
+    overflow-y: auto;
 }
 
 .sidebar-header {
@@ -81,9 +84,9 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    overflow-y: auto;
 }
 
+/* "Tarjetas" de acción en la barra lateral */
 .action-widget {
     background-color: var(--color-bg-light);
     border: 1px solid var(--color-border);
@@ -104,44 +107,6 @@ body {
     font-size: 0.85rem;
     color: var(--color-text-light);
     margin-bottom: 1rem;
-}
-
-/* --- Estilos de Formularios --- */
-.input-group {
-    margin-bottom: 1rem;
-}
-
-.input-group label {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-}
-
-.input-group input[type="text"],
-.input-group input[type="number"],
-.input-group input[type="password"] {
-    width: 100%;
-    padding: 0.6rem 0.8rem;
-    font-size: 0.95rem;
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.input-group input:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(0,123,255,0.2);
-}
-
-/* Wrapper para el input de contraseña con botón */
-.password-input-wrapper {
-    display: flex;
-    gap: 0.5rem;
-}
-.password-input-wrapper input {
-    flex-grow: 1;
 }
 
 /* =========================== */
@@ -171,6 +136,7 @@ body {
     gap: 1rem;
 }
 
+/* "Tarjetas" de contenido principal (para las tablas) */
 .content-panel {
     background-color: var(--color-bg-white);
     border-radius: var(--border-radius);
@@ -185,10 +151,49 @@ body {
     margin-bottom: 1.5rem;
 }
 
+/* --- Estilos de Formularios (Inputs) --- */
+.input-group {
+    margin-bottom: 1rem;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.input-group input[type="text"],
+.input-group input[type="number"],
+.input-group input[type="password"] {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.95rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Estado Focus (click) para inputs, se ve "vivo" */
+.input-group input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.2);
+}
+
+/* Wrapper para el input de contraseña con botón "Generar" */
+.password-input-wrapper {
+    display: flex;
+    gap: 0.5rem;
+}
+.password-input-wrapper input {
+    flex-grow: 1; /* El input toma el espacio sobrante */
+}
+
 /* --- Estilos de Tabla --- */
 .table-container {
     width: 100%;
-    overflow-x: auto;
+    overflow-x: auto; /* Permite scroll horizontal en tablas grandes */
 }
 
 .user-table {
@@ -213,14 +218,14 @@ body {
 }
 
 .user-table tbody tr:hover {
-    background-color: #fdfdfd;
+    background-color: #fdfdfd; /* Hover sutil */
 }
 
 .user-table td {
     font-size: 0.95rem;
 }
 
-/* Estado del Plan */
+/* Píldoras de Estado del Plan */
 .status-plan {
     font-weight: 600;
     padding: 0.2rem 0.5rem;
@@ -278,6 +283,7 @@ button {
     background-color: var(--color-secondary-hover);
 }
 
+/* Botón de Logout */
 .logout-button {
     background-color: var(--color-bg-white);
     color: var(--color-secondary);
@@ -297,29 +303,39 @@ button {
 .action-button:hover {
     color: var(--color-text-dark);
 }
+/* Botón Borrar (rojo) */
 .action-button.delete { color: var(--color-danger); }
 .action-button.delete:hover { background-color: rgba(220,53,69,0.1); }
-
+/* Botón Reset (azul) */
 .action-button.reset { color: var(--color-primary); }
 .action-button.reset:hover { background-color: rgba(0,123,255,0.1); }
 
-/* --- Mensajes de Estado --- */
+/* --- Mensajes de Estado (Éxito/Error) --- */
 .status-message {
     padding: 0.75rem 1rem;
     border-radius: 6px;
     font-size: 0.9rem;
     font-weight: 500;
     display: none; /* Oculto por defecto */
+    animation: fadeIn 0.3s ease;
 }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 .status-success {
     background-color: rgba(40,167,69,0.1);
     color: var(--color-plan-active);
     border: 1px solid rgba(40,167,69,0.2);
+    display: block; /* Para que se vea */
 }
 .status-error {
     background-color: rgba(220,53,69,0.1);
     color: var(--color-danger);
     border: 1px solid rgba(220,53,69,0.2);
+    display: block; /* Para que se vea */
 }
 
 /* --- Ventanas Modales --- */
@@ -334,6 +350,7 @@ button {
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    animation: fadeIn 0.2s ease;
 }
 .modal-overlay.hidden {
     display: none;
@@ -368,5 +385,5 @@ button {
 
 #resetPassError {
     margin-top: 1rem;
-    display: none; /* Oculto por defecto */
+    /* Se usa la clase .status-error para darle estilo */
 }
