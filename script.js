@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'JUAREZ QUIROGA ALMODENA MARIA',
         'CHACON PEREZ DOUGLAS JESUS'
     ];
+ 
     const VERIFICATION_BASE_URL = 'https://verifica-tu-descanso-minsa.onrender.com/verificador.html';
 
     const { jsPDF } = window.jspdf;
@@ -17,6 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const userDetails = JSON.parse(userDetailsStr);
             const loginOverlay = document.getElementById('login-overlay');
             const mainContent = document.getElementById('main-content');
+            
             if (userDetails.username !== 'admin' && loginOverlay && mainContent) {
                 loginOverlay.classList.add('hidden');
                 mainContent.classList.remove('hidden');
@@ -28,10 +30,9 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-
     function formatDateForPDF(dateString) {
         if (!dateString) return 'N/A';
-        const date = new Date(dateString + 'T05:00:00');
+        const date = new Date(dateString + 'T05:00:00'); 
         const day = String(date.getUTCDate()).padStart(2, '0');
         const month = String(date.getUTCMonth() + 1).padStart(2, '0');
         const year = date.getUTCFullYear();
@@ -54,16 +55,13 @@ document.addEventListener('DOMContentLoaded', function() {
          return Math.random().toString(16).substring(2, 10);
     }
 
-    // --- NUEVA FUNCIÓN AUXILIAR ---
-    // Genera un CITT aleatorio con el formato LETRA-3-8-2
     function generateRandomCITTFormat() {
-        const randomLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26)); // A-Z
+        const randomLetter = String.fromCharCode(65 + Math.floor(Math.random() * 26));
         const num3 = String(Math.floor(Math.random() * 1000)).padStart(3, '0');
         const num8 = String(Math.floor(Math.random() * 100000000)).padStart(8, '0');
         const num2 = String(Math.floor(Math.random() * 100)).padStart(2, '0');
         return `${randomLetter}-${num3}-${num8}-${num2}`;
     }
-    // ---------------------------------
 
     async function generarPDF(datos, randomUserName) {
         let container;
@@ -83,24 +81,17 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const { time } = getCurrentDateTime();
 
-            // ================== LÓGICA DE ENTIDAD CORREGIDA ==================
             const labelEntidad = elementToPrint.querySelector('#label-entidad');
             const dataEntidad = elementToPrint.querySelector('#data-eess');
             
             if (datos.tipoEntidad === 'minsa') {
-                // Si es MINSA, aplicamos las nuevas reglas
                 labelEntidad.textContent = 'E.S.:';
-                
-                // Aplicamos la regla: nombre en MAYÚSCULAS
-                const nombreHospital = datos.minsaHospitalNombre.toUpperCase(); // <-- CORREGIDO
+                const nombreHospital = datos.minsaHospitalNombre.toUpperCase();
                 dataEntidad.textContent = `${nombreHospital} - MINSA - SIS`;
-                
             } else {
-                // Si es ESSALUD, usamos los valores por defecto
                 labelEntidad.textContent = 'EE.SS:';
                 dataEntidad.textContent = '424-ESSALUD - SEGURO SOCIAL';
             }
-            // ================== FIN LÓGICA CORREGIDA ==================
 
             elementToPrint.querySelector('#data-citt').textContent = datos.citt;
             elementToPrint.querySelector('#data-acto-medico').textContent = '4635240';
@@ -121,7 +112,9 @@ document.addEventListener('DOMContentLoaded', function() {
             elementToPrint.querySelector('#data-medico-rne').textContent = '022291';
             elementToPrint.querySelector('#data-ruc').textContent = '2163486454';
             elementToPrint.querySelector('#data-dias-acumulados').textContent = datos.total_dias;
-            elementToPrint.querySelector('#data-usuario-registro').textContent = randomUserName.toUpperCase();
+            
+            elementToPrint.querySelector('#data-usuario-registro').textContent = randomUserName.toUpperCase(); 
+            
             elementToPrint.querySelector('#data-fecha-registro').textContent = formatDateForPDF(datos.fecha_otorgamiento);
             elementToPrint.querySelector('#data-hora-registro').textContent = time;
             
@@ -139,7 +132,7 @@ document.addEventListener('DOMContentLoaded', function() {
                  if(qrContainer) qrContainer.style.display = 'none';
             }
             
-            const imgElements = elementToPrint.querySelectorAll('img');
+             const imgElements = elementToPrint.querySelectorAll('img');
              const imgPromises = imgElements.length > 0 ? Array.from(imgElements).map(img => {
                 return new Promise((resolve) => {
                     if (img.complete || !img.src || img.naturalWidth === 0) { resolve(); } else {
@@ -186,7 +179,7 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (e) {
             console.error("Error inesperado en signOut:", e);
         } finally {
-           window.location.href = 'index.html';
+           window.location.href = 'index.html'; // Recargar a la página de login
         }
     }
 
@@ -198,45 +191,58 @@ document.addEventListener('DOMContentLoaded', function() {
         const loginOverlay = document.getElementById('login-overlay');
         const mainContent = document.getElementById('main-content');
         
-        const userOrEmail = usernameInput.value;
+        const usernameValue = usernameInput.value; // ej: "PAPACABRO"
         const pass = passwordInput.value;
         loginError.textContent = '';
-    
+
+
         const ADMIN_AUTH_EMAIL = atob('YWRtaW4ubWluc2EuYXBwQGF1dGgubG9jYWw='); 
-    
-        if (userOrEmail === ADMIN_AUTH_EMAIL) {
-            const { error: adminAuthError } = await clienteSupabase.auth.signInWithPassword({
-                email: userOrEmail,
-                password: pass,
-            });
-    
-            if (adminAuthError) {
-                loginError.textContent = 'Credenciales de administrador incorrectas.';
-                return;
-            }
-    
+        let emailToLogin;
+
+        if (usernameValue === ADMIN_AUTH_EMAIL) {
+            emailToLogin = ADMIN_AUTH_EMAIL;
+        } else {
+            emailToLogin = `${usernameValue}@mi-app.com`; 
+        }
+
+        const { data: authData, error: authError } = await clienteSupabase.auth.signInWithPassword({
+            email: emailToLogin,
+            password: pass,
+        });
+
+        if (authError) {
+            loginError.textContent = 'Usuario o contraseña incorrectos.';
+            return;
+        }
+
+        if (emailToLogin === ADMIN_AUTH_EMAIL) {
             console.log("Inicio de sesión seguro para admin exitoso.");
             window.location.href = 'admin.html';
             return; 
         }
-    
+
+        const secureUserId = authData.user.id; // Este es el ID de Auth (uuid)
+
         const { data: userData, error: userError } = await clienteSupabase
             .from('usuarios')
-            .select()
-            .eq('username', userOrEmail)
-            .eq('password', pass)
+            .select('*') // Selecciona creditos, plan_ilimitado_hasta, etc.
+            .eq('user_id', secureUserId) 
             .single();
-    
+
         if (userError || !userData) {
-            loginError.textContent = 'Usuario o contraseña incorrectos.';
+            loginError.textContent = 'Error al encontrar los datos de su cuenta. Contacte a soporte.';
+            await clienteSupabase.auth.signOut(); // Desloguear por seguridad
             return;
         }
-    
+
         const tienePlan = userData.plan_ilimitado_hasta && new Date(userData.plan_ilimitado_hasta) > new Date();
         const tieneCreditos = userData.creditos > 0;
-    
+
+        userData.username = usernameValue;
+
         if (tienePlan || tieneCreditos) {
             sessionStorage.setItem('activeUserDetails', JSON.stringify(userData));
+            
             updateUserInfo(userData);
             loginOverlay.style.opacity = '0';
             setTimeout(() => {
@@ -248,8 +254,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         } else {
             loginError.textContent = 'No tienes créditos o tu plan ha expirado.';
+            await clienteSupabase.auth.signOut(); // Desloguear
         }
+
     }
+
+
+    // --- LÓGICA DE REGISTRO Y CRÉDITOS ---
 
     async function registrarDescanso(event) {
         event.preventDefault();
@@ -259,37 +270,46 @@ document.addEventListener('DOMContentLoaded', function() {
             showStatusMessage('Error de sesión. Vuelve a ingresar.', true);
             setButtonLoading(false); return;
         }
+
         const tienePlan = activeUserDetails.plan_ilimitado_hasta && new Date(activeUserDetails.plan_ilimitado_hasta) > new Date();
         const tieneCreditos = activeUserDetails.creditos > 0;
         let creditoDescontado = false;
+
+        // Validar créditos
         if (!tienePlan && !tieneCreditos) {
             showStatusMessage('Sin créditos. Contacta al administrador.', true);
             setButtonLoading(false); return;
         }
+        
+        // Descontar crédito si no tiene plan
         if (!tienePlan) {
             const nuevosCreditos = activeUserDetails.creditos - 1;
-            const { error: updateError } = await clienteSupabase.from('usuarios').update({ creditos: nuevosCreditos }).eq('id', activeUserDetails.id);
+            
+            // Usamos el 'id' (int8) original de la tabla 'usuarios' para actualizar
+            const { error: updateError } = await clienteSupabase
+                .from('usuarios')
+                .update({ creditos: nuevosCreditos })
+                .eq('id', activeUserDetails.id); // 'id' es el PK (ej: 7, 68)
+            
             if (updateError) {
                 showStatusMessage('Error al actualizar créditos.', true);
                 setButtonLoading(false); return;
             }
+            
+            // Actualizar la sesión local
             activeUserDetails.creditos = nuevosCreditos;
             sessionStorage.setItem('activeUserDetails', JSON.stringify(activeUserDetails));
             updateUserInfo(activeUserDetails);
             creditoDescontado = true;
         }
         
-        // Obtenemos los datos del formulario, INCLUYENDO LOS NUEVOS CAMPOS
+        // Recolectar datos del formulario
         const datosDescanso = {
             citt: document.getElementById('citt').value,
             nombre_paciente: document.getElementById('nombre').value.toUpperCase(),
             dni: document.getElementById('dni').value,
-            
-            // --- NUEVOS DATOS ---
             tipoEntidad: document.getElementById('tipoEntidad').value,
             minsaHospitalNombre: document.getElementById('minsaHospitalNombre').value,
-            // --- FIN NUEVOS DATOS ---
-
             fecha_inicio: document.getElementById('fechaInicio').value,
             fecha_fin: document.getElementById('fechaFin').value,
             total_dias: parseInt(document.getElementById('totalDias').value) || 0,
@@ -298,29 +318,39 @@ document.addEventListener('DOMContentLoaded', function() {
             autogenerado: generateAutogenerado(),
         };
 
-         // --- NUEVA VALIDACIÓN ---
+         // Validar campos MINSA
          if (datosDescanso.tipoEntidad === 'minsa' && !datosDescanso.minsaHospitalNombre) {
             showStatusMessage('Debe ingresar el nombre del hospital para MINSA.', true);
-            if (creditoDescontado) await devolverCredito(activeUserDetails);
+            if (creditoDescontado) await devolverCredito(activeUserDetails); // Reembolsar
             setButtonLoading(false); return;
          }
-         // --- FIN NUEVA VALIDACIÓN ---
 
+         // Validar fechas
          if (datosDescanso.total_dias <= 0 || !datosDescanso.fecha_inicio || !datosDescanso.fecha_fin || !datosDescanso.fecha_otorgamiento) {
              showStatusMessage('Completa las fechas correctamente.', true);
-             if (creditoDescontado) await devolverCredito(activeUserDetails);
+             if (creditoDescontado) await devolverCredito(activeUserDetails); // Reembolsar
              setButtonLoading(false); return;
          }
          
+        // Seleccionar un usuario "fantasma" aleatorio para el PDF
         const randomUserIndex = Math.floor(Math.random() * USUARIOS_PDF.length);
         const randomUserNamePDF = USUARIOS_PDF[randomUserIndex];
         
         try {
+
             const { error: insertError } = await clienteSupabase.from('descansos_medicos').insert([{
-                  citt: datosDescanso.citt, nombre_paciente: datosDescanso.nombre_paciente, dni: datosDescanso.dni,
-                  fecha_inicio: datosDescanso.fecha_inicio, fecha_fin: datosDescanso.fecha_fin, total_dias: datosDescanso.total_dias,
-                  fecha_otorgamiento: datosDescanso.fecha_otorgamiento, contingencia: datosDescanso.contingencia,
+                  citt: datosDescanso.citt, 
+                  nombre_paciente: datosDescanso.nombre_paciente, 
+                  dni: datosDescanso.dni,
+                  fecha_inicio: datosDescanso.fecha_inicio, 
+                  fecha_fin: datosDescanso.fecha_fin, 
+                  total_dias: datosDescanso.total_dias,
+                  fecha_otorgamiento: datosDescanso.fecha_otorgamiento, 
+                  contingencia: datosDescanso.contingencia,
                   autogenerado: datosDescanso.autogenerado
+                  // Campo nuevo (v4): usuario_registro
+                  // El script robot_citt.js lo lee
+                  ,usuario_registro: randomUserNamePDF 
             }]);
             
             if (insertError) {
@@ -329,36 +359,44 @@ document.addEventListener('DOMContentLoaded', function() {
                  } throw insertError;
             }
             
+            // Generar el PDF
             await generarPDF(datosDescanso, randomUserNamePDF);
+            
             const creditosRestantes = tienePlan ? 'Ilimitados' : activeUserDetails.creditos;
             showStatusMessage(`¡Descanso registrado y PDF generado! Créditos: ${creditosRestantes}.`, false);
             document.getElementById('descansoForm').reset();
              
-             // Restablecer el selector de entidad al valor por defecto (ESSALUD)
+             // Resetear el formulario de entidad
              const tipoEntidadSelect = document.getElementById('tipoEntidad');
              if (tipoEntidadSelect) {
                 tipoEntidadSelect.value = 'essalud';
-                // Disparamos el evento 'change' manualmente para ocultar el campo MINSA
                 tipoEntidadSelect.dispatchEvent(new Event('change'));
              }
              
              const fechaInicioInput = document.getElementById('fechaInicio');
              if (fechaInicioInput) fechaInicioInput.dispatchEvent(new Event('change'));
              
-            await generateNextCITT();
+            await generateNextCITT(); // Generar nuevo CITT
             
         } catch (error) {
             console.error('Error:', error);
             showStatusMessage(`Error: ${error.message}`, true);
+            // Si algo falla, devolver el crédito
             if (creditoDescontado) await devolverCredito(activeUserDetails);
         } finally {
             setButtonLoading(false);
         }
     }
 
+    // Función de reembolso en caso de error
     async function devolverCredito(user) {
          try {
-            const { error } = await clienteSupabase.from('usuarios').update({ creditos: user.creditos + 1 }).eq('id', user.id);
+            // Usamos el 'id' (int8) de la tabla 'usuarios'
+            const { error } = await clienteSupabase
+                .from('usuarios')
+                .update({ creditos: user.creditos + 1 })
+                .eq('id', user.id); 
+            
             if (!error) {
                  console.log("Crédito devuelto a:", user.username);
                  user.creditos += 1;
@@ -368,6 +406,9 @@ document.addEventListener('DOMContentLoaded', function() {
             } else { console.error("Error al devolver crédito:", error); }
         } catch (err) { console.error("Error crítico al devolver crédito:", err); }
     }
+
+
+    // --- FUNCIONES DE UI (Interfaz de Usuario) ---
 
     function showToast(message) {
         const toast = document.createElement('div');
@@ -383,12 +424,15 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateUserInfo(detailsData) {
         const userInfoBar = document.getElementById('userInfo');
         if (!detailsData || !userInfoBar) return;
+        
         const expirationDate = new Date(detailsData.plan_ilimitado_hasta);
         const now = new Date();
         const tienePlanActivo = detailsData.plan_ilimitado_hasta && expirationDate > now;
         const tieneCreditos = detailsData.creditos > 0;
+        
         let planInfo = '';
         let creditosInfo = '';
+        
         if (tienePlanActivo) {
             const daysLeft = Math.ceil((expirationDate - now) / (1000 * 60 * 60 * 24));
             planInfo = `Tienes un Plan Ilimitado (${daysLeft} días restantes)`;
@@ -396,16 +440,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if (tieneCreditos) {
             creditosInfo = `y ${detailsData.creditos} créditos disponibles`;
         }
-        let infoText = `Bienvenido, ${detailsData.username}. `;
+
+        // Usamos detailsData.username (que añadimos en handleLogin)
+        let infoText = `Bienvenido, ${detailsData.username || 'Usuario'}. `; 
+        
         if (planInfo && creditosInfo) { infoText += `${planInfo} ${creditosInfo}.`; }
         else if (planInfo) { infoText += `${planInfo}.`; }
         else if (tieneCreditos) { infoText += `Créditos disponibles: ${detailsData.creditos}.`; }
         else { infoText += `No tienes planes ni créditos activos.` }
+        
         userInfoBar.textContent = infoText;
     }
 
-    // --- FUNCIÓN generateNextCITT MODIFICADA ---
-    // Ahora genera un CITT aleatorio y comprueba la unicidad en la DB
+    // Generar CITT único
     async function generateNextCITT() {
         const cittInput = document.getElementById('citt');
         if (!cittInput) return;
@@ -413,10 +460,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let isUnique = false;
         let newCitt = '';
-        let attempts = 0; // Un contador de seguridad para evitar bucles infinitos
+        let attempts = 0; // Evitar bucles infinitos
 
         try {
-            while (!isUnique && attempts < 10) { // Intentará 10 veces
+            while (!isUnique && attempts < 10) { 
                 attempts++;
                 newCitt = generateRandomCITTFormat(); // Genera un CITT aleatorio
 
@@ -425,23 +472,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     .from('descansos_medicos')
                     .select('citt')
                     .eq('citt', newCitt)
-                    .single(); // .single() es clave aquí
+                    .single();
 
-                // "PGRST116" es el código de Supabase para "No se encontró ninguna fila"
-                // ¡Esto es bueno! Significa que el CITT es único.
+                // "PGRST116" = No se encontró ninguna fila. ¡Eso es bueno!
                 if (error && error.code === 'PGRST116') {
                     isUnique = true; 
                 } else if (data) {
-                    // Encontró un resultado, el CITT está duplicado.
                     console.warn(`Colisión de CITT detectada: ${newCitt}. Regenerando...`);
                 } else if (error) {
-                    // Ocurrió un error de base de datos diferente
-                    throw error;
+                    throw error; // Otro error de DB
                 }
             }
 
             if (!isUnique) {
-                // Si falla 10 veces, informa al usuario.
                 throw new Error('No se pudo generar un CITT único. Intente de nuevo.');
             }
 
@@ -454,7 +497,6 @@ document.addEventListener('DOMContentLoaded', function() {
             showStatusMessage(`Error al generar CITT: ${err.message}`, true);
         }
     }
-    // ---------------------------------------------
 
     function setButtonLoading(isLoading) {
         const submitButton = document.getElementById('submitButton');
@@ -484,11 +526,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 6000);
     }
 
+    // Cálculo automático de fechas en el formulario CITT
     function calcularTotalDias() {
          const fechaInicioInput = document.getElementById('fechaInicio');
         const fechaFinInput = document.getElementById('fechaFin');
         const totalDiasInput = document.getElementById('totalDias');
         const fechaOtorgamientoInput = document.getElementById('fechaOtorgamiento');
+        
+        // Calcular fecha de otorgamiento (un día antes del inicio)
         if (fechaInicioInput && fechaOtorgamientoInput && fechaInicioInput.value) {
             try {
                 const fechaInicio = new Date(fechaInicioInput.value + 'T12:00:00-05:00');
@@ -505,6 +550,8 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (fechaOtorgamientoInput) {
              fechaOtorgamientoInput.value = '';
         }
+        
+        // Calcular total de días
         if (fechaInicioInput && fechaFinInput && totalDiasInput && fechaInicioInput.value && fechaFinInput.value) {
             const fechaInicioUTC = new Date(fechaInicioInput.value + 'T00:00:00Z');
             const fechaFinUTC = new Date(fechaFinInput.value + 'T00:00:00Z');
@@ -513,14 +560,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             const diffTiempo = fechaFinUTC.getTime() - fechaInicioUTC.getTime();
             const diffDias = diffTiempo / (1000 * 3600 * 24);
-            totalDiasInput.value = Math.round(diffDias) + 1;
+            totalDiasInput.value = Math.round(diffDias) + 1; // +1 porque se incluye el día de inicio
         } else {
              totalDiasInput.value = '';
         }
     }
 
-    // ================== NUEVO EVENT LISTENER ==================
-    // Para mostrar/ocultar el campo de hospital MINSA
+    // --- ASIGNACIÓN DE EVENTOS (Event Listeners) ---
+
+    // Toggle para mostrar campo de hospital MINSA
     const tipoEntidadSelect = document.getElementById('tipoEntidad');
     const minsaHospitalGroup = document.getElementById('minsaHospitalGroup');
     const minsaHospitalInput = document.getElementById('minsaHospitalNombre');
@@ -529,33 +577,35 @@ document.addEventListener('DOMContentLoaded', function() {
         tipoEntidadSelect.addEventListener('change', function() {
             if (this.value === 'minsa') {
                 minsaHospitalGroup.style.display = 'block';
-                minsaHospitalInput.required = true; // Hacemos el campo obligatorio
+                minsaHospitalInput.required = true;
             } else {
                 minsaHospitalGroup.style.display = 'none';
-                minsaHospitalInput.required = false; // Ya no es obligatorio
-                minsaHospitalInput.value = ''; // Limpiamos el campo
+                minsaHospitalInput.required = false;
+                minsaHospitalInput.value = '';
             }
         });
     }
-    // ================== FIN NUEVO EVENT LISTENER ==================
 
+    // Eventos de los formularios y botones
     const loginForm = document.getElementById('login-form');
     if (loginForm) loginForm.addEventListener('submit', handleLogin);
+    
     const form = document.getElementById('descansoForm');
     if (form) form.addEventListener('submit', registrarDescanso);
+    
     const fechaInicioInput = document.getElementById('fechaInicio');
     if (fechaInicioInput) fechaInicioInput.addEventListener('change', calcularTotalDias);
+    
     const fechaFinInput = document.getElementById('fechaFin');
     if (fechaFinInput) fechaFinInput.addEventListener('change', calcularTotalDias);
+    
     const logoutButton = document.getElementById('logoutButton');
     if (logoutButton) logoutButton.addEventListener('click', handleLogout);
 
+    // Iniciar la verificación de sesión al cargar
     verificarSesionExistente();
 });
 
-// ===============================================
-// LÓGICA DE PESTAÑAS (TABS)
-// ===============================================
 document.addEventListener('DOMContentLoaded', function() {
     const navButtons = document.querySelectorAll('.nav-btn');
     const tabPanels = document.querySelectorAll('.tab-panel');
