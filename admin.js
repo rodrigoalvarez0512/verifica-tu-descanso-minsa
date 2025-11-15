@@ -362,7 +362,7 @@ document.addEventListener('DOMContentLoaded', async function() {
 
                 try {
                     // ¡Llamada a la Edge Function!
-                    const { data, error } = await clienteSupabase.functions.invoke('reset-user-password', {
+const { data, error } = await clienteSupabase.functions.invoke('super-worker', {
                         body: { 
                             user_id: userId,
                             new_password: newPassword
@@ -405,3 +405,4 @@ document.addEventListener('DOMContentLoaded', async function() {
          }
     });
 });
+
