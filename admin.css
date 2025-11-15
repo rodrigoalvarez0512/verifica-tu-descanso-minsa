@@ -1,354 +1,372 @@
+/* ===============================================
+ * HOJA DE ESTILOS ADMIN.CSS (REDiseñada)
+ * =============================================== */
+
+/* --- Variables Globales --- */
 :root {
-    --color-bg: #f0f2f5;
-    --color-panel: #ffffff;
-    --color-primary: #0056b3;
-    --color-primary-dark: #00438c;
-    --color-text: #343a40;
-    --color-text-light: #6c757d;
-    --color-border: #dee2e6;
-    --color-success: #198754;
-    --color-warning: #ffc107;
+    --color-primary: #007bff;
+    --color-primary-hover: #0056b3;
     --color-danger: #dc3545;
-    --shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --font-family: 'Poppins', sans-serif;
+    --color-danger-hover: #a71d2a;
+    --color-secondary: #6c757d;
+    --color-secondary-hover: #545b62;
+    --color-bg-light: #f8f9fa;
+    --color-bg-white: #ffffff;
+    --color-border: #dee2e6;
+    --color-text-dark: #212529;
+    --color-text-light: #6c757d;
+    --color-text-white: #ffffff;
+    --color-plan-active: #28a745;
+    --color-plan-expired: #fd7e14;
+    --font-family-base: 'Poppins', sans-serif;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+    --border-radius: 8px;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* --- Reseteo Básico --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
 body {
-    font-family: var(--font-family);
-    background-color: var(--color-bg);
-    color: var(--color-text);
+    font-family: var(--font-family-base);
+    background-color: var(--color-bg-light);
+    color: var(--color-text-dark);
+    line-height: 1.6;
+    overflow-x: hidden;
 }
 
-.dashboard-container {
+/* --- Estructura Principal (Grid) --- */
+.admin-grid-container {
+    display: grid;
+    grid-template-columns: 320px 1fr; /* Barra lateral de 320px y contenido flexible */
+    min-height: 100vh;
+}
+
+/* ======================= */
+/* ===== BARRA LATERAL ===== */
+/* ======================= */
+.sidebar {
+    background-color: var(--color-bg-white);
+    border-right: 1px solid var(--color-border);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-logo {
+    height: 40px;
+    width: auto;
+}
+
+.sidebar-header h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+}
+
+.action-widgets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow-y: auto;
+}
+
+.action-widget {
+    background-color: var(--color-bg-light);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: 1.25rem;
+}
+
+.action-widget h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-widget p {
+    font-size: 0.85rem;
+    color: var(--color-text-light);
+    margin-bottom: 1rem;
+}
+
+/* --- Estilos de Formularios --- */
+.input-group {
+    margin-bottom: 1rem;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.input-group input[type="text"],
+.input-group input[type="number"],
+.input-group input[type="password"] {
+    width: 100%;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.95rem;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.2);
+}
+
+/* Wrapper para el input de contraseña con botón */
+.password-input-wrapper {
+    display: flex;
+    gap: 0.5rem;
+}
+.password-input-wrapper input {
+    flex-grow: 1;
+}
+
+/* =========================== */
+/* ===== CONTENIDO PRINCIPAL ===== */
+/* =========================== */
+.main-content {
+    background-color: var(--color-bg-light);
     padding: 2rem;
+    overflow-y: auto;
 }
 
-.dashboard-header {
+.main-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
 }
 
-.dashboard-header h1 {
-    font-size: 2rem;
+.main-header h1 {
+    font-size: 1.75rem;
     font-weight: 600;
 }
 
-.admin-info {
+.header-actions {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.logout-button {
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--color-border);
-    background-color: #fff;
-    color: var(--color-text);
-    border-radius: 6px;
-    cursor: pointer;
-    font-weight: 500;
-    transition: background-color 0.2s, color 0.2s;
-}
-.logout-button:hover {
-    background-color: var(--color-danger);
-    border-color: var(--color-danger);
-    color: #fff;
+.content-panel {
+    background-color: var(--color-bg-white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    padding: 1.5rem 2rem;
+    margin-bottom: 2rem;
 }
 
-.dashboard-content {
-    display: grid;
-    gap: 2rem;
-}
-
-.dashboard-panel {
-    background-color: var(--color-panel);
-    border-radius: 8px;
-    box-shadow: var(--shadow);
-    padding: 2rem;
-}
-
-.dashboard-panel h2 {
-    font-size: 1.5rem;
+.content-panel h2 {
+    font-size: 1.3rem;
+    font-weight: 600;
     margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--color-border);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
 }
 
-.actions-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-}
-
-.action-card {
-    background-color: #f8f9fa;
-    border: 1px solid var(--color-border);
-    border-radius: 6px;
-    padding: 1.5rem;
-}
-
-.action-card h3 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-.action-card p {
-    color: var(--color-text-light);
-    margin-bottom: 1rem;
-    min-height: 40px;
-}
-
-.action-card .form-group {
-    display: grid;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-}
-.action-card input {
-    width: 100%;
-    padding: 0.6rem;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-}
-
-.action-card button {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: var(--color-primary);
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-.action-card button:hover {
-    background-color: var(--color-primary-dark);
-}
-
-#actionStatusMessage { margin-top: 1rem; }
-
+/* --- Estilos de Tabla --- */
 .table-container {
+    width: 100%;
     overflow-x: auto;
 }
 
-.user-table, .activity-log-table {
+.user-table {
     width: 100%;
     border-collapse: collapse;
-}
-.user-table th, .user-table td,
-.activity-log-table th, .activity-log-table td {
-    padding: 0.8rem 1rem;
     text-align: left;
+}
+
+.user-table th,
+.user-table td {
+    padding: 0.9rem 1rem;
     border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
 }
 
-.user-table thead, .activity-log-table thead {
-    background-color: #f8f9fa;
-}
-.user-table th, .activity-log-table th { font-weight: 600; }
-.user-table .status-plan {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    font-weight: 500;
+.user-table th {
     font-size: 0.85rem;
-    text-align: center;
-    display: inline-block;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--color-text-light);
+    background-color: var(--color-bg-light);
 }
-.status-plan.active { background-color: #d1e7dd; color: #0f5132; }
-.status-plan.expired { background-color: #f8d7da; color: #842029; }
 
-.user-table .delete-btn {
-    background: none;
+.user-table tbody tr:hover {
+    background-color: #fdfdfd;
+}
+
+.user-table td {
+    font-size: 0.95rem;
+}
+
+/* Estado del Plan */
+.status-plan {
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+.status-plan.active {
+    color: var(--color-plan-active);
+    background-color: rgba(40,167,69,0.1);
+}
+.status-plan.expired {
+    color: var(--color-plan-expired);
+    background-color: rgba(253,126,20,0.1);
+}
+
+/* --- Botones --- */
+button {
+    font-family: var(--font-family-base);
+    font-weight: 500;
     border: none;
-    color: var(--color-danger);
-    font-size: 1.2rem;
+    border-radius: 6px;
+    padding: 0.6rem 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: background-color 0.2s, box-shadow 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
 }
-.user-table .delete-btn:hover { transform: scale(1.2); }
 
-/* ===============================================
-   ESTILOS PARA EL MODAL DE CONFIRMACIÓN
-   =============================================== */
+.button-primary {
+    background-color: var(--color-primary);
+    color: var(--color-text-white);
+}
+.button-primary:hover {
+    background-color: var(--color-primary-hover);
+    box-shadow: 0 2px 5px rgba(0,123,255,0.2);
+}
+
+.button-danger {
+    background-color: var(--color-danger);
+    color: var(--color-text-white);
+}
+.button-danger:hover {
+    background-color: var(--color-danger-hover);
+    box-shadow: 0 2px 5px rgba(220,53,69,0.2);
+}
+
+.button-secondary {
+    background-color: var(--color-secondary);
+    color: var(--color-text-white);
+}
+.button-secondary:hover {
+    background-color: var(--color-secondary-hover);
+}
+
+.logout-button {
+    background-color: var(--color-bg-white);
+    color: var(--color-secondary);
+    border: 1px solid var(--color-border);
+}
+.logout-button:hover {
+    background-color: var(--color-bg-light);
+    color: var(--color-text-dark);
+}
+
+/* Botones de acción en tabla (con icono) */
+.action-button {
+    background: none;
+    padding: 0.4rem;
+    color: var(--color-text-light);
+}
+.action-button:hover {
+    color: var(--color-text-dark);
+}
+.action-button.delete { color: var(--color-danger); }
+.action-button.delete:hover { background-color: rgba(220,53,69,0.1); }
+
+.action-button.reset { color: var(--color-primary); }
+.action-button.reset:hover { background-color: rgba(0,123,255,0.1); }
+
+/* --- Mensajes de Estado --- */
+.status-message {
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: none; /* Oculto por defecto */
+}
+.status-success {
+    background-color: rgba(40,167,69,0.1);
+    color: var(--color-plan-active);
+    border: 1px solid rgba(40,167,69,0.2);
+}
+.status-error {
+    background-color: rgba(220,53,69,0.1);
+    color: var(--color-danger);
+    border: 1px solid rgba(220,53,69,0.2);
+}
+
+/* --- Ventanas Modales --- */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
-    display: grid;
-    place-items: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s;
-}
-
-.modal-overlay:not(.hidden) {
-    opacity: 1;
-    visibility: visible;
-}
-
-.modal-box {
-    background-color: var(--color-panel);
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    width: 90%;
-    max-width: 450px;
-    text-align: center;
-    transform: scale(0.95);
-    transition: transform 0.3s ease;
-}
-
-.modal-overlay:not(.hidden) .modal-box {
-    transform: scale(1);
-}
-
-.modal-box h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.modal-box p {
-    color: var(--color-text-light);
-    line-height: 1.6;
-    margin-bottom: 2rem;
-}
-
-.modal-actions {
+    background-color: rgba(0, 0, 0, 0.4);
     display: flex;
     justify-content: center;
-    gap: 1rem;
+    align-items: center;
+    z-index: 1000;
 }
-
-.modal-actions button {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.modal-actions .btn-danger {
-    background-color: var(--color-danger);
-    color: #fff;
-}
-.modal-actions .btn-danger:hover {
-    background-color: #b02a37;
-}
-
-.modal-actions .btn-secondary {
-    background-color: var(--color-border);
-    color: var(--color-text);
-}
-.modal-actions .btn-secondary:hover {
-    background-color: #c8d0d8;
-}
-
-.hidden {
+.modal-overlay.hidden {
     display: none;
 }
 
-/* ===============================================
-   ESTILOS PARA EL MODAL DE CONFIRMACIÓN
-   =============================================== */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
+.modal-content {
+    background-color: var(--color-bg-white);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    padding: 2rem;
     width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(5px);
-    display: grid;
-    place-items: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0s 0.3s;
-}
-
-.modal-overlay:not(.hidden) {
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.3s ease;
-}
-
-.modal-box {
-    background-color: var(--color-panel);
-    padding: 2.5rem;
-    border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    width: 90%;
     max-width: 450px;
-    text-align: center;
-    transform: scale(0.95);
-    transition: transform 0.3s ease;
 }
 
-.modal-overlay:not(.hidden) .modal-box {
-    transform: scale(1);
+.modal-content h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
 }
-
-.modal-box h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: var(--color-text);
-}
-
-.modal-box p {
+.modal-content p {
+    font-size: 0.95rem;
     color: var(--color-text-light);
-    line-height: 1.6;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
 }
 
 .modal-actions {
     display: flex;
-    justify-content: center;
-    gap: 1rem;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
 }
 
-.modal-actions button {
-    padding: 0.75rem 1.5rem;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    font-size: 1rem;
-}
-
-.modal-actions .btn-danger {
-    background-color: var(--color-danger);
-    color: #fff;
-}
-.modal-actions .btn-danger:hover {
-    background-color: #b02a37;
-}
-
-.modal-actions .btn-secondary {
-    background-color: var(--color-border);
-    color: var(--color-text);
-}
-.modal-actions .btn-secondary:hover {
-    background-color: #c8d0d8;
-}
-
-/* Es importante que la clase .hidden use display: none
-   para que no interfiera. La tienes de antes, pero por si acaso: */
-.hidden {
-    display: none !important;
+#resetPassError {
+    margin-top: 1rem;
+    display: none; /* Oculto por defecto */
 }
