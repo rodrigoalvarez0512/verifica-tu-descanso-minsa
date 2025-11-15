@@ -12,53 +12,75 @@
     <link rel="icon" href="favicon.png" type="image/png">
 </head>
 <body>
-    <div class="dashboard-container">
-        <header class="dashboard-header">
-            <h1>Panel de Administración</h1>
-            <div class="admin-info">
-                <span><i class="bi bi-person-circle"></i> Conectado como: <strong>admin</strong></span>
-                <button id="logoutButton" class="logout-button">Cerrar Sesión</button>
+    <div class="admin-grid-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="logo_minsa.png" alt="Logo MINSA" class="sidebar-logo">
+                <h2>Panel de Control</h2>
             </div>
-        </header>
-
-        <main class="dashboard-content">
             
-            <div class="dashboard-panel actions-panel">
-                <h2>Acciones de Administrador</h2>
-                <div class="actions-grid">
-                    <form id="createUserForm" class="action-card">
-                        <h3><i class="bi bi-person-plus-fill"></i> Crear Nuevo Usuario</h3>
-                        <p>Genera un nuevo usuario con credenciales aleatorias.</p>
-                        <button type="submit">Generar Usuario</button>
-                    </form>
-                    <form id="addCreditsForm" class="action-card">
-                        <h3><i class="bi bi-wallet-fill"></i> Añadir Créditos</h3>
-                        <div class="form-group">
-                            <input type="text" id="addcred_username" placeholder="Nombre de usuario" required>
-                            <input type="number" id="addcred_amount" placeholder="Cantidad" required min="1">
-                        </div>
-                        <button type="submit">Añadir Créditos</button>
-                    </form>
-                    <form id="setPlanForm" class="action-card">
-                        <h3><i class="bi bi-calendar-check-fill"></i> Asignar Plan Ilimitado</h3>
-                        <div class="form-group">
-                            <input type="text" id="plan_username" placeholder="Nombre de usuario" required>
-                            <input type="number" id="plan_days" placeholder="Días de duración" required min="1">
-                        </div>
-                        <button type="submit">Asignar Plan</button>
+            <div class="action-widgets-container">
+                
+                <div class="action-widget">
+                    <h3><i class="bi bi-person-plus-fill"></i> Generar Usuario</h3>
+                    <p>Crea un nuevo usuario con 0 créditos. La contraseña se mostrará al crear.</p>
+                    <form id="createUserForm">
+                        <button type="submit" class="button-primary">Generar Nuevo Usuario</button>
                     </form>
                 </div>
-                <div id="actionStatusMessage"></div>
-            </div>
 
-            <div class="dashboard-panel">
-                <h2><i class="bi bi-people-fill"></i> Gestión de Usuarios</h2>
+                <div class="action-widget">
+                    <h3><i class="bi bi-coin"></i> Añadir Créditos</h3>
+                    <form id="addCreditsForm">
+                        <div class="input-group">
+                            <label for="addcred_username">Nombre de Usuario</label>
+                            <input type="text" id="addcred_username" placeholder="Ej: user8953" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="addcred_amount">Cantidad de Créditos</label>
+                            <input type="number" id="addcred_amount" placeholder="Ej: 50" required>
+                        </div>
+                        <button type="submit" class="button-primary">Añadir Créditos</button>
+                    </form>
+                </div>
+
+                <div class="action-widget">
+                    <h3><i class="bi bi-calendar-check-fill"></i> Asignar Plan Ilimitado</h3>
+                    <form id="setPlanForm">
+                        <div class="input-group">
+                            <label for="plan_username">Nombre de Usuario</label>
+                            <input type="text" id="plan_username" placeholder="Ej: PAPACABRO" required>
+                        </div>
+                        <div class="input-group">
+                            <label for="plan_days">Duración (en días)</label>
+                            <input type="number" id="plan_days" placeholder="Ej: 30" required>
+                        </div>
+                        <button type="submit" class="button-primary">Asignar Plan</button>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="main-header">
+                <h1>Gestión de Usuarios</h1>
+                <div class="header-actions">
+                    <div id="actionStatusMessage" class="status-message"></div>
+                    <button id="logoutButton" class="logout-button">
+                        <i class="bi bi-box-arrow-right"></i>
+                        <span>Cerrar Sesión</span>
+                    </button>
+                </div>
+            </header>
+
+            <section class="content-panel">
+                <h2>Usuarios del Sistema</h2>
                 <div class="table-container">
                     <table class="user-table">
                         <thead>
                             <tr>
                                 <th>Usuario</th>
-                                <th>Contraseña</th>
                                 <th>Créditos</th>
                                 <th>Estado del Plan</th>
                                 <th>Acciones</th>
@@ -68,12 +90,12 @@
                             </tbody>
                     </table>
                 </div>
-            </div>
+            </section>
 
-            <div class="dashboard-panel">
-                <h2><i class="bi bi-clipboard-data-fill"></i> Registro de Actividad Reciente</h2>
+            <section class="content-panel">
+                <h2>Log de Actividad Reciente</h2>
                 <div class="table-container">
-                    <table class="activity-log-table">
+                    <table class="user-table">
                         <thead>
                             <tr>
                                 <th>Fecha y Hora</th>
@@ -85,20 +107,42 @@
                             </tbody>
                     </table>
                 </div>
-            </div>
-
+            </section>
         </main>
     </div>
-<div id="confirmationModal" class="modal-overlay hidden">
-        <div class="modal-box">
-            <h3 id="modalTitle"></h3>
-            <p id="modalMessage"></p>
+
+    <div id="confirmationModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3 id="modalTitle">Confirmar Acción</h3>
+            <p id="modalMessage">¿Está seguro?</p>
             <div class="modal-actions">
-                <button id="modalCancelBtn" class="btn-secondary">Cancelar</button>
-                <button id="modalConfirmBtn" class="btn-danger">Confirmar</button>
+                <button id="modalCancelBtn" class="button-secondary">Cancelar</button>
+                <button id="modalConfirmBtn" class="button-danger">Confirmar</button>
             </div>
         </div>
     </div>
+
+    <div id="resetPasswordModal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h3>Restablecer Contraseña</h3>
+            <p>Escriba una nueva contraseña o genere una aleatoria para <strong id="resetPassUsername"></strong>.</p>
+            <div class="input-group">
+                <label for="resetPassInput">Nueva Contraseña</label>
+                <div class="password-input-wrapper">
+                    <input type="text" id="resetPassInput" placeholder="Escriba o genere una clave">
+                    <button id="generatePassBtn" class="button-secondary" title="Generar Aleatoria">
+                        <i class="bi bi-shuffle"></i>
+                    </button>
+                </div>
+            </div>
+            <div id="resetPassError" class="status-error" style="display: none;"></div>
+            <div class="modal-actions">
+                <button id="modalCancelResetBtn" class="button-secondary">Cancelar</button>
+                <button id="modalConfirmResetBtn" class="button-primary">Actualizar Contraseña</button>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabaseClient.js"></script>
     <script src="admin.js"></script>
