@@ -60,16 +60,21 @@
 
             <div class="panel-nav">
                 <button id="nav-citt-btn" class="nav-btn active" data-panel="citt-panel">
-                    <i class="bi bi-clipboard2-pulse-fill"></i> Descanso Médico (CITT)
+                    <i class="bi bi-clipboard2-pulse-fill"></i> Descanso (CITT)
                 </button>
                 <button id="nav-receta-btn" class="nav-btn" data-panel="receta-panel">
                     <i class="bi bi-file-earmark-medical-fill"></i> Receta Médica
+                </button>
+                <button id="nav-certificado-btn" class="nav-btn" data-panel="certificado-panel">
+                    <i class="bi bi-patch-check-fill"></i> Certificado (EsSalud)
+                </button>
+                <button id="nav-minsa-btn" class="nav-btn" data-panel="minsa-panel">
+                    <i class="bi bi-file-earmark-text-fill"></i> Constancia (MINSA)
                 </button>
             </div>
             <div id="citt-panel" class="tab-panel active">
                 <h1>Registro de Descanso Médico (CITT)</h1>
                 <p class="subtitle">Complete todos los campos para registrar un nuevo Certificado de Incapacidad Temporal para el Trabajo.</p>
-
                 <form id="descansoForm">
                     <fieldset>
                         <legend>Información del Paciente</legend>
@@ -145,7 +150,6 @@
             <div id="receta-panel" class="tab-panel hidden">
                 <h1>Registro de Receta Médica</h1>
                 <p class="subtitle">Complete los campos para generar una nueva Receta Médica. Los campos grises se autogeneran.</p>
-
                 <form id="recetaForm">
                     <fieldset>
                         <legend>Información de Entidad y Paciente</legend>
@@ -179,7 +183,6 @@
                             </div>
                         </div>
                     </fieldset>
-                    
                     <fieldset>
                         <legend>Información de Atención</legend>
                          <div class="fechas-grid">
@@ -201,30 +204,166 @@
                             </div>
                          </div>
                     </fieldset>
-
                     <fieldset>
-    <legend>Medicamentos</legend>
-
-    <div class="medicamento-header-row">
-        <span>Tipo</span>
-        <span>Medicamento</span>
-        <span>MG / Unidad</span>
-        <span>Cada (Hrs)</span>
-        <span>Días</span>
-        <span>Turno</span>
-        <span></span> </div>
+                        <legend>Medicamentos</legend>
+                        <div class="medicamento-header-row">
+                            <span>Tipo</span>
+                            <span>Medicamento</span>
+                            <span>MG / Unidad</span>
+                            <span>Cada (Hrs)</span>
+                            <span>Días</span>
+                            <span>Turno</span>
+                            <span></span> 
+                        </div>
                         <div id="medicamentos-repeater-container">
-                            </div>
+                        </div>
                         <button type="button" id="addMedicamentoBtn" class="add-row-btn">
                             <i class="bi bi-plus-circle-fill"></i> Añadir Medicamento
                         </button>
                     </fieldset>
-
                     <button type="submit" id="submitRecetaButton">
                         <span class="button-text">Registrar y Generar Receta</span>
                         <span class="button-loader hidden"></span>
                     </button>
                     <div id="recetaStatusMessage" class="status-message"></div>
+                </form>
+            </div>
+            <div id="certificado-panel" class="tab-panel hidden">
+                <h1>Registro de Certificado Médico (EsSalud)</h1>
+                <p class="subtitle">Complete los campos para generar un nuevo Certificado Médico de EsSalud.</p>
+                <form id="certificadoForm">
+                    <fieldset>
+                        <legend>Datos del Paciente</legend>
+                        <div class="certificado-grid">
+                            <div class="input-group">
+                                <input type="text" id="cert_paciente_nombre" placeholder=" " required>
+                                <label for="cert_paciente_nombre">Nombres y Apellidos del Paciente</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="date" id="cert_paciente_nacimiento" placeholder=" " required>
+                                <label for="cert_paciente_nacimiento">Fecha de Nacimiento (para calcular edad)</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Detalles de la Revisión</legend>
+                        <div class="certificado-grid">
+                            <div class="input-group">
+                                <input type="date" id="cert_fecha_revision" placeholder=" " required>
+                                <label for="cert_fecha_revision">Fecha de Revisión</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="time" id="cert_hora_revision" placeholder=" " required value="08:00">
+                                <label for="cert_hora_revision">Hora de Revisión (ej: 08:00 AM)</label>
+                            </div>
+                            <div class="input-group span-2">
+                                <input type="text" id="cert_diagnostico" placeholder=" " required>
+                                <label for="cert_diagnostico">Diagnóstico (ej: intoxicación gastrointestinal)</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend>Detalles del Descanso Médico</legend>
+                         <div class="certificado-grid">
+                            <div class="input-group">
+                                <input type="date" id="cert_descanso_inicio" placeholder=" " required readonly>
+                                <label for="cert_descanso_inicio">Inicio del Descanso</label>
+                                <small>Si la hora de atención es antes de las 5 PM comienza el mismo día, si es después comienza al día siguiente.</small>
+                            </div>
+                            <div class="input-group">
+                                <input type="date" id="cert_descanso_fin" placeholder=" " required>
+                                <label for="cert_descanso_fin">Fin del Descanso</label>
+                            </div>
+                            <div class="input-group span-2">
+                                <input type="text" id="cert_lugar_expedicion" placeholder=" " required value="Lima">
+                                <label for="cert_lugar_expedicion">Distrito de Expedición (ej: Lima)</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <button type="submit" id="submitCertificadoButton">
+                        <span class="button-text">Registrar y Generar Certificado</span>
+                        <span class="button-loader hidden"></span>
+                    </button>
+                    <div id="certificadoStatusMessage" class="status-message"></div>
+                </form>
+            </div>
+            <div id="minsa-panel" class="tab-panel hidden">
+                <h1>Registro de Constancia MINSA</h1>
+                <p class="subtitle">Complete los campos para generar una nueva Constancia de Descanso Médico.</p>
+
+                <form id="minsaForm">
+                    <fieldset>
+                        <legend>Datos de la Entidad y Paciente</legend>
+                        <div class="minsa-grid">
+                            <div class="input-group">
+                                <input type="text" id="minsa_hospital" placeholder=" " required>
+                                <label for="minsa_hospital">Hospital (DIRIS/DIRESA/GERESA)</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="minsa_paciente_nombre" placeholder=" " required>
+                                <label for="minsa_paciente_nombre">Nombres y Apellidos del Paciente</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="date" id="minsa_paciente_nacimiento" placeholder=" " required>
+                                <label for="minsa_paciente_nacimiento">Fecha de Nacimiento (para Edad)</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="text" id="minsa_paciente_dni" maxlength="8" pattern="\d{8}" placeholder=" " required>
+                                <label for="minsa_paciente_dni">DNI (8 dígitos)</label>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>Detalles de la Atención y Descanso</legend>
+                        <div class="minsa-grid">
+                            <div class="input-group">
+                                <input type="date" id="minsa_fecha_atencion" placeholder=" " required>
+                                <label for="minsa_fecha_atencion">Fecha de Atención</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="time" id="minsa_hora_atencion" placeholder=" " required value="08:00">
+                                <label for="minsa_hora_atencion">Hora de Atención</label>
+                            </div>
+                            <div class="input-group">
+                                <input type="date" id="minsa_descanso_inicio" placeholder=" " required readonly>
+                                <label for="minsa_descanso_inicio">Inicio Descanso (Automático)</label>
+                                <small>Si la hora de atención es antes de las 5 PM comienza el mismo día, si es después comienza al día siguiente.</small>
+                            </div>
+                            <div class="input-group">
+                                <input type="date" id="minsa_descanso_fin" placeholder=" " required>
+                                <label for="minsa_descanso_fin">Fin Descanso</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                    
+                    <fieldset>
+                        <legend>Diagnóstico y Síntomas</legend>
+                         <div class="input-group">
+                            <input type="text" id="minsa_diagnostico" placeholder=" " required>
+                            <label for="minsa_diagnostico">Diagnóstico</label>
+                            <small>Procurar evitar usar código CIE</small>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="minsa_sintoma_1" placeholder=" " required>
+                            <label for="minsa_sintoma_1">Síntoma Principal</label>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" id="minsa_sintoma_2" placeholder=" " required>
+                            <label for="minsa_sintoma_2">Síntoma Secundario</label>
+                        </div>
+                        <div id="minsa-sintomas-extra-container"></div>
+                        <button type="button" id="addSintomaBtn" class="add-row-btn">
+                            <i class="bi bi-plus-circle-fill"></i> Añadir más Síntomas (Opcional)
+                        </button>
+                        <small>Para añadir más síntomas presionar aquí.</small>
+                    </fieldset>
+
+                    <button type="submit" id="submitMinsaButton">
+                        <span class="button-text">Registrar y Generar Constancia</span>
+                        <span class="button-loader hidden"></span>
+                    </button>
+                    <div id="minsaStatusMessage" class="status-message"></div>
                 </form>
             </div>
             </div>
@@ -242,7 +381,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabaseClient.js"></script>
     <script src="script.js"></script>
-    <script src="receta.js"></script> </body>
+    <script src="receta.js"></script>
+    <script src="certificado.js"></script>
+    <script src="certificado_minsa.js"></script>
+</body>
 </html>
-
-
