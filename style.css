@@ -77,7 +77,14 @@ p.subtitle, .login-box > p { color: var(--color-texto-secundario); text-align: c
 .input-group { position: relative; margin-bottom: 1.5rem; }
 .input-group input { width: 100%; padding: 12px 14px; font-size: 1rem; font-family: var(--fuente-principal); color: var(--color-texto-principal); background-color: var(--color-fondo-input); border: 1px solid var(--color-borde-input); border-radius: var(--radio-borde); transition: border-color 0.2s ease, box-shadow 0.2s ease; }
 .input-group label { position: absolute; top: 50%; left: 15px; transform: translateY(-50%); color: var(--color-texto-secundario); background-color: var(--color-fondo-input); padding: 0 4px; transition: all 0.2s ease; pointer-events: none; }
-.input-group input:focus + label, .input-group input:not(:placeholder-shown) + label, .input-group input[type="date"] + label { top: 0; left: 10px; font-size: 0.75rem; color: var(--color-primario); font-weight: 500; background-color: var(--color-panel); }
+.input-group input:focus + label, .input-group input:not(:placeholder-shown) + label, .input-group input[type="date"] + label, .input-group input[type="time"] + label {
+    top: 0;
+    left: 10px;
+    font-size: 0.75rem;
+    color: var(--color-primario);
+    font-weight: 500;
+    background-color: var(--color-panel);
+}
 .input-group input:focus { outline: none; border-color: var(--color-borde-foco); box-shadow: 0 0 0 3px rgba(212, 39, 50, 0.15); }
 .input-group input[readonly] { background-color: #e9ecef; cursor: not-allowed; }
 button[type="submit"] { width: 100%; padding: 14px; font-size: 1.1rem; font-weight: 600; color: #fff; background-color: var(--color-primario); border: none; border-radius: var(--radio-borde); cursor: pointer; transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease; }
@@ -474,3 +481,106 @@ legend { font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; padding-bo
 }
 
 /* (El estilo de .add-row-btn no necesita cambios) */
+
+/* ===============================================
+   ESTILOS PARA FORMULARIO DE CERTIFICADO
+   =============================================== */
+.certificado-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+/* Para que un campo ocupe las 2 columnas */
+.certificado-grid .span-2 {
+    grid-column: 1 / -1;
+}
+
+#certificadoStatusMessage {
+     margin-top: 1.5rem;
+     padding: 1rem;
+     border-radius: var(--radio-borde);
+     font-weight: 500;
+     display: none; /* Se muestra con JS */
+}
+#certificadoStatusMessage.status-success {
+    border: 1px solid var(--color-exito);
+    background-color: #f0fdf4;
+    color: var(--color-exito);
+}
+#certificadoStatusMessage.status-error {
+    border: 1px solid var(--color-error);
+    background-color: #fef2f2;
+    color: var(--color-error);
+}
+
+.input-group input:focus + label, .input-group input:not(:placeholder-shown) + label, .input-group input[type="date"] + label {
+    top: 0;
+    left: 10px;
+    font-size: 0.75rem;
+    color: var(--color-primario);
+    font-weight: 500;
+    background-color: var(--color-panel);
+}
+
+/* ===============================================
+   ESTILOS PARA FORMULARIO CONSTANCIA MINSA
+   =============================================== */
+.minsa-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+#minsa-sintomas-extra-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.sintoma-row {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.sintoma-row .input-group {
+    flex-grow: 1;
+    margin-bottom: 0; /* Quitar margen de abajo */
+}
+
+/* Botón de eliminar síntoma */
+.delete-sintoma-btn {
+    background-color: transparent;
+    color: var(--color-error);
+    border: 2px solid var(--color-borde-input);
+    border-radius: var(--radio-borde);
+    font-size: 1.1rem;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    height: 50px; /* Alinear con el input */
+}
+.delete-sintoma-btn:hover {
+    background-color: #fef2f2;
+    border-color: var(--color-error);
+}
+
+#minsaStatusMessage {
+     margin-top: 1.5rem;
+     padding: 1rem;
+     border-radius: var(--radio-borde);
+     font-weight: 500;
+     display: none; /* Se muestra con JS */
+}
+#minsaStatusMessage.status-success {
+    border: 1px solid var(--color-exito);
+    background-color: #f0fdf4;
+    color: var(--color-exito);
+}
+#minsaStatusMessage.status-error {
+    border: 1px solid var(--color-error);
+    background-color: #fef2f2;
+    color: var(--color-error);
+}
