@@ -109,14 +109,23 @@ document.addEventListener('DOMContentLoaded', function() {
         return 'MINSA-' + Math.random().toString(36).substring(2, 10).toUpperCase();
     }
     
-    // ================== FUNCIÓN stripCIE (MEJORADA) ==================
+    // ================== FUNCIÓN stripCIE (CORREGIDA) ==================
     function stripCIE(diagnosticoStr) {
         if (!diagnosticoStr) return '';
-        // Esta regex busca cualquier combinación de letras, números, puntos y guiones al inicio,
-        // seguido de un espacio.
-        // Ej: "R10.13 ", "R10-23 ", "R-10-13 ", "F32.9 "
-        const regex = /^[A-Z0-9\.-]+\s*[-:]?\s*/i;
-        return diagnosticoStr.replace(regex, '').trim();
+
+        // NUEVA REGEX: Exige que haya al menos un dígito (\d) para considerarlo código.
+        // Busca: Letras al inicio + Números + opcionalmente puntos/letras extra.
+        // Ej: Coincide con "A09 ", "R10.4 ", "J00-".
+        // NO coincide con "INFECCION", "DOLOR", etc.
+        const regex = /^[A-Z]+\d+[A-Z0-9\.]*\s*[-:]?\s*/i;
+
+        // Solo si parece un código CIE (tiene números), lo quitamos.
+        if (regex.test(diagnosticoStr)) {
+            return diagnosticoStr.replace(regex, '').trim();
+        }
+        
+        // Si es puro texto, lo devolvemos limpio tal cual.
+        return diagnosticoStr.trim();
     }
     // ================== FIN FUNCIÓN ==================
     
@@ -446,5 +455,6 @@ document.addEventListener('DOMContentLoaded', function() {
             setMinsaButtonLoading(false);
         }
     });
+
 
 });
