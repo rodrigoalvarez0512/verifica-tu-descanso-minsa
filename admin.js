@@ -193,29 +193,24 @@ document.addEventListener('DOMContentLoaded', async function() {
         
         const newUser = `user${Math.floor(1000 + Math.random() * 9000)}`;
         const newPass = Math.random().toString(36).substring(2, 10);
-        const newEmail = `${newUser}@mi-app.com`;
+        const newEmail = `${newUser}@mi-app.com`; // El trigger usará esto para el username
 
         try {
-            // PASO 1: Crear en Auth
+            // PASO 1: Crear en Auth (SOLO ESTO ES NECESARIO AHORA)
             const { data: authData, error: authError } = await clienteSupabase.auth.signUp({
                 email: newEmail,
                 password: newPass
             });
+            
             if (authError) throw new Error(`Error de Auth: ${authError.message}`);
             if (!authData.user) throw new Error('No se pudo crear el usuario en Auth.');
             
-            const newUserId = authData.user.id;
-
-            // PASO 2: Insertar en 'usuarios'
-            const { error: insertError } = await clienteSupabase
-                .from('usuarios')
-                .insert({ username: newUser, creditos: 0, user_id: newUserId });
-            if (insertError) throw new Error(`Error al insertar en 'usuarios': ${insertError.message}`);
-
+            // EL PASO 2 SE ELIMINÓ PORQUE AHORA ES AUTOMÁTICO EN LA BD
+            
             // ¡ÉXITO!
             showActionMessage(`Usuario ${newUser} creado. Contraseña: ${newPass}`, false);
             await logActivity('Crear Usuario', `Se creó el usuario: ${newUser}`);
-            fetchAndDisplayUsers();
+            fetchAndDisplayUsers(); // Refrescar la tabla
 
         } catch (error) {
             showActionMessage(`Error creando usuario: ${error.message}`, true);
@@ -405,4 +400,5 @@ const { data, error } = await clienteSupabase.functions.invoke('super-worker', {
          }
     });
 });
+
 
