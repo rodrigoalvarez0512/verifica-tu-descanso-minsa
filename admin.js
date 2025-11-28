@@ -136,23 +136,22 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
 
     async function fetchAndDisplayActivityLog() {
+        // Pedimos también la columna ip_address
         const { data: logs, error } = await clienteSupabase
             .from('activity_log')
             .select('*')
             .order('created_at', { ascending: false })
-            .limit(50); // Traer los últimos 50 eventos
+            .limit(50);
             
         if (error) { console.error('Error log:', error); return; }
         
-        // Ejecutar el detector de amenazas
         checkForThreats(logs);
 
         activityLogBody.innerHTML = '';
         logs.forEach(log => {
             const tr = document.createElement('tr');
             
-            // Si es sospechoso, ponerlo en ROJO
-            if (log.is_suspicious || log.details.includes('inválida')) {
+            if (log.is_suspicious) {
                 tr.classList.add('row-suspicious');
             }
 
@@ -160,10 +159,13 @@ document.addEventListener('DOMContentLoaded', async function() {
                 day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
             });
 
+            // AÑADIMOS LA IP AL TEXTO DE DETALLES
+            const ipInfo = log.ip_address ? ` <br><span style="font-size:0.8em; color:#666;">IP: ${log.ip_address}</span>` : '';
+
             tr.innerHTML = `
                 <td>${fecha}</td>
                 <td>${log.command_name}</td>
-                <td>${log.details}</td>
+                <td>${log.details} ${ipInfo}</td>
             `;
             activityLogBody.appendChild(tr);
         });
@@ -284,3 +286,4 @@ document.addEventListener('DOMContentLoaded', async function() {
         window.location.href = 'index.html';
     });
 });
+
