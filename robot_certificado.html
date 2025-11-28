@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Certificado EsSalud</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #fff; /* Fondo blanco para el PDF */
+            margin: 0;
+            padding: 0;
+            display: grid;
+            place-items: center;
+        }
+
+        #certificado-container {
+            width: 794px;
+            height: 1123px; /* A4 */
+            background-color: #ffffff;
+            position: relative;
+            box-sizing: border-box;
+            padding: 40px 60px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .data { font-weight: bold; color: #000; }
+        
+        .top-header {
+            display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;
+        }
+        .top-header img { width: 150px; height: auto; }
+
+        .year-title {
+            text-align: center; font-style: italic; font-size: 16px; margin: 10px 0 30px 0;
+        }
+
+        .content-block { margin-bottom: 20px; }
+        .header-medico { text-align: left; font-size: 14px; line-height: 1.5; margin-bottom: 30px; width: 100%; }
+        .main-title { text-align: center; font-size: 18px; text-decoration: underline; margin-bottom: 30px; }
+        .subtitle-certifica { text-decoration: underline; margin-bottom: 15px; display: block; }
+        .prose-paragraph { text-align: justify; margin-bottom: 1em; }
+
+        .signature-block {
+            position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
+            text-align: center; width: 300px;
+        }
+        #firma-placeholder { width: 250px; height: 120px; margin: 0 auto 5px auto; }
+        #firma-placeholder img { width: 100%; height: 100%; object-fit: contain; }
+        .signature-line { border-bottom: 1px solid #000; margin-bottom: 5px; }
+
+        #qr-certificado-placeholder {
+            position: absolute; bottom: 120px; left: 60px; width: 100px; height: 100px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="certificado-container">
+        <div class="top-header">
+            <img src="essaludsello_certificado.png" alt="Logo EsSalud">
+            <img src="essaludsello_certificado.png" alt="Logo EsSalud">
+        </div>
+
+        <p class="year-title"><em><strong>"Año de la recuperación y consolidación de la economía peruana"</strong></em></p>
+
+        <div class="content-block">
+            <div class="header-medico">
+                La suscripta, Médico Cirujano General con especialidad en <span class="data">Medicina Interna</span>,
+                <span class="data">Dra. María Guzmán Diaz</span>, legalmente
+                <span class="data">autorizada</span> para ejercer su profesión con <span class="data">CMP 31065</span> / <span class="data">RNE</span> <span class="data">13339</span> de la
+                institución prestadora de servicios de salud <span class="data">EsSalud</span>.
+            </div>
+
+            <h2 class="main-title"><strong>CERTIFICADO MEDICO</strong></h2>
+            <span class="subtitle-certifica"><strong>Certifica que:</strong></span>
+            
+            <p class="prose-paragraph">
+                Previo a realizar una revisión médica el día <span class="data" id="data-fecha-revision"></span>
+                a las <span class="data" id="data-hora-revision"></span> hrs al paciente 
+                <span class="data" id="data-paciente-nombre"></span> de 
+                <span class="data" id="data-paciente-edad"></span> años de edad, se le encuentra: <strong>con dificultades en su salud por presentar 
+                <span class="data" id="data-diagnostico"></span>.</strong>
+            </p>
+
+            <p class="prose-paragraph">
+                Por lo anterior se hace constar que 
+                <span class="data" id="data-paciente-nombre-2"></span>
+                se encuentra en estado de recuperación contando con tratamiento y orden de 
+                <strong>DESCANSO MEDICO</strong> desde el dia 
+                <span class="data" id="data-descanso-inicio"></span> al 
+                <span class="data" id="data-descanso-fin"></span>
+                por un plazo de <span class="data" id="data-descanso-dias"></span>, previa evaluación de su estado de salud.
+            </p>
+            <p class="prose-paragraph">
+                <strong><span class="data">Lo cual no tiene la capacidad de realizar actividades y esfuerzos físicos, ya que su estado de salud lo impide por el momento.</span></strong>
+            </p>
+            
+            <p class="prose-paragraph" style="margin-top: 2em;">
+                El presente certificado médico es expedido a petición del interesado en el distrito de 
+                <span class="data" id="data-lugar-expedicion">LIMA</span>, el 
+                <span class="data" id="data-fecha-expedicion"></span>
+                para los fines que a él convengan.
+            </p>
+        </div>
+
+        <div id="qr-certificado-placeholder"></div>
+
+        <div class="signature-block">
+            <p style="text-align: left; margin-bottom: 10px;"><strong>Atte.</strong></p>
+            <div id="firma-placeholder">
+                <img src="essaludfirma_certificado.png" alt="Firma">
+            </div>
+            <div class="signature-line"></div>
+            <strong>María Guzmán Díaz</strong><br>
+            <strong>MEDICINA INTERNA</strong><br>
+            <strong>CMP 31065 – RNE 13339</strong>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
+    <script src="robot_certificado.js"></script>
+</body>
+</html>

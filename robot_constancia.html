@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Constancia MINSA</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #fff;
+            margin: 0; padding: 0;
+            display: grid; place-items: center;
+        }
+        #certificado-container {
+            width: 794px; height: 1123px; /* A4 */
+            background-color: #ffffff;
+            position: relative;
+            box-sizing: border-box;
+            padding: 50px 70px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 13px; line-height: 1.6; color: #000;
+        }
+        .header-minsa { display: flex; justify-content: space-between; align-items: center; padding-bottom: 20px; }
+        .header-logo img { width: 200px; height: auto; }
+        .header-title { text-align: center; font-weight: bold; font-size: 16px; }
+
+        .patient-info { display: grid; grid-template-columns: 200px 1fr; row-gap: 10px; margin-top: 30px; font-size: 14px; align-items: center; }
+        .patient-info .label { font-weight: bold; text-transform: uppercase; }
+        .patient-info .data { font-family: 'Courier Prime', monospace; }
+
+        .medical-info { margin-top: 35px; }
+        .diagnostico-block { display: flex; gap: 10px; font-size: 14px; margin-bottom: 20px; align-items: center; }
+        .diagnostico-block .label { font-weight: bold; text-transform: uppercase; }
+        .diagnostico-block .data { font-family: 'Courier Prime', monospace; }
+
+        .observaciones-label { font-weight: bold; font-size: 14px; margin-top: 15px; margin-bottom: 5px; display: block; text-transform: uppercase; }
+        .observaciones-data {
+            border: 2px solid #000; padding: 10px;
+            font-family: 'Courier Prime', monospace;
+            font-size: 13px; text-align: justify; line-height: 1.6;
+            text-transform: uppercase; min-height: 150px;
+        }
+
+        .signature-block-minsa { position: absolute; bottom: 60px; right: 70px; width: 350px; }
+        .signature-box {
+            border: 1px solid #000; padding: 10px; display: flex; justify-content: space-between; align-items: stretch; height: 120px;
+        }
+        .signature-info { font-size: 12px; font-weight: bold; display: flex; flex-direction: column; justify-content: space-between; }
+        #firma-placeholder { width: 200px; height: 100px; align-self: flex-end; }
+        #firma-placeholder img { width: 100%; height: 100%; object-fit: contain; }
+
+        #qr-minsa-placeholder { position: absolute; bottom: 60px; left: 70px; width: 110px; height: 110px; }
+    </style>
+</head>
+<body>
+    <div id="certificado-container">
+        <header class="header-minsa">
+            <div class="header-logo"><img src="minsasello_certificado.png" alt="Logo"></div>
+            <div class="header-title">MINISTERIO DE SALUD<br>CONSTANCIA DE DESCANSO MÉDICO</div>
+        </header>
+
+        <section class="patient-info">
+            <span class="label">DIRIS/DIRESA/GERESA:</span> <span class="data" id="data-hospital"></span>
+            <span class="label">PACIENTE:</span> <span class="data" id="data-paciente-nombre"></span>
+            <span class="label">EDAD:</span> <span class="data" id="data-paciente-edad"></span>
+            <span class="label">DNI:</span> <span class="data" id="data-paciente-dni"></span>
+            <span class="label">TIPO DE SEGURO:</span> <span class="data">SIS</span>
+            <span class="label">INICIO DESCANSO:</span> <span class="data" id="data-inicio-descanso"></span>
+            <span class="label">FIN DESCANSO:</span> <span class="data" id="data-fin-descanso"></span>
+        </section>
+
+        <section class="medical-info">
+            <div class="diagnostico-block">
+                <span class="label">DIAGNÓSTICO:</span> <span class="data" id="data-diagnostico"></span>
+            </div>
+            
+            <div class="observaciones-label">OBSERVACIONES:</div>
+            <div class="observaciones-data" id="data-observaciones">
+                </div>
+        </section>
+        
+        <div id="qr-minsa-placeholder"></div>
+
+        <footer class="signature-block-minsa">
+            <div class="signature-box">
+                <div class="signature-info">
+                    <span>Firma y Sello:</span> 
+                    <span>CMP: 056531</span>
+                </div>
+                <div id="firma-placeholder"><img src="minsafirma_certificado.png" alt="Firma"></div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabaseClient.js"></script>
+    <script src="robot_constancia.js"></script>
+</body>
+</html>
