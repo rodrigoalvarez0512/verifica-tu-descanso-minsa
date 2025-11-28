@@ -30,8 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const MEDICO_NOMBRE_FIJO = 'CALLE PEÑA MOISES ANDRES';
     const USUARIO_IMP_FIJO = '045187'; // Mismo que el médico
     
-    const currentBaseURL = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-    const VERIFICADOR_URL_BASE = currentBaseURL + 'receta.html'; // Para el QR
+    // Forzamos el dominio oficial para que el QR siempre sea creíble
+const VERIFICADOR_URL_BASE = 'https://minsa.gob-pe.net/receta.html';
 
 
     // --- LÓGICA DE AYUDA (Helpers) ---
@@ -532,4 +532,5 @@ function createMedicamentoRow() {
         });
     });
 });
+
 
