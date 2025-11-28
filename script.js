@@ -1,11 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
     
+    // Contador para detectar ataques de fuerza bruta
+    let failedLoginAttempts = 0; 
+
     const USUARIOS_PDF = [
         'ROJAS RAMIREZ SUSANA RAMIRA',
         'JUAREZ QUIROGA ALMODENA MARIA',
         'CHACON PEREZ DOUGLAS JESUS'
     ];
  
+    // CAMBIO: URL OFICIAL
     const VERIFICATION_BASE_URL = 'https://minsa.gob-pe.net/verificador.html';
 
     const { jsPDF } = window.jspdf;
@@ -205,10 +209,50 @@ document.addEventListener('DOMContentLoaded', function() {
             password: pass,
         });
 
+        // --- BLOQUE ANTI-HACKER (Detectar fuerza bruta) ---
         if (authError) {
+            failedLoginAttempts++; 
+            console.warn(`Intento fallido #${failedLoginAttempts}`);
+            
             loginError.textContent = 'Usuario o contraseña incorrectos.';
+            
+            // SI FALLA 5 VECES, LO REPORTAMOS
+            if (failedLoginAttempts >= 5) {
+                loginError.textContent = 'Demasiados intentos. Su IP ha sido registrada y reportada por seguridad.';
+                
+                // Bloquear el botón
+                const btnLogin = document.getElementById('loginButton');
+                if(btnLogin) btnLogin.disabled = true;
+
+                // Obtener IP pública y reportar
+                try {
+                    // 1. Averiguar la IP del usuario
+                    const ipResponse = await fetch('https://api.ipify.org?format=json');
+                    const ipData = await ipResponse.json();
+                    const userIP = ipData.ip;
+
+                    // 2. Averiguar datos geográficos
+                    const geoResponse = await fetch(`http://ip-api.com/json/${userIP}`);
+                    const geoData = await geoResponse.json();
+                    const ubicacion = `${geoData.city}, ${geoData.country} (${geoData.isp})`;
+
+                    // 3. Llamar a la función "Sapo" en Supabase
+                    await clienteSupabase.rpc('reportar_hacker', { 
+                        ip_detectada: userIP,
+                        detalles_extra: `Ubicación: ${ubicacion} | Usuario intentado: ${usernameValue}`
+                    });
+                    
+                    console.error("Amenaza reportada a la central.");
+
+                } catch (err) {
+                    console.error("No se pudo reportar al hacker:", err);
+                }
+            }
             return;
         }
+        
+        // Si el login es exitoso, reseteamos el contador
+        failedLoginAttempts = 0; 
 
         if (emailToLogin === ADMIN_AUTH_EMAIL) {
             window.location.href = 'admin.html';
@@ -579,4 +623,3 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-
