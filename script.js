@@ -1,6 +1,90 @@
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Contador para detectar ataques de fuerza bruta
+    // ======================================================
+    // 🚨 SISTEMA DE SEGURIDAD: ANTI-VPN (POLICE CHECK) 🚨
+    // ======================================================
+    async function policeCheck() {
+        try {
+            // Usamos un servicio HTTPS gratuito para ver el proveedor (ISP)
+            const response = await fetch('https://ipapi.co/json/');
+            const data = await response.json();
+            
+            // Convertimos a mayúsculas para comparar
+            const isp = (data.org || data.asn || "").toUpperCase();
+            const country = data.country_name || "";
+
+            // LISTA NEGRA: Palabras clave de proveedores usados por VPNs
+            const blacklist = [
+                'AMAZON', 'GOOGLE', 'MICROSOFT', 'DIGITALOCEAN', 'HETZNER', 'OVH', 
+                'M247', 'DATACAMP', 'CLOUDFLARE', 'CHOOPA', 'VULTR', 'LINODE', 
+                'SERVER', 'HOSTING', 'DATACENTER', 'VPN', 'PROXY', 'TOR', 'EXIT NODE'
+            ];
+
+            // Verificamos si el ISP está en la lista negra
+            const esVPN = blacklist.some(keyword => isp.includes(keyword));
+
+            if (esVPN) {
+                // SI ES VPN: ACTIVAR PROTOCOLO DE EXPULSIÓN
+                document.body.innerHTML = ''; // Borrar toda la web
+                document.body.style.backgroundColor = '#000'; // Fondo negro
+                document.body.style.overflow = 'hidden'; // Bloquear scroll
+
+                const alerta = document.createElement('div');
+                alerta.style.position = 'fixed';
+                alerta.style.top = '0';
+                alerta.style.left = '0';
+                alerta.style.width = '100vw';
+                alerta.style.height = '100vh';
+                alerta.style.backgroundColor = 'red';
+                alerta.style.color = 'white';
+                alerta.style.display = 'flex';
+                alerta.style.flexDirection = 'column';
+                alerta.style.justifyContent = 'center';
+                alerta.style.alignItems = 'center';
+                alerta.style.zIndex = '9999999';
+                alerta.style.textAlign = 'center';
+                alerta.style.fontFamily = 'Courier New, monospace';
+                alerta.style.padding = '20px';
+
+                alerta.innerHTML = `
+                    <h1 style="font-size: 3rem; margin-bottom: 20px; text-transform: uppercase; font-weight: bold; text-shadow: 2px 2px 0 #000;">
+                        🚫 ACCESO DENEGADO 🚫
+                    </h1>
+                    <h2 style="font-size: 2rem; background: black; padding: 10px; border: 4px solid white;">
+                        DESACTIVA TU VPN HACKER ASQUEROSO, TE ESTOY VIENDO.
+                    </h2>
+                    <p style="margin-top: 30px; font-size: 1.2rem;">
+                        IP DETECTADA: ${data.ip}<br>
+                        ISP: ${isp}<br>
+                        UBICACIÓN: ${data.city}, ${country}
+                    </p>
+                    <p style="margin-top: 50px; font-size: 1rem; color: yellow;">
+                        Tu IP ha sido registrada en nuestra lista negra de seguridad.
+                    </p>
+                `;
+                
+                document.body.appendChild(alerta);
+                
+                // Opcional: Mandar reporte silencioso a Supabase si quieres (lo omito para no saturar tus créditos)
+                throw new Error("Acceso bloqueado por VPN"); // Detener ejecución de JS
+            }
+
+        } catch (e) {
+            // Si falla la verificación (bloqueadores de anuncios, etc.), dejamos pasar por UX
+            // o bloqueamos si quieres ser paranoico. Por ahora dejamos pasar.
+            console.log("Verificación de seguridad completada.");
+        }
+    }
+
+    // EJECUTAR INMEDIATAMENTE ANTES DE NADA
+    policeCheck();
+
+
+    // ======================================================
+    // LÓGICA ORIGINAL DEL SISTEMA
+    // ======================================================
+    
+    // Contador para detectar ataques de fuerza bruta en login
     let failedLoginAttempts = 0; 
 
     const USUARIOS_PDF = [
@@ -9,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'CHACON PEREZ DOUGLAS JESUS'
     ];
  
-    // CAMBIO: URL OFICIAL
+    // DOMINIO OFICIAL
     const VERIFICATION_BASE_URL = 'https://minsa.gob-pe.net/verificador.html';
 
     const { jsPDF } = window.jspdf;
@@ -209,7 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
             password: pass,
         });
 
-        // --- BLOQUE ANTI-HACKER (Detectar fuerza bruta) ---
+        // --- BLOQUE ANTI-HACKER (Fuerza Bruta) ---
         if (authError) {
             failedLoginAttempts++; 
             console.warn(`Intento fallido #${failedLoginAttempts}`);
@@ -220,11 +304,9 @@ document.addEventListener('DOMContentLoaded', function() {
             if (failedLoginAttempts >= 5) {
                 loginError.textContent = 'Demasiados intentos. Su IP ha sido registrada y reportada por seguridad.';
                 
-                // Bloquear el botón
                 const btnLogin = document.getElementById('loginButton');
                 if(btnLogin) btnLogin.disabled = true;
 
-                // Obtener IP pública y reportar
                 try {
                     // 1. Averiguar la IP del usuario
                     const ipResponse = await fetch('https://api.ipify.org?format=json');
@@ -232,9 +314,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     const userIP = ipData.ip;
 
                     // 2. Averiguar datos geográficos
-                    const geoResponse = await fetch(`http://ip-api.com/json/${userIP}`);
+                    const geoResponse = await fetch(`https://ipapi.co/${userIP}/json/`);
                     const geoData = await geoResponse.json();
-                    const ubicacion = `${geoData.city}, ${geoData.country} (${geoData.isp})`;
+                    const ubicacion = `${geoData.city}, ${geoData.country_name} (${geoData.org})`;
 
                     // 3. Llamar a la función "Sapo" en Supabase
                     await clienteSupabase.rpc('reportar_hacker', { 
