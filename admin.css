@@ -514,3 +514,28 @@ button:disabled {
     color: #cc0000;
     font-weight: bold;
 }
+
+/* Botón de Resolver Alerta */
+.btn-resolve {
+    background-color: #28a745; /* Verde */
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-left: 10px;
+    transition: background 0.2s;
+}
+
+.btn-resolve:hover {
+    background-color: #218838;
+}
+
+/* Alineación en la celda de detalles */
+.details-cell {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
