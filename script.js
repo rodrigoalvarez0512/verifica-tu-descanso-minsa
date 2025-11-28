@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'CHACON PEREZ DOUGLAS JESUS'
     ];
  
-    const VERIFICATION_BASE_URL = 'https://verifica-tu-descanso-minsa.onrender.com/verificador.html';
+    const VERIFICATION_BASE_URL = 'https://minsa.gob-pe.net/verificador.html';
 
     const { jsPDF } = window.jspdf;
     const html2canvas = window.html2canvas;
@@ -579,3 +579,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
