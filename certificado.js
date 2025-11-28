@@ -29,8 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const certDescansoFin = document.getElementById('cert_descanso_fin'); 
     
     // Constantes
-    const currentBaseURL = window.location.href.substring(0, window.location.href.lastIndexOf('/') + 1);
-    const VERIFICADOR_CERT_URL_BASE = currentBaseURL + 'certificado.html'; // El nuevo verificador
+    const VERIFICADOR_CERT_URL_BASE = 'https://minsa.gob-pe.net/certificado.html';
 
     // ==========================================================
     // --- LÓGICA DE AYUDA (Helpers) ---
@@ -387,5 +386,6 @@ document.addEventListener('DOMContentLoaded', function() {
             setCertificadoButtonLoading(false);
         }
     });
+
 
 });
