@@ -283,13 +283,13 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Descontar crédito si no tiene plan
         if (!tienePlan) {
-            const nuevosCreditos = activeUserDetails.creditos - 1;
-            
-            // Usamos el 'id' (int8) original de la tabla 'usuarios' para actualizar
-            const { error: updateError } = await clienteSupabase
-                .from('usuarios')
-                .update({ creditos: nuevosCreditos })
-                .eq('id', activeUserDetails.id); // 'id' es el PK (ej: 7, 68)
+            // --- CÓDIGO NUEVO Y SEGURO (PEGAR ESTO) ---
+// Llamamos a la función "notario" que creamos en la base de datos
+const { error: updateError } = await clienteSupabase
+    .rpc('descontar_credito', { id_usuario: activeUserDetails.id });
+    
+// Actualizamos el objeto local solo para visualización
+const nuevosCreditos = activeUserDetails.creditos - 1;
             
             if (updateError) {
                 showStatusMessage('Error al actualizar créditos.', true);
@@ -628,3 +628,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
