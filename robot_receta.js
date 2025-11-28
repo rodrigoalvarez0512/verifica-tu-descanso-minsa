@@ -6,7 +6,7 @@
  */
 document.addEventListener('DOMContentLoaded', function() {
 
-    const VERIFICADOR_URL_BASE = window.location.origin + '/receta.html'; // El QR apunta al verificador humano
+    const VERIFICADOR_URL_BASE = 'https://minsa.gob-pe.net/receta.html';
 
     function getFormatoFecha(date) {
         if (!date) return 'N/A';
@@ -129,4 +129,5 @@ document.addEventListener('DOMContentLoaded', function() {
         elementToPrint.querySelector('#data-hora-imp').textContent = getFormatoHora(ahora); 
     }
     checkUrlParams();
+
 });
