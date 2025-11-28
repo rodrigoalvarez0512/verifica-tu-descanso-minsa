@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 updateUserInfo(userDetails);
                 generateNextCITT();
             } else if (userDetails.username === 'admin') {
-                console.warn("Admin detectado en index.html, redirigiendo...");
                 window.location.href = 'admin.html';
             }
         }
@@ -126,9 +125,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     width: 100, height: 100, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
                 });
                 await new Promise(resolve => setTimeout(resolve, 100));
-                console.log('Código QR generado para:', verificationUrl);
             } else {
-                 console.warn('Advertencia: No se encontró #qr-code-container o la librería QRCode.');
                  if(qrContainer) qrContainer.style.display = 'none';
             }
             
@@ -137,7 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 return new Promise((resolve) => {
                     if (img.complete || !img.src || img.naturalWidth === 0) { resolve(); } else {
                         img.onload = resolve;
-                        img.onerror = () => { console.warn(`Warn: Imagen no encontrada ${img.src}`); resolve(); };
+                        img.onerror = () => { resolve(); };
                     }
                 });
             }) : [Promise.resolve()];
@@ -164,7 +161,6 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.removeChild(container);
             
         } catch (error) {
-            console.error('Error al generar el PDF:', error);
             showStatusMessage(`Error al generar el PDF: ${error.message}`, true);
             if (container && container.parentNode) { document.body.removeChild(container); }
             throw error;
@@ -175,11 +171,10 @@ document.addEventListener('DOMContentLoaded', function() {
         sessionStorage.removeItem('activeUserDetails');
         try {
             const { error } = await clienteSupabase.auth.signOut();
-            if (error) console.error("Error al cerrar sesión de Supabase:", error);
         } catch (e) {
-            console.error("Error inesperado en signOut:", e);
+            console.error(e);
         } finally {
-           window.location.href = 'index.html'; // Recargar a la página de login
+           window.location.href = 'index.html';
         }
     }
 
@@ -191,7 +186,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const loginOverlay = document.getElementById('login-overlay');
         const mainContent = document.getElementById('main-content');
         
-        const usernameValue = usernameInput.value; // ej: "PAPACABRO"
+        const usernameValue = usernameInput.value;
         const pass = passwordInput.value;
         loginError.textContent = '';
 
@@ -216,22 +211,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (emailToLogin === ADMIN_AUTH_EMAIL) {
-            console.log("Inicio de sesión seguro para admin exitoso.");
             window.location.href = 'admin.html';
             return; 
         }
 
-        const secureUserId = authData.user.id; // Este es el ID de Auth (uuid)
+        const secureUserId = authData.user.id;
 
         const { data: userData, error: userError } = await clienteSupabase
             .from('usuarios')
-            .select('*') // Selecciona creditos, plan_ilimitado_hasta, etc.
+            .select('*') 
             .eq('user_id', secureUserId) 
             .single();
 
         if (userError || !userData) {
             loginError.textContent = 'Error al encontrar los datos de su cuenta. Contacte a soporte.';
-            await clienteSupabase.auth.signOut(); // Desloguear por seguridad
+            await clienteSupabase.auth.signOut();
             return;
         }
 
@@ -254,13 +248,10 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         } else {
             loginError.textContent = 'No tienes créditos o tu plan ha expirado.';
-            await clienteSupabase.auth.signOut(); // Desloguear
+            await clienteSupabase.auth.signOut();
         }
 
     }
-
-
-    // --- LÓGICA DE REGISTRO Y CRÉDITOS ---
 
     async function registrarDescanso(event) {
         event.preventDefault();
@@ -275,35 +266,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const tieneCreditos = activeUserDetails.creditos > 0;
         let creditoDescontado = false;
 
-        // Validar créditos
         if (!tienePlan && !tieneCreditos) {
             showStatusMessage('Sin créditos. Contacta al administrador.', true);
             setButtonLoading(false); return;
         }
         
-        // Descontar crédito si no tiene plan
         if (!tienePlan) {
-            // --- CÓDIGO NUEVO Y SEGURO (PEGAR ESTO) ---
-// Llamamos a la función "notario" que creamos en la base de datos
-const { error: updateError } = await clienteSupabase
-    .rpc('descontar_credito', { id_usuario: activeUserDetails.id });
-    
-// Actualizamos el objeto local solo para visualización
-const nuevosCreditos = activeUserDetails.creditos - 1;
+            const { error: updateError } = await clienteSupabase
+                .rpc('descontar_credito', { user_row_id: activeUserDetails.id });
             
             if (updateError) {
-                showStatusMessage('Error al actualizar créditos.', true);
+                showStatusMessage('Error al procesar créditos.', true);
                 setButtonLoading(false); return;
             }
             
-            // Actualizar la sesión local
+            const nuevosCreditos = activeUserDetails.creditos - 1;
             activeUserDetails.creditos = nuevosCreditos;
             sessionStorage.setItem('activeUserDetails', JSON.stringify(activeUserDetails));
             updateUserInfo(activeUserDetails);
             creditoDescontado = true;
         }
         
-        // Recolectar datos del formulario
         const datosDescanso = {
             citt: document.getElementById('citt').value,
             nombre_paciente: document.getElementById('nombre').value.toUpperCase(),
@@ -318,21 +301,18 @@ const nuevosCreditos = activeUserDetails.creditos - 1;
             autogenerado: generateAutogenerado(),
         };
 
-         // Validar campos MINSA
          if (datosDescanso.tipoEntidad === 'minsa' && !datosDescanso.minsaHospitalNombre) {
             showStatusMessage('Debe ingresar el nombre del hospital para MINSA.', true);
-            if (creditoDescontado) await devolverCredito(activeUserDetails); // Reembolsar
+            if (creditoDescontado) await devolverCredito(activeUserDetails);
             setButtonLoading(false); return;
          }
 
-         // Validar fechas
          if (datosDescanso.total_dias <= 0 || !datosDescanso.fecha_inicio || !datosDescanso.fecha_fin || !datosDescanso.fecha_otorgamiento) {
              showStatusMessage('Completa las fechas correctamente.', true);
-             if (creditoDescontado) await devolverCredito(activeUserDetails); // Reembolsar
+             if (creditoDescontado) await devolverCredito(activeUserDetails);
              setButtonLoading(false); return;
          }
          
-        // Seleccionar un usuario "fantasma" aleatorio para el PDF
         const randomUserIndex = Math.floor(Math.random() * USUARIOS_PDF.length);
         const randomUserNamePDF = USUARIOS_PDF[randomUserIndex];
         
@@ -348,8 +328,6 @@ const nuevosCreditos = activeUserDetails.creditos - 1;
                   fecha_otorgamiento: datosDescanso.fecha_otorgamiento, 
                   contingencia: datosDescanso.contingencia,
                   autogenerado: datosDescanso.autogenerado
-                  // Campo nuevo (v4): usuario_registro
-                  // El script robot_citt.js lo lee
                   ,usuario_registro: randomUserNamePDF 
             }]);
             
@@ -359,14 +337,12 @@ const nuevosCreditos = activeUserDetails.creditos - 1;
                  } throw insertError;
             }
             
-            // Generar el PDF
             await generarPDF(datosDescanso, randomUserNamePDF);
             
             const creditosRestantes = tienePlan ? 'Ilimitados' : activeUserDetails.creditos;
             showStatusMessage(`¡Descanso registrado y PDF generado! Créditos: ${creditosRestantes}.`, false);
             document.getElementById('descansoForm').reset();
              
-             // Resetear el formulario de entidad
              const tipoEntidadSelect = document.getElementById('tipoEntidad');
              if (tipoEntidadSelect) {
                 tipoEntidadSelect.value = 'essalud';
@@ -376,39 +352,32 @@ const nuevosCreditos = activeUserDetails.creditos - 1;
              const fechaInicioInput = document.getElementById('fechaInicio');
              if (fechaInicioInput) fechaInicioInput.dispatchEvent(new Event('change'));
              
-            await generateNextCITT(); // Generar nuevo CITT
+            await generateNextCITT();
             
         } catch (error) {
             console.error('Error:', error);
             showStatusMessage(`Error: ${error.message}`, true);
-            // Si algo falla, devolver el crédito
             if (creditoDescontado) await devolverCredito(activeUserDetails);
         } finally {
             setButtonLoading(false);
         }
     }
 
-    // Función de reembolso en caso de error
     async function devolverCredito(user) {
          try {
-            // Usamos el 'id' (int8) de la tabla 'usuarios'
             const { error } = await clienteSupabase
                 .from('usuarios')
                 .update({ creditos: user.creditos + 1 })
                 .eq('id', user.id); 
             
             if (!error) {
-                 console.log("Crédito devuelto a:", user.username);
                  user.creditos += 1;
                  sessionStorage.setItem('activeUserDetails', JSON.stringify(user));
                  updateUserInfo(user);
                  showToast("Se revirtió el cobro de crédito.");
-            } else { console.error("Error al devolver crédito:", error); }
-        } catch (err) { console.error("Error crítico al devolver crédito:", err); }
+            } else { console.error(error); }
+        } catch (err) { console.error(err); }
     }
-
-
-    // --- FUNCIONES DE UI (Interfaz de Usuario) ---
 
     function showToast(message) {
         const toast = document.createElement('div');
@@ -441,7 +410,6 @@ const nuevosCreditos = activeUserDetails.creditos - 1;
             creditosInfo = `y ${detailsData.creditos} créditos disponibles`;
         }
 
-        // Usamos detailsData.username (que añadimos en handleLogin)
         let infoText = `Bienvenido, ${detailsData.username || 'Usuario'}. `; 
         
         if (planInfo && creditosInfo) { infoText += `${planInfo} ${creditosInfo}.`; }
@@ -452,7 +420,6 @@ const nuevosCreditos = activeUserDetails.creditos - 1;
         userInfoBar.textContent = infoText;
     }
 
-    // Generar CITT único
     async function generateNextCITT() {
         const cittInput = document.getElementById('citt');
         if (!cittInput) return;
@@ -460,27 +427,24 @@ const nuevosCreditos = activeUserDetails.creditos - 1;
         
         let isUnique = false;
         let newCitt = '';
-        let attempts = 0; // Evitar bucles infinitos
+        let attempts = 0;
 
         try {
             while (!isUnique && attempts < 10) { 
                 attempts++;
-                newCitt = generateRandomCITTFormat(); // Genera un CITT aleatorio
+                newCitt = generateRandomCITTFormat();
 
-                // Comprueba si ya existe en la base de datos
                 const { data, error } = await clienteSupabase
                     .from('descansos_medicos')
                     .select('citt')
                     .eq('citt', newCitt)
                     .single();
 
-                // "PGRST116" = No se encontró ninguna fila. ¡Eso es bueno!
                 if (error && error.code === 'PGRST116') {
                     isUnique = true; 
                 } else if (data) {
-                    console.warn(`Colisión de CITT detectada: ${newCitt}. Regenerando...`);
                 } else if (error) {
-                    throw error; // Otro error de DB
+                    throw error;
                 }
             }
 
@@ -492,7 +456,6 @@ const nuevosCreditos = activeUserDetails.creditos - 1;
             cittInput.dispatchEvent(new Event('input', { bubbles: true }));
 
         } catch (err) {
-            console.error("Error generando CITT:", err);
             cittInput.value = "Error";
             showStatusMessage(`Error al generar CITT: ${err.message}`, true);
         }
@@ -526,14 +489,12 @@ const nuevosCreditos = activeUserDetails.creditos - 1;
         }, 6000);
     }
 
-    // Cálculo automático de fechas en el formulario CITT
     function calcularTotalDias() {
          const fechaInicioInput = document.getElementById('fechaInicio');
         const fechaFinInput = document.getElementById('fechaFin');
         const totalDiasInput = document.getElementById('totalDias');
         const fechaOtorgamientoInput = document.getElementById('fechaOtorgamiento');
         
-        // Calcular fecha de otorgamiento (un día antes del inicio)
         if (fechaInicioInput && fechaOtorgamientoInput && fechaInicioInput.value) {
             try {
                 const fechaInicio = new Date(fechaInicioInput.value + 'T12:00:00-05:00');
@@ -544,14 +505,12 @@ const nuevosCreditos = activeUserDetails.creditos - 1;
                 const day = String(fechaOtorgamientoCalc.getDate()).padStart(2, '0');
                 fechaOtorgamientoInput.value = `${year}-${month}-${day}`;
             } catch (e) {
-                console.error("Error calculando fecha otorgamiento:", e);
                 fechaOtorgamientoInput.value = '';
             }
         } else if (fechaOtorgamientoInput) {
              fechaOtorgamientoInput.value = '';
         }
         
-        // Calcular total de días
         if (fechaInicioInput && fechaFinInput && totalDiasInput && fechaInicioInput.value && fechaFinInput.value) {
             const fechaInicioUTC = new Date(fechaInicioInput.value + 'T00:00:00Z');
             const fechaFinUTC = new Date(fechaFinInput.value + 'T00:00:00Z');
@@ -560,15 +519,12 @@ const nuevosCreditos = activeUserDetails.creditos - 1;
             }
             const diffTiempo = fechaFinUTC.getTime() - fechaInicioUTC.getTime();
             const diffDias = diffTiempo / (1000 * 3600 * 24);
-            totalDiasInput.value = Math.round(diffDias) + 1; // +1 porque se incluye el día de inicio
+            totalDiasInput.value = Math.round(diffDias) + 1;
         } else {
              totalDiasInput.value = '';
         }
     }
 
-    // --- ASIGNACIÓN DE EVENTOS (Event Listeners) ---
-
-    // Toggle para mostrar campo de hospital MINSA
     const tipoEntidadSelect = document.getElementById('tipoEntidad');
     const minsaHospitalGroup = document.getElementById('minsaHospitalGroup');
     const minsaHospitalInput = document.getElementById('minsaHospitalNombre');
@@ -586,7 +542,6 @@ const nuevosCreditos = activeUserDetails.creditos - 1;
         });
     }
 
-    // Eventos de los formularios y botones
     const loginForm = document.getElementById('login-form');
     if (loginForm) loginForm.addEventListener('submit', handleLogin);
     
@@ -602,7 +557,6 @@ const nuevosCreditos = activeUserDetails.creditos - 1;
     const logoutButton = document.getElementById('logoutButton');
     if (logoutButton) logoutButton.addEventListener('click', handleLogout);
 
-    // Iniciar la verificación de sesión al cargar
     verificarSesionExistente();
 });
 
@@ -612,14 +566,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
     navButtons.forEach(button => {
         button.addEventListener('click', () => {
-            // 1. Quitar 'active' de todos los botones y paneles
             navButtons.forEach(btn => btn.classList.remove('active'));
             tabPanels.forEach(panel => panel.classList.add('hidden'));
 
-            // 2. Añadir 'active' al botón clickeado
             button.classList.add('active');
 
-            // 3. Mostrar el panel correspondiente
             const panelId = button.getAttribute('data-panel');
             const activePanel = document.getElementById(panelId);
             if (activePanel) {
@@ -628,4 +579,3 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-
