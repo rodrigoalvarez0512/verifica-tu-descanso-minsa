@@ -1,6 +1,6 @@
 /*
  * ===============================================
- * SCRIPT ADMIN.JS (v5 - USA EDGE FUNCTION)
+ * SCRIPT ADMIN.JS (v6 - CON DETECTOR DE HACKERS)
  * ===============================================
  */
 
@@ -10,19 +10,21 @@ document.addEventListener('DOMContentLoaded', async function() {
     const userTableBody = document.getElementById('userTableBody');
     const activityLogBody = document.getElementById('activityLogBody');
     const actionStatusMessage = document.getElementById('actionStatusMessage');
+    const mainHeader = document.querySelector('.main-header'); // Para insertar la alerta
+    
+    // Formularios
     const createUserForm = document.getElementById('createUserForm');
     const addCreditsForm = document.getElementById('addCreditsForm');
     const setPlanForm = document.getElementById('setPlanForm');
     const logoutButton = document.getElementById('logoutButton');
     
-    // Modal de Confirmación (Borrar)
+    // Modales
     const confirmationModal = document.getElementById('confirmationModal');
     const modalTitle = document.getElementById('modalTitle');
     const modalMessage = document.getElementById('modalMessage');
     const modalConfirmBtn = document.getElementById('modalConfirmBtn');
     const modalCancelBtn = document.getElementById('modalCancelBtn');
 
-    // Modal de Reset Password
     const resetPasswordModal = document.getElementById('resetPasswordModal');
     const resetPassUsername = document.getElementById('resetPassUsername');
     const resetPassInput = document.getElementById('resetPassInput');
@@ -31,113 +33,102 @@ document.addEventListener('DOMContentLoaded', async function() {
     const modalCancelResetBtn = document.getElementById('modalCancelResetBtn');
     const resetPassError = document.getElementById('resetPassError');
 
-    // --- AUTENTICACIÓN Y PERMISOS ---
-    
+    // --- AUTENTICACIÓN ---
     async function checkAdminAuth() {
         try {
-            const { data: { session }, error: sessionError } = await clienteSupabase.auth.getSession();
-            if (sessionError || !session || !session.user) {
-                console.log("No hay sesión de admin válida.", sessionError || 'No session');
-                window.location.href = 'index.html';
-                return false;
+            const { data: { session }, error } = await clienteSupabase.auth.getSession();
+            if (error || !session || !session.user) {
+                window.location.href = 'index.html'; return false;
             }
-            
             const user = session.user;
-            const ADMIN_AUTH_EMAIL = atob('YWRtaW4ubWluc2EuYXBwQGF1dGgubG9jYWw=');
+            const ADMIN_AUTH_EMAIL = atob('YWRtaW4ubWluc2EuYXBwQGF1dGgubG9jYWw='); // admin.minsa.app@auth.local
             
             if (user.email !== ADMIN_AUTH_EMAIL) {
-                console.log("Acceso denegado. Usuario no es admin:", user.email);
                 await clienteSupabase.auth.signOut();
                 window.location.href = 'index.html';
                 return false;
-            } else {
-                console.log("Acceso de administrador concedido para:", user.email);
-                return true;
             }
+            return true;
         } catch (error) {
-            console.error("Error en checkAdminAuth:", error);
-            window.location.href = 'index.html';
-            return false;
+            window.location.href = 'index.html'; return false;
         }
     }
 
-    // --- FUNCIONES DE UI (MODAL Y MENSAJES) ---
+    // --- UTILS UI ---
+    function showActionMessage(message, isError = false) {
+        actionStatusMessage.textContent = message;
+        actionStatusMessage.className = `status-message ${isError ? 'status-error' : 'status-success'}`;
+        actionStatusMessage.style.display = 'block';
+        setTimeout(() => { 
+            if(actionStatusMessage.textContent === message) actionStatusMessage.style.display = 'none'; 
+        }, 5000); 
+    }
 
     function showConfirmationModal(title, message) {
         modalTitle.textContent = title;
         modalMessage.textContent = message;
         confirmationModal.classList.remove('hidden');
-        
         return new Promise((resolve) => {
-            modalConfirmBtn.onclick = () => {
-                confirmationModal.classList.add('hidden');
-                resolve(true);
-            };
-            modalCancelBtn.onclick = () => {
-                confirmationModal.classList.add('hidden');
-                resolve(false);
-            };
+            modalConfirmBtn.onclick = () => { confirmationModal.classList.add('hidden'); resolve(true); };
+            modalCancelBtn.onclick = () => { confirmationModal.classList.add('hidden'); resolve(false); };
         });
     }
 
-    function showActionMessage(message, isError = false) {
-        actionStatusMessage.textContent = message;
-        actionStatusMessage.className = `status-message ${isError ? 'status-error' : 'status-success'}`;
-        actionStatusMessage.style.display = 'block';
-        
-        // 10 segundos para dar tiempo a copiar contraseñas
-        setTimeout(() => {
-             if (actionStatusMessage.textContent === message) {
-                 actionStatusMessage.style.display = 'none';
-                 actionStatusMessage.textContent = '';
-             }
-        }, 10000); 
-    }
-    
-    // --- FUNCIONES DE DATOS (FETCH Y LOG) ---
+    // --- DETECTOR DE AMENAZAS (NUEVO) ---
+    function checkForThreats(logs) {
+        // Eliminar alertas previas
+        const existingAlert = document.querySelector('.hacking-alert');
+        if (existingAlert) existingAlert.remove();
 
+        // Buscar logs sospechosos (marcados en DB o con palabras clave)
+        const threats = logs.filter(log => 
+            log.is_suspicious === true || 
+            log.command_name.includes('Error') ||
+            log.details.includes('inválida') ||
+            log.details.includes('denegado')
+        );
+
+        if (threats.length > 0) {
+            const alertBanner = document.createElement('div');
+            alertBanner.className = 'hacking-alert';
+            alertBanner.innerHTML = `<i class="bi bi-exclamation-triangle-fill"></i> ¡ALERTA: POSIBLE HACKEO O ACTIVIDAD SOSPECHOSA DETECTADA!`;
+            // Insertar después del header
+            mainHeader.parentNode.insertBefore(alertBanner, mainHeader.nextSibling);
+        }
+    }
+
+    // --- CARGAR DATOS ---
     async function fetchAndDisplayUsers() {
         const { data: users, error } = await clienteSupabase
             .from('usuarios')
             .select('*')
             .order('username', { ascending: true });
             
-        if (error) { 
-            console.error('Error fetching users:', error); 
-            showActionMessage(`Error al cargar usuarios: ${error.message}`, true);
-            return; 
-        }
+        if (error) { console.error(error); return; }
         
-        userTableBody.innerHTML = ''; // Limpiar tabla
+        userTableBody.innerHTML = '';
         users.forEach(user => {
-            if (user.username === 'admin') return; // Ocultar al admin de la lista
-
+            if (user.username === 'admin') return; 
             const tr = document.createElement('tr');
             
-            let planStatusHTML = 'No tiene';
+            // Lógica de Plan
+            let planStatusHTML = '<span class="status-plan expired">Sin Plan</span>';
             if (user.plan_ilimitado_hasta) {
                 const expirationDate = new Date(user.plan_ilimitado_hasta);
                 const now = new Date();
                 if (expirationDate > now) {
                     const daysLeft = Math.ceil((expirationDate - now) / (1000 * 60 * 60 * 24));
                     planStatusHTML = `<span class="status-plan active">Activo (${daysLeft} días)</span>`;
-                } else {
-                    planStatusHTML = `<span class="status-plan expired">Expirado</span>`;
                 }
             }
-            
-            // HTML de la fila actualizado con nuevos botones
+
             tr.innerHTML = `
                 <td><strong>${user.username}</strong></td>
                 <td>${user.creditos}</td>
                 <td>${planStatusHTML}</td>
                 <td>
-                    <button class="action-button reset" data-username="${user.username}" data-userid="${user.user_id}" title="Restablecer Contraseña">
-                        <i class="bi bi-key-fill"></i>
-                    </button>
-                    <button class="action-button delete" data-username="${user.username}" title="Eliminar Usuario">
-                        <i class="bi bi-trash-fill"></i>
-                    </button>
+                    <button class="action-button reset" data-username="${user.username}" data-userid="${user.user_id}"><i class="bi bi-key-fill"></i></button>
+                    <button class="action-button delete" data-username="${user.username}"><i class="bi bi-trash-fill"></i></button>
                 </td>
             `;
             userTableBody.appendChild(tr);
@@ -149,15 +140,28 @@ document.addEventListener('DOMContentLoaded', async function() {
             .from('activity_log')
             .select('*')
             .order('created_at', { ascending: false })
-            .limit(20);
+            .limit(50); // Traer los últimos 50 eventos
             
-        if (error) { console.error('Error fetching activity log:', error); return; }
+        if (error) { console.error('Error log:', error); return; }
         
+        // Ejecutar el detector de amenazas
+        checkForThreats(logs);
+
         activityLogBody.innerHTML = '';
         logs.forEach(log => {
             const tr = document.createElement('tr');
+            
+            // Si es sospechoso, ponerlo en ROJO
+            if (log.is_suspicious || log.details.includes('inválida')) {
+                tr.classList.add('row-suspicious');
+            }
+
+            const fecha = new Date(log.created_at).toLocaleString('es-PE', { 
+                day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' 
+            });
+
             tr.innerHTML = `
-                <td>${new Date(log.created_at).toLocaleString('es-PE', { dateStyle: 'short', timeStyle: 'short' })}</td>
+                <td>${fecha}</td>
                 <td>${log.command_name}</td>
                 <td>${log.details}</td>
             `;
@@ -165,240 +169,118 @@ document.addEventListener('DOMContentLoaded', async function() {
         });
     }
 
-    async function logActivity(command, details) {
-        try {
-            const { error } = await clienteSupabase
-                .from('activity_log')
-                .insert({ command_name: command, details: details });
-            if (error) throw error;
-            fetchAndDisplayActivityLog();
-        } catch (error) {
-            console.error('Error logging activity:', error);
-            showActionMessage('Error al registrar la actividad.', true);
-        }
+    async function logActivity(command, details, isSuspicious = false) {
+        await clienteSupabase.from('activity_log').insert({ 
+            command_name: command, 
+            details: details,
+            is_suspicious: isSuspicious
+        });
+        fetchAndDisplayActivityLog();
     }
 
-    // --- LÓGICA PRINCIPAL (EVENT LISTENERS) ---
-
+    // --- INICIO ---
     const isAdmin = await checkAdminAuth();
-    if (!isAdmin) return; // Detener todo si no es admin
+    if (!isAdmin) return;
 
-    // Carga inicial
     fetchAndDisplayUsers();
     fetchAndDisplayActivityLog();
+    
+    // Auto-refresh logs cada 30 segundos (Monitoreo)
+    setInterval(fetchAndDisplayActivityLog, 30000);
 
-    // Widget: "CREAR USUARIO"
+    // --- EVENT LISTENERS DE FORMULARIOS (Simplificados) ---
+
+    // 1. Crear Usuario
     createUserForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        const newUser = `user${Math.floor(1000 + Math.random() * 9000)}`;
-        const newPass = Math.random().toString(36).substring(2, 10);
-        const newEmail = `${newUser}@mi-app.com`; // El trigger usará esto para el username
-
+        const newUser = `user${Math.floor(Math.random() * 10000)}`;
+        const newPass = Math.random().toString(36).slice(-8);
         try {
-            // PASO 1: Crear en Auth (SOLO ESTO ES NECESARIO AHORA)
-            const { data: authData, error: authError } = await clienteSupabase.auth.signUp({
-                email: newEmail,
-                password: newPass
+            const { data, error } = await clienteSupabase.auth.signUp({
+                email: `${newUser}@mi-app.com`, password: newPass
             });
-            
-            if (authError) throw new Error(`Error de Auth: ${authError.message}`);
-            if (!authData.user) throw new Error('No se pudo crear el usuario en Auth.');
-            
-            // EL PASO 2 SE ELIMINÓ PORQUE AHORA ES AUTOMÁTICO EN LA BD
-            
-            // ¡ÉXITO!
-            showActionMessage(`Usuario ${newUser} creado. Contraseña: ${newPass}`, false);
-            await logActivity('Crear Usuario', `Se creó el usuario: ${newUser}`);
-            fetchAndDisplayUsers(); // Refrescar la tabla
-
-        } catch (error) {
-            showActionMessage(`Error creando usuario: ${error.message}`, true);
-        }
+            if (error) throw error;
+            showActionMessage(`Creado: ${newUser} | Pass: ${newPass}`);
+            await logActivity('Crear Usuario', `Admin creó a ${newUser}`);
+            fetchAndDisplayUsers();
+        } catch (err) { showActionMessage(err.message, true); }
     });
 
-    // Widget: "AÑADIR CRÉDITOS"
+    // 2. Añadir Créditos
     addCreditsForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const username = document.getElementById('addcred_username').value;
-        const amountInput = document.getElementById('addcred_amount');
-        const amount = parseInt(amountInput.value);
-        
-        if (isNaN(amount) || amount <= 0) {
-            showActionMessage('La cantidad debe ser un número positivo.', true);
-            return;
-        }
-        
+        const user = document.getElementById('addcred_username').value;
+        const amount = parseInt(document.getElementById('addcred_amount').value);
         try {
-            const { data: user, error: fetchError } = await clienteSupabase
-                .from('usuarios')
-                .select('creditos')
-                .eq('username', username)
-                .single();
-            if (fetchError) throw new Error(`Usuario '${username}' no encontrado.`);
+            const { data: userData, error: fetchErr } = await clienteSupabase.from('usuarios').select('creditos').eq('username', user).single();
+            if (fetchErr) throw new Error('Usuario no encontrado');
             
-            const newTotal = (user.creditos || 0) + amount;
-            const { error: updateError } = await clienteSupabase
-                .from('usuarios')
-                .update({ creditos: newTotal })
-                .eq('username', username);
-            if (updateError) throw updateError;
+            await clienteSupabase.from('usuarios').update({ creditos: (userData.creditos || 0) + amount }).eq('username', user);
             
-            showActionMessage(`Se añadieron ${amount} créditos a ${username}.`);
-            await logActivity('Añadir Créditos', `Se añadieron ${amount} créditos a ${username}. Total: ${newTotal}`);
+            showActionMessage(`${amount} créditos añadidos a ${user}`);
+            await logActivity('Créditos', `Admin sumó ${amount} a ${user}`);
             fetchAndDisplayUsers();
             addCreditsForm.reset();
-            
-        } catch (error) {
-            showActionMessage(error.message, true);
-        }
+        } catch (err) { showActionMessage(err.message, true); }
     });
 
-    // Widget: "ASIGNAR PLAN"
+    // 3. Plan Ilimitado
     setPlanForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const username = document.getElementById('plan_username').value;
-        const daysInput = document.getElementById('plan_days');
-        const days = parseInt(daysInput.value);
-        
-         if (isNaN(days) || days <= 0) {
-            showActionMessage('La duración debe ser un número positivo.', true);
-            return;
-        }
-        
-        const expirationDate = new Date();
-        expirationDate.setDate(expirationDate.getDate() + days);
-        
+        const user = document.getElementById('plan_username').value;
+        const days = parseInt(document.getElementById('plan_days').value);
+        const date = new Date(); date.setDate(date.getDate() + days);
         try {
-            const { error } = await clienteSupabase
-                .from('usuarios')
-                .update({ plan_ilimitado_hasta: expirationDate.toISOString() })
-                .eq('username', username);
-            if (error) throw new Error(`Usuario '${username}' no encontrado o error al actualizar.`);
-            
-            showActionMessage(`Plan de ${days} días asignado a ${username}.`);
-            await logActivity('Asignar Plan', `Se asignó plan de ${days} días a ${username}.`);
+            const { error } = await clienteSupabase.from('usuarios').update({ plan_ilimitado_hasta: date.toISOString() }).eq('username', user);
+            if (error) throw error;
+            showActionMessage(`Plan asignado a ${user} por ${days} días`);
+            await logActivity('Plan', `Admin asignó plan a ${user}`);
             fetchAndDisplayUsers();
             setPlanForm.reset();
-            
-        } catch (error) {
-             showActionMessage(error.message, true);
-        }
+        } catch (err) { showActionMessage(err.message, true); }
     });
 
-    // --- MANEJADOR DE CLICS EN LA TABLA (BORRAR Y RESTABLECER) ---
+    // 4. Acciones de Tabla (Borrar/Reset)
     userTableBody.addEventListener('click', async (e) => {
-        
-        // --- Lógica para BORRAR ---
-        const deleteButton = e.target.closest('.delete');
-        if (deleteButton) {
-            const username = deleteButton.dataset.username;
-            const confirmed = await showConfirmationModal(
-                'Confirmar Eliminación',
-                `¿Seguro que quieres eliminar a '${username}'? Esta acción NO se puede deshacer.`
-            );
-            
-            if (confirmed) {
-                try {
-                    // Borrar de la tabla 'usuarios'
-                    const { error: deleteError } = await clienteSupabase
-                        .from('usuarios')
-                        .delete()
-                        .eq('username', username);
-                    if (deleteError) throw new Error(`Error al borrar de 'usuarios': ${deleteError.message}`);
-
-                    showActionMessage(`Usuario '${username}' eliminado de la tabla.`);
-                    await logActivity('Eliminar Usuario', `Se eliminó al usuario: ${username}`);
-                    fetchAndDisplayUsers();
-                    
-                    // Nota: El borrado de 'auth.users' debe hacerse manualmente
-                    // o con una Edge Function de borrado.
-                    
-                } catch (error) {
-                    showActionMessage(error.message, true);
-                }
+        // Borrar
+        if (e.target.closest('.delete')) {
+            const user = e.target.closest('.delete').dataset.username;
+            if (await showConfirmationModal('Eliminar', `¿Borrar a ${user}?`)) {
+                await clienteSupabase.from('usuarios').delete().eq('username', user);
+                showActionMessage(`${user} eliminado.`);
+                await logActivity('Eliminar', `Admin borró a ${user}`);
+                fetchAndDisplayUsers();
             }
         }
-        
-        // --- Lógica para RESTABLECER CONTRASEÑA (USA EDGE FUNCTION) ---
-        const resetButton = e.target.closest('.reset');
-        if (resetButton) {
-            const username = resetButton.dataset.username;
-            const userId = resetButton.dataset.userid; // ¡El UUID!
-            
-            resetPassUsername.textContent = username; // Poner nombre en el modal
-            resetPassInput.value = ''; // Limpiar input
-            resetPassError.style.display = 'none';
+        // Reset Pass
+        if (e.target.closest('.reset')) {
+            const btn = e.target.closest('.reset');
+            resetPassUsername.textContent = btn.dataset.username;
             resetPasswordModal.classList.remove('hidden');
-
-            // Manejador para el botón "Generar"
-            generatePassBtn.onclick = () => {
-                const newPass = Math.random().toString(36).substring(2, 10);
-                resetPassInput.value = newPass;
-            };
-
-            // Manejador para el botón "Cancelar"
-            modalCancelResetBtn.onclick = () => {
-                resetPasswordModal.classList.add('hidden');
-            };
-
-            // Manejador para "Actualizar Contraseña"
+            
+            generatePassBtn.onclick = () => resetPassInput.value = Math.random().toString(36).slice(-8);
+            modalCancelResetBtn.onclick = () => resetPasswordModal.classList.add('hidden');
+            
             modalConfirmResetBtn.onclick = async () => {
-                const newPassword = resetPassInput.value;
-                if (newPassword.length < 6) {
-                    resetPassError.textContent = 'La contraseña debe tener al menos 6 caracteres.';
-                    resetPassError.style.display = 'block';
-                    return;
-                }
-                
-                // Deshabilitar botón para evitar doble clic
-                modalConfirmResetBtn.disabled = true;
-                resetPassError.style.display = 'none';
-
+                const newPass = resetPassInput.value;
+                if (newPass.length < 6) return alert('Mínimo 6 caracteres');
                 try {
-                    // ¡Llamada a la Edge Function!
-const { data, error } = await clienteSupabase.functions.invoke('super-worker', {
-                        body: { 
-                            user_id: userId,
-                            new_password: newPassword
-                        }
+                    const { data, error } = await clienteSupabase.functions.invoke('super-worker', {
+                        body: { user_id: btn.dataset.userid, new_password: newPass }
                     });
-
-                    if (error) throw error; // Captura errores de red o CORS
-
-                    // El error 'data.error' es el error devuelto por la función
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
-
-                    // ¡Éxito!
+                    if (error || data.error) throw new Error(data?.error || error.message);
+                    
+                    showActionMessage('Contraseña actualizada');
+                    await logActivity('Password Reset', `Admin cambió clave de ${btn.dataset.username}`);
                     resetPasswordModal.classList.add('hidden');
-                    showActionMessage(`Contraseña de ${username} actualizada a: ${newPassword}`, false);
-                    await logActivity('Restablecer Pass', `Se restableció la contraseña de ${username}.`);
-
-                } catch (error) {
-                    resetPassError.textContent = `Error: ${error.message}`;
-                    resetPassError.style.display = 'block';
-                } finally {
-                    // Volver a habilitar el botón
-                    modalConfirmResetBtn.disabled = false;
-                }
+                } catch (err) { alert(err.message); }
             };
         }
     });
 
-    // --- BOTÓN "CERRAR SESIÓN" ---
+    // 5. Logout
     logoutButton.addEventListener('click', async () => {
-        sessionStorage.removeItem('activeUserDetails');
-        try {
-             const { error } = await clienteSupabase.auth.signOut();
-             if (error) console.error("Error al cerrar sesión de Supabase:", error);
-         } catch (e) {
-             console.error("Error inesperado en signOut:", e);
-         } finally {
-            window.location.href = 'index.html';
-         }
+        await clienteSupabase.auth.signOut();
+        window.location.href = 'index.html';
     });
 });
-
-
