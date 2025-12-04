@@ -6,7 +6,7 @@
  */
 document.addEventListener('DOMContentLoaded', function() {
 
-    const VERIFICADOR_URL_BASE = 'https://minsa.gob-pe.net/receta.html';
+    const VERIFICADOR_URL_BASE = window.location.origin + '/verificador.html';
 
     function getFormatoFecha(date) {
         if (!date) return 'N/A';
@@ -131,3 +131,4 @@ document.addEventListener('DOMContentLoaded', function() {
     checkUrlParams();
 
 });
+
