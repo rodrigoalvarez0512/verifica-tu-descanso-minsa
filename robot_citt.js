@@ -7,7 +7,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // El QR apunta al verificador humano
-    window.location.origin + '/verificador.html';
+    const VERIFICATION_BASE_URL = window.location.origin + '/verificador.html';
     
     function formatDateForPDF(dateString) {
         if (!dateString) return 'N/A';
@@ -99,5 +99,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     checkUrlForCittAndSearch();
 });
+
 
 
