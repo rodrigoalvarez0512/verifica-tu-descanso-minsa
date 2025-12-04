@@ -7,7 +7,7 @@
 document.addEventListener('DOMContentLoaded', function() {
 
     // URL OFICIAL FIJA
-    const VERIFICADOR_URL_BASE = 'https://minsa.gob-pe.net/certificado.html';
+    const VERIFICADOR_URL_BASE = window.location.origin + '/verificador.html';
 
     function formatDateToLong(dateStr) {
         if (!dateStr) return 'N/A';
@@ -100,4 +100,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     checkUrlParams();
+
 });
