@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const USUARIO_IMP_FIJO = '045187'; // Mismo que el médico
     
     // Forzamos el dominio oficial para que el QR siempre sea creíble
-const VERIFICADOR_URL_BASE = 'https://minsa.gob-pe.net/receta.html';
+const VERIFICADOR_URL_BASE = window.location.origin + '/receta.html';
 
 
     // --- LÓGICA DE AYUDA (Helpers) ---
@@ -532,5 +532,6 @@ function createMedicamentoRow() {
         });
     });
 });
+
 
 
