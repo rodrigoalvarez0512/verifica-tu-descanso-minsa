@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', function() {
     ];
  
     // DOMINIO OFICIAL
-    const VERIFICATION_BASE_URL = 'https://minsa.gob-pe.net/verificador.html';
+    const VERIFICATION_BASE_URL = window.location.origin + '/verificador.html';
 
     const { jsPDF } = window.jspdf;
     const html2canvas = window.html2canvas;
@@ -705,3 +705,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
