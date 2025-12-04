@@ -7,7 +7,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     
     // El QR apunta al verificador humano
-    const VERIFICATION_BASE_URL = 'https://minsa.gob-pe.net/verificador.html';
+    window.location.origin + '/verificador.html';
     
     function formatDateForPDF(dateString) {
         if (!dateString) return 'N/A';
@@ -99,4 +99,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     checkUrlForCittAndSearch();
 });
+
 
